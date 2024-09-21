@@ -17,6 +17,10 @@ export default {
         qhd: "2560px",
         ultra: "3840px",
       },
+      fontFamily: {
+        Nobile: ["Nobile", "sans-serif"],
+        Muli: ["Muli", "sans-serif"],
+      },
     },
   },
   plugins: [],
