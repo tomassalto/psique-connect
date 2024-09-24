@@ -14,6 +14,7 @@ Route::get('/localidades', [OptionsController::class, 'getLocalidades']);
 Route::post('/registrar_paciente', [AuthController::class, 'registerPaciente']);
 
 Route::post('/register_psicologo', [AuthController::class, 'registerPsicologo']);
+Route::post('/login', [AuthController::class, 'login']);
 
 Route::middleware([
     'auth:sanctum',
