@@ -24,6 +24,15 @@ class Paciente extends Authenticatable
         'email',
         'password',
     ];
+    public function setNombreAttribute($value)
+    {
+        $this->attributes['nombre'] = ucfirst(strtolower($value));
+    }
+
+    public function setApellidoAttribute($value)
+    {
+        $this->attributes['apellido'] = ucfirst(strtolower($value));
+    }
 
     protected $hidden = [
         'password',
