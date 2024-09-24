@@ -6,6 +6,8 @@ use App\Models\Paciente;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use App\Models\Psicologo;
+use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\LoginRequest;
 
 class AuthController extends Controller
 {
@@ -42,6 +44,46 @@ class AuthController extends Controller
         $paciente->save();
 
         return response()->json($paciente, 201);
+    }
+
+    public function login(LoginRequest $request)
+    {
+        $data = $request->validated();
+
+        $isPaciente = Paciente::where('email', $data['email'])->exists();
+        $isPsicologo = Psicologo::where('email', $data['email'])->exists();
+
+        if ($isPaciente && Auth::guard('paciente')->attempt($data)) {
+            $user = Auth::guard('paciente')->user();
+            $token = $user->createToken('main')->plainTextToken;
+
+            return response()->json([
+                'user' => [
+                    'nombre' => $user->nombre,
+                    'apellido' => $user->apellido,
+                    'email' => $user->email,
+                    'dni' => $user->dni
+                ],
+                'token' => $token
+            ]);
+        } elseif ($isPsicologo && Auth::guard('psicologo')->attempt($data)) {
+            $user = Auth::guard('psicologo')->user();
+            $token = $user->createToken('main')->plainTextToken;
+
+            return response()->json([
+                'user' => [
+                    'nombre' => $user->nombre,
+                    'apellido' => $user->apellido,
+                    'email' => $user->email,
+                    'matricula' => $user->matricula
+                ],
+                'token' => $token
+            ]);
+        }
+
+        return response([
+            'message' => 'Email o contraseña incorrectos'
+        ], 401);
     }
 
     public function registerPsicologo(Request $request)
