@@ -4,18 +4,15 @@ export default {
   theme: {
     extend: {
       screens: {
-        xxs: "375px",
         xs: "390px",
+        xsm: "500px",
         sm: "640px",
-        xmd: "720px",
         md: "768px",
         lg: "1024px",
         xl: "1280px",
-        xhd: "1440px",
+        mac: "1440px",
         hd: "1536px",
         fullhd: "1920px",
-        qhd: "2560px",
-        ultra: "3840px",
       },
       fontFamily: {
         Nobile: ["Nobile", "sans-serif"],

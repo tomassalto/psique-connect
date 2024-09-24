@@ -30,6 +30,15 @@ class Psicologo extends Authenticatable
         'email',
         'password',
     ];
+    public function setNombreAttribute($value)
+    {
+        $this->attributes['nombre'] = ucfirst(strtolower($value));
+    }
+
+    public function setApellidoAttribute($value)
+    {
+        $this->attributes['apellido'] = ucfirst(strtolower($value));
+    }
 
     protected $hidden = [
         'password',
@@ -40,7 +49,6 @@ class Psicologo extends Authenticatable
         'password' => 'hashed',
     ];
 
-    // Definir relaciones si es necesario
     public function localidad()
     {
         return $this->belongsTo(Localidad::class, 'codigo_postal', 'codigo_postal');
