@@ -85,7 +85,7 @@ const Header = ({ currentPath }) => {
   };
 
   return (
-    <header className="flex items-center justify-end gap-2 p-4 bg-white text-white shadow-md xl:px-[70px]">
+    <header className="flex items-center justify-start gap-2 p-4 bg-white text-white shadow-md lg:justify-end xl:px-[70px]">
       <div className="flex items-center gap-4 lg:hidden">
         {loading ? (
           <div className="text-gray-400">Cargando...</div>
@@ -95,8 +95,11 @@ const Header = ({ currentPath }) => {
           </a>
         ) : null}
       </div>
-
-      <button className="lg:hidden" onClick={() => setSidebarOpen(true)}>
+      <img src="/logo.png" alt="logo" className="lg:hidden size-16" />
+      <button
+        className="lg:hidden absolute right-10"
+        onClick={() => setSidebarOpen(true)}
+      >
         <svg
           xmlns="http://www.w3.org/2000/svg"
           className="h-8 w-8 text-gray-800"
