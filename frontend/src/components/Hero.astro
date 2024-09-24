@@ -1,0 +1,90 @@
+---
+import { Image } from "astro:assets";
+import Button from "./Button";
+---
+
+<section
+  class="relative overflow-hidden py-[60px] flex justify-center items-center"
+>
+  <div
+    class="flex flex-col items-center justify-center gap-[50px] xs:w-[340px] sm:w-[577px] lg:px-0 lg:w-[824px] xl:w-[980px] mac:w-[1040px] hd:w-[1036px] fullhd:w-[1120px]"
+  >
+    <div
+      class="text-[#75B781] w-[311px] text-[40px] sm:text-center leading-[48px] font-bold font-Muli px-2 xs:px-0 sm:w-[550px] lg:hidden"
+    >
+      Comenzá tu camino terapéutico hoy
+    </div>
+
+    <div
+      style={{ clipPath: "ellipse(62% 40% at 51% 87%);" }}
+      class="absolute bg-[#75B781] -z-10 size-[1000px] top-[-80px] sm:top-[-130px] lg:w-[1500px] lg:top-[-200px] xl:top-[-200px] mac:w-full mac:top-[-185px]"
+    >
+    </div>
+    <div
+      class="absolute bg-violet w-full h-full -z-10 top-[485px] items-center justify-center sm:top-[630px] md:top-[640px] lg:top-[670px] xl:top-[820px]"
+    >
+    </div>
+    <div class="pb-[9px] lg:hidden">
+      <Image
+        src="/images/hero/hero.png"
+        alt="hero"
+        width={300}
+        height={305}
+        loading="eager"
+      />
+    </div>
+    <div
+      class="flex flex-col text-white text-2xl font-Muli w-[311px] px-3 xs:px-0 sm:text-center sm:w-[509px] lg:w-[600px] lg:hidden"
+    >
+      <p class="font-normal">
+        Psique-connect es una plataforma para hacer psicoterapia online ó
+        presencial, lo que vos prefieras
+      </p>
+    </div>
+    <div
+      class="lg:hidden w-[287px] xs:w-[311px] h-[82px] sm:w-[329px] sm:h-[84px]"
+    >
+      <a href="/registrar-usuario">
+        <Button text="Comenzá tu camino hoy" color="secondary" />
+      </a>
+    </div>
+    <div
+      class="hidden lg:flex xl:gap-5 lg:w-[824px] xl:w-[980px] xl:justify-evenly"
+    >
+      <div class="flex flex-col gap-[70px] w-[470px] xl:gap-[90px]">
+        <div>
+          <div
+            class="text-[#75B781] w-[311px] text-[40px] sm:text-center leading-[48px] font-bold font-Muli px-2 xs:px-0 sm:w-[550px] hidden lg:flex lg:text-start"
+          >
+            Comenzá tu camino terapéutico hoy
+          </div>
+        </div>
+        <div
+          class="flex-col text-white text-2xl font-Muli w-[311px] px-3 xs:px-0 sm:w-[509px] lg:w-[470px] hidden lg:flex mt-24"
+        >
+          <p class="font-normal">
+            Psique-connect es una plataforma para hacer psicoterapia online ó
+            presencial, lo que vos prefieras
+          </p>
+        </div>
+        <div class="lg:w-[329px]">
+          <a href="/registrar-usuario">
+            <Button text="Comenzá tu camino hoy" color="secondary" />
+          </a>
+        </div>
+      </div>
+      <div class="flex">
+        <div class="h-full w-full">
+          <Image
+            src="/images/hero/hero.png"
+            alt="hero"
+            width={300}
+            height={300}
+            class="h-full mac:!w-[500px] xl:w-[420px] !fullhd:w-[500px]"
+            loading="eager"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
