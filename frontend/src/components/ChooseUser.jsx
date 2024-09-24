@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import FormPatient from "./FormPatient";
+import FormPsychologist from "./FormPsychologist";
 
 const Registro = () => {
   const [tipoRegistro, setTipoRegistro] = useState(null);
@@ -13,9 +14,15 @@ const Registro = () => {
             <div className="flex space-x-4">
               <button
                 onClick={() => setTipoRegistro("paciente")}
-                className="px-4 py-2 bg-blue-500 text-white rounded"
+                className="px-4 py-2 bg-[#75B781] text-white rounded"
               >
                 Paciente
+              </button>
+              <button
+                onClick={() => setTipoRegistro("psicologo")}
+                className="px-4 py-2 bg-[#2A352F] text-white rounded"
+              >
+                Psicologo
               </button>
             </div>
           </>
@@ -23,6 +30,9 @@ const Registro = () => {
 
         {tipoRegistro === "paciente" && (
           <FormPatient onBack={() => setTipoRegistro(null)} />
+        )}
+        {tipoRegistro === "psicologo" && (
+          <FormPsychologist onBack={() => setTipoRegistro(null)} />
         )}
       </div>
     </section>

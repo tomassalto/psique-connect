@@ -86,7 +86,7 @@ function FormPatient({ onBack }) {
           </p>
         </div>
         <div className="flex flex-col px-[25px] py-[30px] gap-[30px] lg:px-[60px] lg:gap-[60px]">
-          <div className="flex flex-col gap-5 lg:flex-row">
+          <div className="flex flex-col lg:gap-5 lg:flex-row">
             <div className="flex flex-col">
               <input
                 type="number"
