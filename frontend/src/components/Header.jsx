@@ -242,7 +242,7 @@ const Header = ({ currentPath }) => {
                   Hola, {user.nombre}!
                 </button>
                 {dropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-2">
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-2 z-50">
                     <a
                       href="/perfil"
                       className="block text-left px-4 py-2 text-black hover:bg-gray-200"
