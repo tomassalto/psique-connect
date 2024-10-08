@@ -15,7 +15,9 @@ class PatologiaTableSeeder extends Seeder
     public function run()
     {
         DB::table('patologia')->insert([
-            ['nombre' => 'depresion'],
+            ['nombre' => 'Depresion'],
+            ['nombre' => 'Suicidio'],
+            ['nombre' => 'Drogas'],
         ]);
     }
 }
