@@ -16,6 +16,8 @@ class CorrienteTableSeeder extends Seeder
     {
         DB::table('corriente')->insert([
             ['nombre' => 'cognitivo conductual'],
+            ['nombre' => 'psicoanalisis'],
+            ['nombre' => 'terapia'],
         ]);
     }
 }
