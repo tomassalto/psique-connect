@@ -24,7 +24,7 @@ const LogIn = () => {
         if (response.status === 200) {
           const data = await response.json();
           localStorage.setItem("token", data.token);
-          toast.success("¡Paciente registrado con éxito!", {
+          toast.success("¡Inicio de sesión correcto!", {
             position: "bottom-center",
             autoClose: 3000,
             hideProgressBar: false,

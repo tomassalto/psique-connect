@@ -50,7 +50,11 @@ const Header = ({ currentPath }) => {
               <li>
                 <a
                   className="text-[#264534] font-bold"
-                  href="/find-psychologist"
+                  href={`${
+                    currentPath === "/encontrar-psicologo"
+                      ? "#"
+                      : "/encontrar-psicologo"
+                  }`}
                 >
                   Encontrar Psicólogo
                 </a>
@@ -90,7 +94,7 @@ const Header = ({ currentPath }) => {
         {loading ? (
           <div className="text-gray-400">Cargando...</div>
         ) : user ? (
-          <a href="/perfil" className="text-[#264534] font-bold ">
+          <a href="/perfil" className="text-[#264534] font-bold">
             Hola, {user.nombre}!
           </a>
         ) : null}
@@ -232,13 +236,13 @@ const Header = ({ currentPath }) => {
             ) : user ? (
               <div className="relative">
                 <button
-                  className="focus:outline-none text-[#264534] font-bold"
+                  className="focus:outline-none text-[#264534] font-bold border-b-[#75B781] border-b-[1px]"
                   onClick={() => setDropdownOpen(!dropdownOpen)}
                 >
                   Hola, {user.nombre}!
                 </button>
                 {dropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-2">
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-2 z-50">
                     <a
                       href="/perfil"
                       className="block text-left px-4 py-2 text-black hover:bg-gray-200"
