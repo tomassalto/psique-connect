@@ -82,7 +82,12 @@ const Filter = ({ onFilter, selectedFilters, setSelectedFilters }) => {
       console.error("Error:", error);
     }
   };
-
+  useEffect(() => {
+    setSelectedCorriente(selectedFilters.corriente);
+    setSelectedTematica(selectedFilters.tematica);
+    setSelectedPatologia(selectedFilters.patologia);
+    setSearchTerm(selectedFilters.searchTerm);
+  }, [selectedFilters]);
   return (
     <div className="filter-section">
       <form
