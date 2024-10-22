@@ -20,7 +20,6 @@ class Paciente extends Authenticatable
         'dni',
         'nombre',
         'apellido',
-        'preferencias',
         'email',
         'password',
     ];
