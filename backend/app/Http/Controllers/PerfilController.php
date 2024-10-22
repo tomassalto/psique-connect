@@ -14,17 +14,15 @@ class PerfilController extends Controller
      */
     public function show(Request $request)
     {
-        $user = $request->user(); // Obtén el usuario autenticado
+        $user = $request->user();
 
         if ($user) {
-            $roles = $user->getRoleNames(); // Obtén los roles del usuario
+            $roles = $user->getRoleNames();
 
-            // Verifica si el usuario tiene roles
             if ($roles->isNotEmpty()) {
-                $firstRole = $roles->first(); // Obtiene el primer rol
+                $firstRole = $roles->first();
 
                 if ($firstRole === 'paciente') {
-                    // Si es paciente, busca en la tabla 'paciente'
                     $paciente = Paciente::where('email', $user->email)->first();
                     if ($paciente) {
                         return response()->json([
@@ -32,13 +30,13 @@ class PerfilController extends Controller
                             'apellido' => $paciente->apellido,
                             'email' => $paciente->email,
                             'dni' => $paciente->dni,
-                            'rol' => $firstRole // Devuelve solo el primer rol
+                            'onboarding' => $paciente->onboarding,
+                            'rol' => $firstRole
                         ]);
                     } else {
                         return response()->json(['error' => 'Paciente no encontrado'], 404);
                     }
                 } elseif ($firstRole === 'psicologo') {
-                    // Si es psicólogo, busca en la tabla 'psicologo'
                     $psicologo = Psicologo::where('email', $user->email)->first();
                     if ($psicologo) {
                         return response()->json([
@@ -70,36 +68,34 @@ class PerfilController extends Controller
 
     public function update(Request $request)
     {
-        // Validar el tipo de usuario antes de realizar la actualización
-        $roles = $request->user()->getRoleNames(); // Obtener los roles del usuario autenticado
+
+        $roles = $request->user()->getRoleNames();
 
         if ($roles->contains('paciente')) {
-            // Validar los datos del paciente
+
             $request->validate([
-                'email' => 'required|email|max:255', // Asegúrate de que el email sea válido
+                'email' => 'required|email|max:255',
                 'nombre' => 'required|string|max:255',
                 'apellido' => 'required|string|max:255',
                 'dni' => 'required|integer',
             ]);
 
-            // Buscar el paciente en la base de datos usando el email o dni
             $user = Paciente::where('email', $request->email)->orWhere('dni', $request->dni)->first();
 
             if (!$user) {
                 return response()->json(['message' => 'Paciente no encontrado.'], 404);
             }
 
-            // Actualizar los datos del paciente
             $user->update([
                 'nombre' => $request->input('nombre'),
                 'apellido' => $request->input('apellido'),
                 'dni' => $request->input('dni'),
-                'email' => $request->input('email'),  // Actualiza también el email
+                'email' => $request->input('email'),
             ]);
 
             return response()->json(['message' => 'Perfil del paciente actualizado con éxito.'], 201);
         } elseif ($roles->contains('psicologo')) {
-            // Validar los datos del psicólogo
+
             $request->validate([
                 'matricula' => 'required|integer',
                 'nombre' => 'required|string|max:255',
@@ -113,14 +109,12 @@ class PerfilController extends Controller
                 'email' => 'required|email'
             ]);
 
-            // Buscar el psicólogo en la base de datos
             $user = Psicologo::where('email', $request->email)->orWhere('matricula', $request->matricula)->first();
 
             if (!$user) {
                 return response()->json(['message' => 'Psicólogo no encontrado.'], 404);
             }
 
-            // Actualizar los datos del psicólogo
             $user->update($request->only([
                 'nombre',
                 'apellido',
