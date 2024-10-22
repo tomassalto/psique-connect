@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
 import Button from "./Button";
+import OnBoarding from "./OnBoarding";
 
 const Header = ({ currentPath }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false); // Estado para el sidebar
+  const [showOnboarding, setShowOnboarding] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -20,8 +22,12 @@ const Header = ({ currentPath }) => {
         .then((response) => response.json())
         .then((data) => {
           console.log("Data received from API:", data);
+          console.log(data.onboarding);
           if (data.nombre) {
             setUser(data);
+            if (data.rol === "paciente" && data.onboarding === 0) {
+              setShowOnboarding(true);
+            }
           } else {
             console.error("User data is not in the expected format:", data);
           }
@@ -35,6 +41,10 @@ const Header = ({ currentPath }) => {
     }
   }, []);
 
+  const handleOnboardingComplete = () => {
+    // Lógica para cerrar el modal
+    setShowOnboarding(false);
+  };
   const handleLogout = () => {
     localStorage.removeItem("token");
     setUser(null);
@@ -51,17 +61,22 @@ const Header = ({ currentPath }) => {
                 <a
                   className="text-[#264534] font-bold"
                   href={`${
-                    currentPath === "/encontrar-psicologo"
+                    currentPath === "/match-psicologo"
                       ? "#"
-                      : "/encontrar-psicologo"
+                      : "/match-psicologo"
                   }`}
                 >
-                  Encontrar Psicólogo
+                  Match Psicólogo
                 </a>
               </li>
               <li>
-                <a className="text-[#264534] font-bold" href="/preferences">
-                  Agregar Preferencias
+                <a
+                  href="/mis-preferencias"
+                  className="block text-left px-4 py-2 text-black hover:bg-gray-200"
+                >
+                  <p className="border-b-[#75B781] border-b-[1px]">
+                    Mis Preferencias
+                  </p>
                 </a>
               </li>
             </>
@@ -75,7 +90,7 @@ const Header = ({ currentPath }) => {
                 </a>
               </li>
               <li>
-                <a className="text-[#264534] font-bold" href="/agenda">
+                <a className="text-[#264534] font-bold" href="/mi-agenda">
                   Agenda
                 </a>
               </li>
@@ -251,6 +266,7 @@ const Header = ({ currentPath }) => {
                         Mi Perfil
                       </p>
                     </a>
+
                     <button
                       className="block text-left w-full px-4 py-2 text-black hover:bg-gray-200"
                       onClick={handleLogout}
@@ -282,6 +298,13 @@ const Header = ({ currentPath }) => {
             >
               <Button text="Registrarse" color="third" />
             </a>
+          </div>
+        </div>
+      )}
+      {showOnboarding && (
+        <div className="fixed inset-0 h-full w-full bg-gray-900 bg-opacity-75 flex items-center justify-center z-50">
+          <div className="bg-white h-full  p-8 rounded-lg w-full relative flex items-center justify-center">
+            <OnBoarding onComplete={handleOnboardingComplete} />
           </div>
         </div>
       )}
