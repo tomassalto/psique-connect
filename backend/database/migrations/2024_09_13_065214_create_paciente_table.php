@@ -15,9 +15,9 @@ return new class extends Migration
             $table->integer('dni')->primary();
             $table->string('nombre', 50);
             $table->string('apellido', 50);
-            $table->string('preferencias')->nullable();
             $table->string('email')->unique();
             $table->string('password');
+            $table->boolean('onboarding')->default(false);
             $table->timestamps();
         });
     }

@@ -17,7 +17,6 @@ class AuthController extends Controller
             'dni' => 'required|integer|min:8|unique:paciente',
             'nombre' => 'required|string|max:50',
             'apellido' => 'required|string|max:50',
-            'preferencias' => 'string|nullable',
             'email' => 'required|string|email|max:255|unique:paciente',
             'password' => 'required|string|min:8|confirmed',
         ]);
@@ -26,7 +25,6 @@ class AuthController extends Controller
             'dni' => $validated['dni'],
             'nombre' => $validated['nombre'],
             'apellido' => $validated['apellido'],
-            'preferencias' => $validated['preferencias'] ?? null,
             'email' => $validated['email'],
             'password' => bcrypt($validated['password']),
         ]);
