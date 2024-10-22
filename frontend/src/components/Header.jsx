@@ -59,7 +59,7 @@ const Header = ({ currentPath }) => {
             <>
               <li>
                 <a
-                  className="text-[#264534] font-bold"
+                  className="block text-left px-4 py-2 text-[#264534] hover:bg-gray-200 font-bold"
                   href={`${
                     currentPath === "/match-psicologo"
                       ? "#"
@@ -71,11 +71,15 @@ const Header = ({ currentPath }) => {
               </li>
               <li>
                 <a
-                  href="/mis-preferencias"
-                  className="block text-left px-4 py-2 text-black hover:bg-gray-200"
+                  href={`${
+                    currentPath === "/encontrar-psicologo"
+                      ? "#"
+                      : "/encontrar-psicologo"
+                  }`}
+                  className="block text-left px-4 py-2 text-[#264534] hover:bg-gray-200"
                 >
-                  <p className="border-b-[#75B781] border-b-[1px]">
-                    Mis Preferencias
+                  <p className="font-bold">
+                    Buscar Psicologo
                   </p>
                 </a>
               </li>
@@ -266,7 +270,14 @@ const Header = ({ currentPath }) => {
                         Mi Perfil
                       </p>
                     </a>
-
+                    {user.rol === "paciente" && ( // Aquí se añade la condición
+      <a
+        href="/mis-preferencias"
+        className="block text-left px-4 py-2 text-black hover:bg-gray-200"
+      >
+        <p className="border-b-[#75B781] border-b-[1px]">Mis Preferencias</p>
+      </a>
+    )}
                     <button
                       className="block text-left w-full px-4 py-2 text-black hover:bg-gray-200"
                       onClick={handleLogout}
