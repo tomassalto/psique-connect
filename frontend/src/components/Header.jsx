@@ -8,8 +8,51 @@ const Header = ({ currentPath }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
-  const [selectedCurrency, setSelectedCurrency] = useState("");
   const [countries, setCountries] = useState([]);
+  const [currencies, setCurrencies] = useState([]);
+  const [selectedCurrency, setSelectedCurrency] = useState("ARS");
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    fetchCurrencies();
+  }, []);
+
+  const fetchCurrencies = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch("http://127.0.0.1:8000/api/currencies", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) throw new Error("Error al cargar las monedas");
+
+      const data = await response.json();
+
+      const sortedCurrencies = data.data.sort((a, b) => {
+        if (a.code === "ARS") return -1;
+        if (b.code === "ARS") return 1;
+        return a.code.localeCompare(b.code);
+      });
+
+      setCurrencies(sortedCurrencies);
+
+      const savedCurrency = localStorage.getItem("currency");
+      if (!savedCurrency) {
+        localStorage.setItem("currency", "ARS");
+        setSelectedCurrency("ARS");
+      } else {
+        setSelectedCurrency(savedCurrency);
+      }
+
+      setLoading(false);
+    } catch (err) {
+      setError("No pudimos cargar las monedas. Por favor, intente nuevamente.");
+      setLoading(false);
+      console.error("Error al cargar monedas:", err);
+    }
+  };
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -58,8 +101,9 @@ const Header = ({ currentPath }) => {
   }, []);
 
   const handleCurrencyChange = (e) => {
-    const selectedCurrency = e.target.value;
-    localStorage.setItem("currency", selectedCurrency);
+    const newCurrency = e.target.value;
+    setSelectedCurrency(newCurrency);
+    localStorage.setItem("currency", newCurrency);
     window.location.reload();
   };
 
@@ -93,18 +137,28 @@ const Header = ({ currentPath }) => {
                   <p className="font-bold">Buscar Psicologo</p>
                 </a>
               </li>
-              <li className="flex">
-                <p className="text-black">$</p>
+              <li className="flex items-center space-x-1">
+                {currencies.find((c) => c.code === selectedCurrency)?.symbol ||
+                  "$"}
                 <select
                   id="currencySelect"
-                  className="text-black"
+                  className="text-black bg-transparent border-none focus:ring-0"
                   value={selectedCurrency}
                   onChange={handleCurrencyChange}
                 >
-                  <option value="ARS">ARS</option>
-                  <option value="USD">USD</option>
-                  <option value="EUR">EUR</option>
+                  {currencies.map((currency) => (
+                    <option
+                      key={currency.code}
+                      value={currency.code}
+                      selected={currency.code === "ARS"}
+                    >
+                      {currency.code} - {currency.name}
+                    </option>
+                  ))}
                 </select>
+                {error && (
+                  <span className="text-red-500 text-sm ml-2">{error}</span>
+                )}
               </li>
             </>
           );
@@ -293,7 +347,7 @@ const Header = ({ currentPath }) => {
                         Mi Perfil
                       </p>
                     </a>
-                    {user.rol === "paciente" && ( // Aquí se añade la condición
+                    {user.rol === "paciente" && (
                       <a
                         href="/mis-preferencias"
                         className="block text-left px-4 py-2 text-black hover:bg-gray-200"
