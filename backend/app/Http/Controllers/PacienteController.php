@@ -9,13 +9,6 @@ use App\Models\Psicologo;
 
 class PacienteController extends Controller
 {
-    protected $currencyController;
-
-    public function __construct()
-    {
-        $this->currencyController = new CurrencyController();
-    }
-
     public function guardarPreferenciasYMatch(Request $request)
     {
 
@@ -94,16 +87,20 @@ class PacienteController extends Controller
     {
         $paciente = auth()->user();
 
+
         $matches = DB::table('match')
             ->join('psicologo', 'match.matricula_psicologo', '=', 'psicologo.matricula')
+            ->join('patologia', 'psicologo.id_patologia', '=', 'patologia.id_patologia')
+            ->join('corriente', 'psicologo.id_corriente', '=', 'corriente.id_corriente')
+            ->join('tematica', 'psicologo.id_tematica', '=', 'tematica.id_tematica')
             ->where('match.dni_paciente', $paciente->dni)
-            ->select('psicologo.*')
+            ->select(
+                'psicologo.*',
+                'patologia.nombre as nombre_patologia',
+                'corriente.nombre as nombre_corriente',
+                'tematica.nombre as nombre_tematica'
+            )
             ->get();
-
-        $currency = request()->query('currency', 'ARS');
-        if ($currency !== 'ARS') {
-            $matches = $this->currencyController->convertPrices($matches, $currency);
-        }
 
         return response()->json($matches);
     }
