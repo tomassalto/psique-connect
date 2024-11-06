@@ -17,73 +17,13 @@ class CurrencyController extends Controller
         'CL' => 'CLP'
     ];
 
-    public function getAvailableCurrencies()
-    {
-        try {
-            if (Cache::has('available_currencies')) {
-                return response()->json([
-                    'status' => 'success',
-                    'data' => Cache::get('available_currencies')
-                ]);
-            }
-
-            $client = new \SoapClient('http://webservices.currencysystem.com/currencyserver/?wsdl', [
-                'trace' => true,
-                'exceptions' => true,
-                'connection_timeout' => 5
-            ]);
-
-            $currencies = [];
-
-            foreach ($this->supportedCountries as $country => $currencyCode) {
-                try {
-                    $params = [
-                        'licenseKey' => '',
-                        'currency' => $currencyCode
-                    ];
-
-                    $result = $client->__soapCall('CurrencyName', [$params]);
-
-                    $currencies[] = [
-                        'code' => $currencyCode,
-                        'name' => $result->CurrencyNameResult,
-                        'symbol' => $this->getCurrencySymbol($currencyCode)
-                    ];
-                } catch (\Exception $e) {
-                    Log::error("Error al obtener la moneda {$currencyCode}: " . $e->getMessage());
-                    continue;
-                }
-            }
-
-            if (empty($currencies)) {
-                throw new \Exception("No se pudieron obtener las monedas del servicio");
-            }
-
-            Cache::put('available_currencies', $currencies, 60 * 24);
-
-            return response()->json([
-                'status' => 'success',
-                'data' => $currencies
-            ]);
-        } catch (\Exception $e) {
-            Log::error("Error en getAvailableCurrencies: " . $e->getMessage());
-
-            $fallbackCurrencies = [
-                ['code' => 'ARS', 'name' => 'Peso Argentino', 'symbol' => '$'],
-                ['code' => 'USD', 'name' => 'Dólar Estadounidense', 'symbol' => '$'],
-                ['code' => 'EUR', 'name' => 'Euro', 'symbol' => '€'],
-                ['code' => 'UYU', 'name' => 'Peso Uruguayo', 'symbol' => '$'],
-                ['code' => 'BRL', 'name' => 'Real Brasileño', 'symbol' => 'R$'],
-                ['code' => 'CLP', 'name' => 'Peso Chileno', 'symbol' => '$']
-            ];
-
-            return response()->json([
-                'status' => 'warning',
-                'message' => 'Usando lista de monedas predeterminada',
-                'data' => $fallbackCurrencies
-            ]);
-        }
-    }
+    private $backupExchangeRates = [
+        'USD' => 1135,
+        'EUR' => 1088,
+        'UYU' => 23.8543,
+        'BRL' => 172,
+        'CLP' => 1.0383
+    ];
 
     private function getCurrencySymbol($currencyCode)
     {
@@ -111,22 +51,12 @@ class CurrencyController extends Controller
                         return $rate['venta'];
                     }
                 }
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Lo sentimos, no pudimos encontrar la cotización para esta moneda. Por favor, intente más tarde.'
-                ], 404);
             }
-
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Hubo un problema al obtener las cotizaciones. Por favor, intente nuevamente en unos minutos.'
-            ], 500);
+            throw new \Exception("No se encontró la tasa de cambio para la moneda: $currency");
         } catch (\Exception $e) {
             Log::error("Error en fetchExchangeRate: " . $e->getMessage());
-            return response()->json([
-                'status' => 'error',
-                'message' => 'No pudimos conectarnos al servicio de cotizaciones. Por favor, verifique su conexión e intente nuevamente.'
-            ], 500);
+
+            return $this->backupExchangeRates[$currency] ?? null;
         }
     }
 
@@ -136,17 +66,34 @@ class CurrencyController extends Controller
             return $items;
         }
 
-        $exchangeRate = null;
         try {
             $exchangeRate = $this->fetchExchangeRate($currency);
 
-            if (!$exchangeRate || isset($exchangeRate['error'])) {
-                throw new \Exception('No se pudo obtener el tipo de cambio');
+            if (!$exchangeRate) {
+                throw new \Exception("No se pudo obtener el tipo de cambio para $currency");
             }
 
+            $client = new \SoapClient('http://www.dneonline.com/calculator.asmx?WSDL', [
+                'trace' => true,
+                'exceptions' => true
+            ]);
+
             foreach ($items as $item) {
-                $newPrice = $item->precio / $exchangeRate;
-                $item->precio = number_format($newPrice, 2, '.', '');
+                $params = [
+                    'intA' => $item->precio,
+                    'intB' => $exchangeRate
+                ];
+
+                try {
+                    $result = $client->__soapCall('Divide', [$params]);
+                    $newPrice = $result->DivideResult;
+
+                    $item->precio = number_format($newPrice, 2, '.', '');
+                } catch (\Exception $e) {
+                    Log::error("Error en la conversión de precios con SOAP: " . $e->getMessage());
+                    $item->precio = null;
+                    $item->error = "Error en la conversión a $currency. Intente más tarde.";
+                }
             }
 
             return $items;
@@ -154,9 +101,45 @@ class CurrencyController extends Controller
             Log::error("Error en convertPrices: " . $e->getMessage());
             foreach ($items as $item) {
                 $item->precio = null;
-                $item->error = 'No pudimos convertir el precio a la moneda seleccionada. Por favor, intente más tarde.';
+                $item->error = "No pudimos convertir el precio a la moneda seleccionada. Por favor, intente más tarde.";
             }
             return $items;
         }
+    }
+
+    private function getCurrencyName($currencyCode)
+    {
+        try {
+            $client = new \SoapClient('http://webservices.oorsprong.org/websamples.countryinfo/CountryInfoService.wso?WSDL', [
+                'trace' => true,
+                'exceptions' => true
+            ]);
+
+            $params = [
+                'sCurrencyISOCode' => $currencyCode
+            ];
+
+            $response = $client->__soapCall('CurrencyName', [$params]);
+
+            return $response->CurrencyNameResult ?? $currencyCode;
+        } catch (\Exception $e) {
+            Log::error("Error obteniendo el nombre de la moneda para {$currencyCode}: " . $e->getMessage());
+            return $currencyCode;
+        }
+    }
+
+    public function getAvailableCurrencies()
+    {
+        $currencies = [];
+
+        foreach ($this->supportedCountries as $country => $currencyCode) {
+            $currencyName = $this->getCurrencyName($currencyCode);
+            $currencies[] = [
+                'code' => $currencyCode,
+                'name' => $currencyName
+            ];
+        }
+
+        return response()->json($currencies);
     }
 }
