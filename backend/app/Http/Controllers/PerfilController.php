@@ -45,13 +45,12 @@ class PerfilController extends Controller
                             'email' => $psicologo->email,
                             'matricula' => $psicologo->matricula,
                             'telefono' => $psicologo->telefono,
-                            'precio' => $psicologo->precio,
                             'promedio' => $psicologo->promedio,
                             'codigo_postal' => $psicologo->codigo_postal,
                             'id_tematica' => $psicologo->id_tematica,
                             'id_patologia' => $psicologo->id_patologia,
                             'id_corriente' => $psicologo->id_corriente,
-                            'rol' => $firstRole
+                            'rol' => $firstRole // Devuelve solo el primer rol
                         ]);
                     } else {
                         return response()->json(['error' => 'Psicólogo no encontrado'], 404);
@@ -102,7 +101,6 @@ class PerfilController extends Controller
                 'nombre' => 'required|string|max:255',
                 'apellido' => 'required|string|max:255',
                 'telefono' => 'required|string|max:20',
-                'precio' => 'required|integer',
                 'promedio' => 'required|numeric|between:0,10',
                 'codigo_postal' => 'required|integer',
                 'id_tematica' => 'required|integer',
@@ -121,7 +119,6 @@ class PerfilController extends Controller
                 'nombre',
                 'apellido',
                 'telefono',
-                'precio',
                 'promedio',
                 'codigo_postal',
                 'id_tematica',

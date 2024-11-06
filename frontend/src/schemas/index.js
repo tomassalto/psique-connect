@@ -40,9 +40,6 @@ export const registerPsychologistSchema = Yup.object({
   telefono: Yup.string()
     .matches(/^\d{10}$/, "El teléfono debe tener 10 dígitos")
     .required("Teléfono es requerido"),
-  precio: Yup.number()
-    .min(1, "El precio debe ser mayor a 1")
-    .required("Precio es requerido"),
   promedio: Yup.number()
     .min(0, "El promedio debe ser mayor o igual a 0")
     .max(10, "El promedio debe ser menor o igual a 10")
@@ -90,9 +87,6 @@ export const editPsychologist = Yup.object({
   telefono: Yup.string()
     .matches(/^\d{10}$/, "El teléfono debe tener 10 dígitos")
     .required("Teléfono es requerido"),
-  precio: Yup.number()
-    .min(1, "El precio debe ser mayor a 1")
-    .required("Precio es requerido"),
   promedio: Yup.number()
     .min(0, "El promedio debe ser mayor o igual a 0")
     .max(10, "El promedio debe ser menor o igual a 10")

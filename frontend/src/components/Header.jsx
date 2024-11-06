@@ -6,9 +6,8 @@ const Header = ({ currentPath }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false); // Estado para el sidebar
   const [showOnboarding, setShowOnboarding] = useState(false);
-  const [selectedCurrency, setSelectedCurrency] = useState("");
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -43,23 +42,13 @@ const Header = ({ currentPath }) => {
   }, []);
 
   const handleOnboardingComplete = () => {
+    // Lógica para cerrar el modal
     setShowOnboarding(false);
   };
   const handleLogout = () => {
     localStorage.removeItem("token");
     setUser(null);
     window.location.href = "/login";
-  };
-
-  useEffect(() => {
-    const currency = localStorage.getItem("currency") || "ARS";
-    setSelectedCurrency(currency);
-  }, []);
-
-  const handleCurrencyChange = (e) => {
-    const selectedCurrency = e.target.value;
-    localStorage.setItem("currency", selectedCurrency);
-    window.location.href = "/encontrar-psicologo";
   };
 
   const renderLinksForRole = () => {
@@ -89,21 +78,10 @@ const Header = ({ currentPath }) => {
                   }`}
                   className="block text-left px-4 py-2 text-[#264534] hover:bg-gray-200"
                 >
-                  <p className="font-bold">Buscar Psicologo</p>
+                  <p className="font-bold">
+                    Buscar Psicologo
+                  </p>
                 </a>
-              </li>
-              <li className="flex">
-                <p className="text-black">$</p>
-                <select
-                  id="currencySelect"
-                  className="text-black"
-                  value={selectedCurrency} // Establecer el valor seleccionado
-                  onChange={handleCurrencyChange}
-                >
-                  <option value="USD">USD</option>
-                  <option value="ARS">ARS</option>
-                  <option value="EUR">EUR</option>
-                </select>
               </li>
             </>
           );
@@ -293,15 +271,13 @@ const Header = ({ currentPath }) => {
                       </p>
                     </a>
                     {user.rol === "paciente" && ( // Aquí se añade la condición
-                      <a
-                        href="/mis-preferencias"
-                        className="block text-left px-4 py-2 text-black hover:bg-gray-200"
-                      >
-                        <p className="border-b-[#75B781] border-b-[1px]">
-                          Mis Preferencias
-                        </p>
-                      </a>
-                    )}
+      <a
+        href="/mis-preferencias"
+        className="block text-left px-4 py-2 text-black hover:bg-gray-200"
+      >
+        <p className="border-b-[#75B781] border-b-[1px]">Mis Preferencias</p>
+      </a>
+    )}
                     <button
                       className="block text-left w-full px-4 py-2 text-black hover:bg-gray-200"
                       onClick={handleLogout}

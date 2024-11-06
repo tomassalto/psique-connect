@@ -48,16 +48,11 @@ const PsychologistCard = () => {
 
     const fetchPsychologists = async () => {
       try {
-        const token = localStorage.getItem("token");
-        const currency = localStorage.getItem("currency") || "ARS";
-        const response = await fetch(
-          `http://127.0.0.1:8000/api/psicologos?currency=${currency}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        const response = await fetch("http://127.0.0.1:8000/api/psicologos", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
         if (response.status === 403) {
           console.log(response.status);
@@ -132,9 +127,6 @@ const PsychologistCard = () => {
                     <strong>Matrícula:</strong> {psicologo.matricula}
                   </p>
                   <p>
-                    <strong>Teléfono:</strong> {psicologo.telefono}
-                  </p>
-                  <p>
                     <strong>Patología:</strong> {psicologo.patologia?.nombre}
                   </p>
                   <p>
@@ -142,9 +134,6 @@ const PsychologistCard = () => {
                   </p>
                   <p>
                     <strong>Temática:</strong> {psicologo.tematica?.nombre}
-                  </p>
-                  <p>
-                    <strong>Precio:</strong> $ {psicologo.precio}
                   </p>
                 </div>
               ))

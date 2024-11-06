@@ -22,7 +22,6 @@ class Psicologo extends Authenticatable
         'nombre',
         'apellido',
         'telefono',
-        'precio',
         'promedio',
         'codigo_postal',
         'id_tematica',
