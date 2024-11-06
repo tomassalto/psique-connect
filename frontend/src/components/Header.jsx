@@ -14,44 +14,45 @@ const Header = ({ currentPath }) => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    const fetchCurrencies = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const response = await fetch("http://127.0.0.1:8000/api/currencies", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (!response.ok) throw new Error("Error al cargar las monedas");
+
+        const data = await response.json();
+
+        const sortedCurrencies = data.sort((a, b) => {
+          if (a.code === "ARS") return -1;
+          if (b.code === "ARS") return 1;
+          return a.code.localeCompare(b.code);
+        });
+
+        setCurrencies(sortedCurrencies);
+
+        const savedCurrency = localStorage.getItem("currency");
+        setSelectedCurrency(savedCurrency || "ARS");
+        if (!savedCurrency) localStorage.setItem("currency", "ARS");
+
+        setLoading(false);
+      } catch (err) {
+        setError(
+          "No pudimos cargar las monedas. Por favor, intente nuevamente."
+        );
+        setLoading(false);
+      }
+    };
     fetchCurrencies();
   }, []);
 
-  const fetchCurrencies = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      const response = await fetch("http://127.0.0.1:8000/api/currencies", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!response.ok) throw new Error("Error al cargar las monedas");
-
-      const data = await response.json();
-
-      const sortedCurrencies = data.data.sort((a, b) => {
-        if (a.code === "ARS") return -1;
-        if (b.code === "ARS") return 1;
-        return a.code.localeCompare(b.code);
-      });
-
-      setCurrencies(sortedCurrencies);
-
-      const savedCurrency = localStorage.getItem("currency");
-      if (!savedCurrency) {
-        localStorage.setItem("currency", "ARS");
-        setSelectedCurrency("ARS");
-      } else {
-        setSelectedCurrency(savedCurrency);
-      }
-
-      setLoading(false);
-    } catch (err) {
-      setError("No pudimos cargar las monedas. Por favor, intente nuevamente.");
-      setLoading(false);
-      console.error("Error al cargar monedas:", err);
-    }
+  const handleCurrencyChange = (e) => {
+    const newCurrency = e.target.value;
+    setSelectedCurrency(newCurrency);
+    localStorage.setItem("currency", newCurrency);
+    window.location.reload();
   };
 
   useEffect(() => {
@@ -100,13 +101,6 @@ const Header = ({ currentPath }) => {
     setSelectedCurrency(currency);
   }, []);
 
-  const handleCurrencyChange = (e) => {
-    const newCurrency = e.target.value;
-    setSelectedCurrency(newCurrency);
-    localStorage.setItem("currency", newCurrency);
-    window.location.reload();
-  };
-
   const renderLinksForRole = () => {
     if (user) {
       switch (user.rol) {
@@ -147,11 +141,7 @@ const Header = ({ currentPath }) => {
                   onChange={handleCurrencyChange}
                 >
                   {currencies.map((currency) => (
-                    <option
-                      key={currency.code}
-                      value={currency.code}
-                      selected={currency.code === "ARS"}
-                    >
+                    <option key={currency.code} value={currency.code}>
                       {currency.code} - {currency.name}
                     </option>
                   ))}
