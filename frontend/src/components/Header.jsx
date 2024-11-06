@@ -9,6 +9,7 @@ const Header = ({ currentPath }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [selectedCurrency, setSelectedCurrency] = useState("");
+  const [countries, setCountries] = useState([]);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -59,7 +60,7 @@ const Header = ({ currentPath }) => {
   const handleCurrencyChange = (e) => {
     const selectedCurrency = e.target.value;
     localStorage.setItem("currency", selectedCurrency);
-    window.location.href = "/encontrar-psicologo";
+    window.location.reload();
   };
 
   const renderLinksForRole = () => {
@@ -97,11 +98,11 @@ const Header = ({ currentPath }) => {
                 <select
                   id="currencySelect"
                   className="text-black"
-                  value={selectedCurrency} // Establecer el valor seleccionado
+                  value={selectedCurrency}
                   onChange={handleCurrencyChange}
                 >
-                  <option value="USD">USD</option>
                   <option value="ARS">ARS</option>
+                  <option value="USD">USD</option>
                   <option value="EUR">EUR</option>
                 </select>
               </li>
