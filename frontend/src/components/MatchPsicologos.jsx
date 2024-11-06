@@ -8,13 +8,13 @@ const MatchPsicologos = () => {
     const fetchPsicologos = async () => {
       try {
         const token = localStorage.getItem("token");
-
+        const currency = localStorage.getItem("currency") || "ARS";
         if (!token) {
           window.location.href = "/login";
           return;
         }
         const response = await fetch(
-          "http://127.0.0.1:8000/api/match-psicologos",
+          `http://127.0.0.1:8000/api/match-psicologos?currency=${currency}`,
           {
             method: "GET",
             headers: {
@@ -61,6 +61,9 @@ const MatchPsicologos = () => {
                         <strong>Matrícula:</strong> {psicologo.matricula}
                       </p>
                       <p>
+                        <strong>Teléfono:</strong> {psicologo.telefono}
+                      </p>
+                      <p>
                         <strong>Patología:</strong> {psicologo.nombre_patologia}
                       </p>
                       <p>
@@ -68,6 +71,9 @@ const MatchPsicologos = () => {
                       </p>
                       <p>
                         <strong>Temática:</strong> {psicologo.nombre_tematica}
+                      </p>
+                      <p>
+                        <strong>Precio:</strong> $ {psicologo.precio}
                       </p>
                     </div>
                     <Button text="Contactar" color="primary" />
