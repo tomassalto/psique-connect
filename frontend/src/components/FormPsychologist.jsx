@@ -38,6 +38,7 @@ function FormPsychologist({ onBack }) {
       nombre: "",
       apellido: "",
       telefono: "",
+      precio: 0,
       promedio: "",
       codigo_postal: "",
       id_tematica: "",
@@ -49,6 +50,10 @@ function FormPsychologist({ onBack }) {
     },
     validationSchema: registerPsychologistSchema,
     onSubmit: async (values, { resetForm }) => {
+      const modifiedValues = {
+        ...values,
+        precio: Number(values.precio), // Asegúrate de que 'precio' sea un número
+      };
       try {
         const response = await fetch(
           "http://127.0.0.1:8000/api/register_psicologo",
@@ -57,7 +62,7 @@ function FormPsychologist({ onBack }) {
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify(values),
+            body: JSON.stringify(modifiedValues),
           }
         );
 
@@ -224,6 +229,33 @@ function FormPsychologist({ onBack }) {
                       alt="error"
                     />
                     {formik.errors.telefono}
+                  </div>
+                ) : null}
+              </div>
+              <div className="flex flex-col gap-[10px]">
+                <input
+                  type="text"
+                  placeholder="Precio:"
+                  name="precio"
+                  id="precio"
+                  value={formik.values.precio}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  className={`h-[50px] border-b-[1px] border-[#75b781] placeholder:font-Muli lg:w-[417px] ${
+                    formik.touched.precio && formik.errors.precio
+                      ? "border-[#E50505]"
+                      : ""
+                  }`}
+                />
+                {formik.touched.precio && formik.errors.precio ? (
+                  <div className="flex gap-1 text-[#E50505] text-[13px] font-poppins ">
+                    <img
+                      src="/icons/form/error.svg"
+                      width={18}
+                      height={18}
+                      alt="error"
+                    />
+                    {formik.errors.precio}
                   </div>
                 ) : null}
               </div>

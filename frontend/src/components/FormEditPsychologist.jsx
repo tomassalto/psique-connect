@@ -13,8 +13,7 @@ const FormEditPsychologist = ({ user, setEditMode, onBack }) => {
   const [corrientes, setCorrientes] = useState([]);
 
   const handleBack = () => {
-    // Lógica para manejar el retroceso, si la necesitas
-    onBack(); // Llama a la función onBack pasada como prop
+    onBack();
   };
 
   useEffect(() => {
@@ -45,6 +44,7 @@ const FormEditPsychologist = ({ user, setEditMode, onBack }) => {
       email: user.email || "",
       matricula: user.matricula || "",
       telefono: user.telefono || "",
+      precio: user.precio || 0,
       promedio: user.promedio || "",
       codigo_postal: user.codigo_postal || "",
       id_tematica: user.id_tematica || "",
@@ -67,7 +67,7 @@ const FormEditPsychologist = ({ user, setEditMode, onBack }) => {
           }
         );
         if (response.status === 201) {
-          toast.success("¡Paciente registrado con éxito!", {
+          toast.success("¡Datos modificados con éxito!", {
             position: "bottom-center",
             autoClose: 3000,
             hideProgressBar: false,
@@ -222,6 +222,33 @@ const FormEditPsychologist = ({ user, setEditMode, onBack }) => {
                       alt="error"
                     />
                     {formik.errors.telefono}
+                  </div>
+                ) : null}
+              </div>
+              <div className="flex flex-col gap-[10px]">
+                <input
+                  type="text"
+                  placeholder="Precio:"
+                  name="precio"
+                  id="precio"
+                  value={formik.values.precio}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  className={`h-[50px] border-b-[1px] border-[#75b781] placeholder:font-Muli lg:w-[417px] ${
+                    formik.touched.precio && formik.errors.precio
+                      ? "border-[#E50505]"
+                      : ""
+                  }`}
+                />
+                {formik.touched.precio && formik.errors.precio ? (
+                  <div className="flex gap-1 text-[#E50505] text-[13px] font-poppins ">
+                    <img
+                      src="/icons/form/error.svg"
+                      width={18}
+                      height={18}
+                      alt="error"
+                    />
+                    {formik.errors.precio}
                   </div>
                 ) : null}
               </div>

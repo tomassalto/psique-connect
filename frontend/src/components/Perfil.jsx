@@ -86,6 +86,9 @@ const Perfil = () => {
                       <strong>Teléfono:</strong> {user.telefono}
                     </p>
                     <p className="text-[20px]">
+                      <strong>Precio:</strong> $ {user.precio}
+                    </p>
+                    <p className="text-[20px]">
                       <strong>Promedio:</strong> {user.promedio}
                     </p>
                   </div>
