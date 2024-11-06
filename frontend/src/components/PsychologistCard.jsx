@@ -13,6 +13,8 @@ const PsychologistCard = () => {
     patologia: "",
     searchTerm: "",
   });
+  const [errorMessage, setErrorMessage] = useState("");
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -70,6 +72,10 @@ const PsychologistCard = () => {
         setFilteredPsicologos(data);
       } catch (error) {
         console.error("Error al fetch:", error);
+        setErrorMessage(
+          "Error al conectar con los servidores. Intente nuevamente."
+        );
+        setShowModal(true);
       }
     };
 
@@ -111,6 +117,20 @@ const PsychologistCard = () => {
           </button>
         </div>
       </div>
+      {showModal && (
+        <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white p-6 rounded shadow-lg">
+            <h2 className="text-xl text-red-600 font-bold">¡Error!</h2>
+            <p>{errorMessage}</p>
+            <button
+              onClick={() => setShowModal(false)}
+              className="bg-red-500 text-white py-2 px-4 rounded mt-4"
+            >
+              Cerrar
+            </button>
+          </div>
+        </div>
+      )}
       <div className="flex flex-col gap-[30px] w-[340px] sm:w-[590px] lg:w-[990px] xl:w-[980px] mac:w-[1040px] hd:w-[1036px] fullhd:w-[1120px]">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredPsicologos.length > 0

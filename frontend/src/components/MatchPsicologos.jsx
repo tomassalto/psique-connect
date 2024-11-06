@@ -3,6 +3,8 @@ import Button from "./Button";
 
 const MatchPsicologos = () => {
   const [psicologos, setPsicologos] = useState([]);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     const fetchPsicologos = async () => {
@@ -38,6 +40,20 @@ const MatchPsicologos = () => {
       <h1 className="text-3xl font-bold text-center text-[#75B781]">
         ¡Felicidades! Hiciste match con estos psicólogos:
       </h1>
+      {showModal && (
+        <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white p-6 rounded shadow-lg">
+            <h2 className="text-xl text-red-600 font-bold">¡Error!</h2>
+            <p>{errorMessage}</p>
+            <button
+              onClick={() => setShowModal(false)}
+              className="bg-red-500 text-white py-2 px-4 rounded mt-4"
+            >
+              Cerrar
+            </button>
+          </div>
+        </div>
+      )}
       <div className="flex flex-col gap-[30px] w-[340px] sm:w-[590px] lg:w-[990px] xl:w-[980px] mac:w-[1040px] hd:w-[1036px] fullhd:w-[1120px]">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {psicologos.length > 0
