@@ -2,13 +2,20 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Calificacion;
 use App\Models\Preferencia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\Psicologo;
+use Carbon\Carbon;
 
 class PacienteController extends Controller
 {
+    private function getCurrentDateTimeInArgentina()
+    {
+
+        return Carbon::now('America/Argentina/Buenos_Aires');
+    }
     public function guardarPreferenciasYMatch(Request $request)
     {
 
@@ -117,5 +124,88 @@ class PacienteController extends Controller
             'patologia' => $preferencias->patologia ? $preferencias->patologia->nombre : null,
             'corriente' => $preferencias->corriente ? $preferencias->corriente->nombre : null,
         ]);
+    }
+
+    public function ratePsychologist(Request $request)
+    {
+        $paciente = auth()->user();
+
+        $validated = $request->validate([
+            'matricula_psicologo' => 'required|integer',
+            'valor' => 'required|numeric|min:1|max:5',
+            'comentario' => 'nullable|string',
+        ]);
+
+        $calificacion = Calificacion::where('dni_paciente', $paciente->dni)
+            ->where('matricula_psicologo', $validated['matricula_psicologo'])
+            ->first();
+
+        if ($calificacion) {
+
+            $calificacion->valor = $validated['valor'];
+            $calificacion->comentario = $validated['comentario'] ?? null;
+            $calificacion->save();
+        } else {
+
+            $calificacion = Calificacion::create([
+                'dni_paciente' => $paciente->dni,
+                'matricula_psicologo' => $validated['matricula_psicologo'],
+                'valor' => $validated['valor'],
+                'comentario' => $validated['comentario'] ?? null,
+            ]);
+        }
+
+        return response()->json(['success' => true, 'calificacion' => $calificacion]);
+    }
+
+    public function obtenerPsicologosAsociados()
+    {
+        $paciente = auth()->user();
+
+        $psicologos = DB::table('psicologo_paciente')
+            ->join('psicologo', 'psicologo_paciente.matricula_psicologo', '=', 'psicologo.matricula')
+            ->where('psicologo_paciente.dni_paciente', $paciente->dni)
+            ->select('psicologo.*', 'psicologo_paciente.actual')
+            ->get();
+
+        return response()->json($psicologos);
+    }
+
+
+    public function terminarRelacion(Request $request)
+    {
+        $paciente = auth()->user();
+        $validated = $request->validate([
+            'matricula_psicologo' => 'required|integer',
+        ]);
+
+        DB::table('psicologo_paciente')
+            ->where('dni_paciente', $paciente->dni)
+            ->where('matricula_psicologo', $validated['matricula_psicologo'])
+            ->update(['actual' => false]);
+
+        return response()->json(['success' => true]);
+    }
+
+    public function countPastSessions($matriculaPsicologo)
+    {
+        $paciente = auth()->user();
+        $currentDateTime = $this->getCurrentDateTimeInArgentina();
+
+        $sessionCount = DB::table('sesion')
+            ->where('dni_paciente', $paciente->dni)
+            ->where('matricula_psicologo', $matriculaPsicologo)
+            ->whereDate('fecha', '<=', $currentDateTime->toDateString())
+            ->where(function ($query) use ($currentDateTime) {
+                $query->where('fecha', '<', $currentDateTime->toDateString())
+                    ->orWhere(function ($query) use ($currentDateTime) {
+                        $query->where('fecha', '=', $currentDateTime->toDateString())
+                            ->where('hora', '<', $currentDateTime->toTimeString());
+                    });
+            })
+            ->where('cancelado', false)
+            ->count();
+
+        return response()->json(['session_count' => $sessionCount]);
     }
 }
