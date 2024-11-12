@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import ModalSesionesHoy from "./ModalSesionesHoy";
 
-const DailyReport = ({ setMostrarModalReporte, handleOpenReport }) => {
+const DailyReport = () => {
   const [mostrarModal, setMostrarModal] = useState(false);
   const [sesiones, setSesiones] = useState([]);
 
@@ -40,23 +40,14 @@ const DailyReport = ({ setMostrarModalReporte, handleOpenReport }) => {
     const ahora = new Date();
     const horaActual = ahora.getHours();
 
-    if (horaActual >= 8 && mostrarModalHoy()) {
+    if (horaActual >= 4 && mostrarModalHoy()) {
       abrirModalReporte();
     }
 
     fetchSesionesHoy();
   }, []);
 
-  useEffect(() => {
-    if (handleOpenReport) {
-      handleOpenReport(abrirModalReporte);
-    }
-  }, [handleOpenReport]);
-
-  const handleCloseModal = () => {
-    setMostrarModal(false);
-    setMostrarModalReporte(false);
-  };
+  const handleCloseModal = () => setMostrarModal(false);
 
   return (
     <>
