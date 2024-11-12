@@ -1,8 +1,10 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import Hero from "../components/Hero.astro";
+import DailyReport from "../components/DailyReport";
 ---
 
 <Layout title="Psique Connect">
   <Hero />
+  <DailyReport client:load />
 </Layout>

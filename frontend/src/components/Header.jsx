@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import Button from "./Button";
 import OnBoarding from "./OnBoarding";
-
+import DailyReport from "./DailyReport";
 const Header = ({ currentPath }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -293,7 +293,7 @@ const Header = ({ currentPath }) => {
                         Mi Perfil
                       </p>
                     </a>
-                    {user.rol === "paciente" && ( // Aquí se añade la condición
+                    {user.rol === "paciente" && (
                       <a
                         href="/mis-preferencias"
                         className="block text-left px-4 py-2 text-black hover:bg-gray-200"
@@ -301,6 +301,15 @@ const Header = ({ currentPath }) => {
                         <p className="border-b-[#75B781] border-b-[1px]">
                           Mis Preferencias
                         </p>
+                      </a>
+                    )}
+                    {user.rol === "psicologo" && (
+                      <a href="reporte-diario">
+                        <button className="block w-full text-left px-4 py-2 text-black hover:bg-gray-200">
+                          <p className=" border-b-[#75B781] border-b-[1px]">
+                            Reporte diario
+                          </p>
+                        </button>
                       </a>
                     )}
                     <button
