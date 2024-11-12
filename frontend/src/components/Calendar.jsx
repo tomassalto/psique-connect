@@ -18,10 +18,26 @@ const MyCalendar = () => {
     moment().format("YYYY-MM-DD")
   );
   const [newEventTime, setNewEventTime] = useState(moment().format("HH:mm"));
+  const [pacientesDNI, setPacientesDNI] = useState([]);
+
+  const fetchPacientesDNI = async () => {
+    const token = localStorage.getItem("token");
+    const response = await fetch(
+      "http://127.0.0.1:8000/api/psychologist/pacientes-dni",
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    const data = await response.json();
+    setPacientesDNI(data);
+  };
 
   useEffect(() => {
     fetchSessions();
     fetchUserProfile();
+    fetchPacientesDNI();
   }, []);
 
   const fetchUserProfile = async () => {
@@ -201,12 +217,18 @@ const MyCalendar = () => {
               onChange={(e) => setNewEventTitle(e.target.value)}
             />
             <label className="block mb-2">DNI Paciente:</label>
-            <input
-              type="text"
+            <select
               className="border rounded-md p-2 mb-4 w-full"
               value={newEventDNI}
               onChange={(e) => setNewEventDNI(e.target.value)}
-            />
+            >
+              <option value="">Selecciona un paciente</option>
+              {pacientesDNI.map((dni) => (
+                <option key={dni} value={dni}>
+                  {dni}
+                </option>
+              ))}
+            </select>
             <label className="block mb-2">Fecha:</label>
             <input
               type="date"

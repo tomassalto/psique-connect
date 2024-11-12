@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from "react";
 import Button from "./Button";
+import MessageModal from "./MessageModal";
 
 const MatchPsicologos = () => {
   const [psicologos, setPsicologos] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedPsicologo, setSelectedPsicologo] = useState(null);
 
   useEffect(() => {
     const fetchPsicologos = async () => {
       try {
         const token = localStorage.getItem("token");
-
         if (!token) {
           window.location.href = "/login";
           return;
@@ -29,9 +31,13 @@ const MatchPsicologos = () => {
         console.error("Error al obtener los psicólogos:", error);
       }
     };
-
     fetchPsicologos();
   }, []);
+
+  const handleContactar = (psicologo) => {
+    setSelectedPsicologo(psicologo);
+    setShowModal(true);
+  };
 
   return (
     <section className="flex flex-col gap-[30px] justify-center items-center pt-[120px] pb-[70px]">
@@ -70,13 +76,24 @@ const MatchPsicologos = () => {
                         <strong>Temática:</strong> {psicologo.nombre_tematica}
                       </p>
                     </div>
-                    <Button text="Contactar" color="primary" />
+                    <Button
+                      text="Contactar"
+                      color="primary"
+                      onClick={() => handleContactar(psicologo)}
+                    />
                   </div>
                 </div>
               ))
-            : null}{" "}
+            : null}
         </div>
       </div>
+
+      <MessageModal
+        showModal={showModal}
+        onClose={() => setShowModal(false)}
+        matriculaPsicologo={selectedPsicologo?.matricula}
+        nombrePsicologo={selectedPsicologo?.nombre || ""}
+      />
     </section>
   );
 };
