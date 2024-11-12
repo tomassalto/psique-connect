@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id('id_psicologo_paciente');
             $table->integer('dni_paciente');
             $table->integer('matricula_psicologo');
+            $table->boolean('actual')->default(true);
             $table->foreign('dni_paciente')->references('dni')->on('paciente')->onDelete('cascade');
             $table->foreign('matricula_psicologo')->references('matricula')->on('psicologo')->onDelete('cascade');
             $table->timestamps();
