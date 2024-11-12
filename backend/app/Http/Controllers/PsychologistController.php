@@ -3,10 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\Corriente;
+use Illuminate\Support\Facades\DB;
+use App\Models\Mensaje;
 use App\Models\Patologia;
 use Illuminate\Http\Request;
 use App\Models\Psicologo;
 use App\Models\Tematica;
+use Illuminate\Support\Facades\Auth;
 
 class PsychologistController extends Controller
 {
@@ -66,12 +69,59 @@ class PsychologistController extends Controller
         return response()->json($psicologos);
     }
 
-
-
     public function index()
     {
         $psicologos = Psicologo::with('patologia', 'corriente', 'tematica')->get();
 
         return response()->json($psicologos);
+    }
+
+    public function getMessages()
+    {
+        $psicologo = Auth::user();
+
+        $mensajes = Mensaje::with('paciente')
+            ->where('matricula_psicologo', $psicologo->matricula)
+            ->get();
+
+        return response()->json($mensajes);
+    }
+
+    public function takePatient(Request $request)
+    {
+        $request->validate([
+            'dni_paciente' => 'required|integer|exists:paciente,dni',
+        ]);
+
+        $psicologo = Auth::user();
+        $dniPaciente = $request->input('dni_paciente');
+
+        $exists = DB::table('psicologo_paciente')
+            ->where('dni_paciente', $dniPaciente)
+            ->where('matricula_psicologo', $psicologo->matricula)
+            ->exists();
+
+        if ($exists) {
+            return response()->json(['message' => 'Ya existe una relación con este paciente'], 409);
+        }
+
+        DB::table('psicologo_paciente')->insert([
+            'matricula_psicologo' => $psicologo->matricula,
+            'dni_paciente' => $dniPaciente,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        return response()->json(['message' => 'Paciente tomado exitosamente'], 201);
+    }
+
+    public function getPacientesDNI()
+    {
+        $psicologo = Auth::user();
+        $dniPacientes = DB::table('psicologo_paciente')
+            ->where('matricula_psicologo', $psicologo->matricula)
+            ->pluck('dni_paciente');
+
+        return response()->json($dniPacientes);
     }
 }
