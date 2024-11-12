@@ -40,4 +40,5 @@ Route::middleware(['auth:sanctum', 'role:psicologo'])->group(function () {
     Route::post('/psychologist/takePatient', [PsychologistController::class, 'takePatient']);
     Route::put('/messages/{id_mensaje}/marcarLeido', [MensajeController::class, 'marcarComoLeido']);
     Route::get('/psychologist/unreadMessages', [MensajeController::class, 'unreadMessagesCount']);
+    Route::get('/sesiones-de-hoy', [SesionController::class, 'sesionesDeHoy']);
 });
