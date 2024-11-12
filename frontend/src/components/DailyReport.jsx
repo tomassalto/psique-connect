@@ -40,7 +40,7 @@ const DailyReport = () => {
     const ahora = new Date();
     const horaActual = ahora.getHours();
 
-    if (horaActual >= 4 && mostrarModalHoy()) {
+    if (horaActual >= 8 && mostrarModalHoy()) {
       abrirModalReporte();
     }
 
