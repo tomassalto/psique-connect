@@ -9,8 +9,6 @@ const Header = ({ currentPath }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
-  const [mostrarModalReporte, setMostrarModalReporte] = useState(false);
-  const [openReportFn, setOpenReportFn] = useState(null);
 
   useEffect(() => {
     const fetchUnreadMessages = async () => {
@@ -71,13 +69,6 @@ const Header = ({ currentPath }) => {
     localStorage.removeItem("token");
     setUser(null);
     window.location.href = "/login";
-  };
-
-  const handleOpenReport = () => {
-    setMostrarModalReporte(true);
-    if (openReportFn) {
-      openReportFn();
-    }
   };
 
   const renderLinksForRole = () => {
@@ -313,14 +304,13 @@ const Header = ({ currentPath }) => {
                       </a>
                     )}
                     {user.rol === "psicologo" && (
-                      <button
-                        className="block text-left w-full px-4 py-2 text-black hover:bg-gray-200"
-                        onClick={handleOpenReport}
-                      >
-                        <p className="border-b-[#75B781] border-b-[1px]">
-                          Reporte diario
-                        </p>
-                      </button>
+                      <a href="reporte-diario">
+                        <button className="block w-full text-left px-4 py-2 text-black hover:bg-gray-200">
+                          <p className=" border-b-[#75B781] border-b-[1px]">
+                            Reporte diario
+                          </p>
+                        </button>
+                      </a>
                     )}
                     <button
                       className="block text-left w-full px-4 py-2 text-black hover:bg-gray-200"
@@ -361,14 +351,6 @@ const Header = ({ currentPath }) => {
           <div className="bg-white h-full  p-8 rounded-lg w-full relative flex items-center justify-center">
             <OnBoarding onComplete={handleOnboardingComplete} />
           </div>
-        </div>
-      )}
-      {mostrarModalReporte && (
-        <div className="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50">
-          <DailyReport
-            setMostrarModalReporte={setMostrarModalReporte}
-            handleOpenReport={setOpenReportFn}
-          />
         </div>
       )}
     </header>
