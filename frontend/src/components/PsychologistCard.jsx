@@ -144,7 +144,15 @@ const PsychologistCard = () => {
                   <p>
                     <strong>Temática:</strong> {psicologo.tematica?.nombre}
                   </p>
-                  <div>
+                  <div className="flex flex-col gap-5">
+                    <button
+                      onClick={() =>
+                        (window.location.href = `/calificaciones/${psicologo.matricula}`)
+                      }
+                      className="px-4 py-2 bg-[#2A352F] text-white rounded"
+                    >
+                      Ver Calificaciones
+                    </button>
                     <Button
                       text="Contactar"
                       color="primary"
