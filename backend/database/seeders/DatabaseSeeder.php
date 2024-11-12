@@ -19,7 +19,9 @@ class DatabaseSeeder extends Seeder
             LocalidadTableSeeder::class,
             PatologiaTableSeeder::class,
             TematicaTableSeeder::class,
-            RolesTableSeeder::class
+            RolesTableSeeder::class,
+            PacienteSeeder::class,
+            PsicologoSeeder::class,
         ]);
     }
 }
