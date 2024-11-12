@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Calificacion;
 use App\Models\Corriente;
 use Illuminate\Support\Facades\DB;
 use App\Models\Mensaje;
@@ -123,5 +124,27 @@ class PsychologistController extends Controller
             ->pluck('dni_paciente');
 
         return response()->json($dniPacientes);
+    }
+
+    public function getPsychologistRatings($matricula)
+    {
+
+        $ratings = Calificacion::where('matricula_psicologo', $matricula)
+            ->with('paciente')
+            ->get();
+
+        $averageRating = $ratings->isEmpty() ? 0 : $ratings->avg('valor');
+
+        $psychologist = Psicologo::where('matricula', $matricula)->first();
+        if ($psychologist) {
+            $psychologist->promedio = $averageRating ?? 0;
+            $psychologist->save();
+        }
+
+
+        return response()->json([
+            'ratings' => $ratings,
+            'average' => $averageRating
+        ]);
     }
 }

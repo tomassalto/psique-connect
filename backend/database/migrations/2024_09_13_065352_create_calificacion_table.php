@@ -12,13 +12,16 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('calificacion', function (Blueprint $table) {
-            $table->id('id_califacion');
+            $table->id('id_calificacion');
             $table->integer('dni_paciente');
             $table->integer('matricula_psicologo');
             $table->float('valor');
+            $table->text('comentario')->nullable();
             $table->foreign('dni_paciente')->references('dni')->on('paciente')->onDelete('cascade');
             $table->foreign('matricula_psicologo')->references('matricula')->on('psicologo')->onDelete('cascade');
             $table->timestamps();
+
+            $table->unique(['dni_paciente', 'matricula_psicologo']);
         });
     }
 

@@ -294,14 +294,28 @@ const Header = ({ currentPath }) => {
                       </p>
                     </a>
                     {user.rol === "paciente" && (
-                      <a
-                        href="/mis-preferencias"
-                        className="block text-left px-4 py-2 text-black hover:bg-gray-200"
-                      >
-                        <p className="border-b-[#75B781] border-b-[1px]">
-                          Mis Preferencias
-                        </p>
-                      </a>
+                      <ul>
+                        <li>
+                          <a
+                            href="/mis-preferencias"
+                            className="block text-left px-4 py-2 text-black hover:bg-gray-200"
+                          >
+                            <p className="border-b-[#75B781] border-b-[1px]">
+                              Mis Preferencias
+                            </p>
+                          </a>
+                        </li>
+                        <li>
+                          <a
+                            href="/mis-psicologos"
+                            className="block text-left px-4 py-2 text-black hover:bg-gray-200"
+                          >
+                            <p className="border-b-[#75B781] border-b-[1px]">
+                              Mis Psicologos
+                            </p>
+                          </a>
+                        </li>
+                      </ul>
                     )}
                     {user.rol === "psicologo" && (
                       <a href="reporte-diario">

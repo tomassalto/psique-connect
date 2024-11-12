@@ -1,0 +1,10 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import Calificaciones from "../../components/Calificaciones";
+
+const { matricula } = Astro.params;
+---
+
+<Layout title={`Psique Connect | Calificaciones ${matricula}`}>
+  <Calificaciones matricula={matricula} client:load />
+</Layout>
