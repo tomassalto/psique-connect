@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
+import MessageModal from "./MessageModal";
 import Filter from "./Filter";
+import Button from "./Button";
 
 const PsychologistCard = () => {
   const [user, setUser] = useState(null);
@@ -7,6 +9,8 @@ const PsychologistCard = () => {
   const [psychologists, setPsychologists] = useState([]);
   const [psicologos, setPsicologos] = useState([]);
   const [filteredPsicologos, setFilteredPsicologos] = useState([]);
+  const [selectedPsicologo, setSelectedPsicologo] = useState(null);
+  const [showModal, setShowModal] = useState(false);
   const [selectedFilters, setSelectedFilters] = useState({
     corriente: "",
     tematica: "",
@@ -85,6 +89,11 @@ const PsychologistCard = () => {
     setFilteredPsicologos(psicologos);
   };
 
+  const handleContactar = (psicologo) => {
+    setSelectedPsicologo(psicologo);
+    setShowModal(true);
+  };
+
   return (
     <section className="flex flex-col gap-[30px] justify-center items-center pt-[120px] pb-[70px]">
       <h1 className="text-3xl font-bold text-center text-[#75B781]">
@@ -135,6 +144,13 @@ const PsychologistCard = () => {
                   <p>
                     <strong>Temática:</strong> {psicologo.tematica?.nombre}
                   </p>
+                  <div>
+                    <Button
+                      text="Contactar"
+                      color="primary"
+                      onClick={() => handleContactar(psicologo)}
+                    />
+                  </div>
                 </div>
               ))
             : null}{" "}
@@ -146,6 +162,12 @@ const PsychologistCard = () => {
           </p>
         )}
       </div>
+      <MessageModal
+        showModal={showModal}
+        onClose={() => setShowModal(false)}
+        matriculaPsicologo={selectedPsicologo?.matricula}
+        nombrePsicologo={selectedPsicologo?.nombre || ""}
+      />
     </section>
   );
 };
