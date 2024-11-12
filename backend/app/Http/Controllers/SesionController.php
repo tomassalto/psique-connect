@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Auth;
 
 class SesionController extends Controller
 {
-    // Función para guardar una nueva sesión
+
     public function store(Request $request)
     {
         $psicologo = auth()->user();
@@ -22,12 +22,12 @@ class SesionController extends Controller
             'hora' => 'required',
         ]);
 
-        // Verifica si el paciente existe
+
         if (!$isPaciente) {
             return response()->json(['message' => 'DNI del paciente incorrecto'], 404);
         }
 
-        // Crear la sesión
+
         $sesion = Sesion::create([
             'dni_paciente' => $request->dni_paciente,
             'matricula_psicologo' => $psicologo->matricula,
@@ -40,26 +40,37 @@ class SesionController extends Controller
         return response()->json($sesion, 201);
     }
 
-    // Función para obtener todas las sesiones de un psicólogo
+
     public function index()
     {
         $psicologo = auth()->user();
 
-        // Obtener las sesiones del psicólogo autenticado
+
         $sesiones = Sesion::where('matricula_psicologo', $psicologo->matricula)
             ->get();
 
         return response()->json($sesiones);
     }
 
-    // Función para cancelar una sesión
     public function destroy($id_sesion)
     {
-        $sesion = Sesion::where('id_sesion', $id_sesion)->firstOrFail(); // Usar 'id_sesion' en lugar de 'id'
-
+        $sesion = Sesion::where('id_sesion', $id_sesion)->firstOrFail();
         $sesion->cancelado = true;
         $sesion->save();
 
         return response()->json(['message' => 'Session cancelled successfully.']);
+    }
+
+    public function sesionesDeHoy()
+    {
+        $psicologo = auth()->user();
+        $hoy = now()->toDateString();
+
+        $sesionesHoy = Sesion::where('matricula_psicologo', $psicologo->matricula)
+            ->where('fecha', $hoy)
+            ->where('cancelado', false)
+            ->get();
+
+        return response()->json($sesionesHoy);
     }
 }
