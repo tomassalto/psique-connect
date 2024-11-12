@@ -6,8 +6,28 @@ const Header = ({ currentPath }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(false); // Estado para el sidebar
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    const fetchUnreadMessages = async () => {
+      const token = localStorage.getItem("token");
+      const response = await fetch(
+        "http://127.0.0.1:8000/api/psychologist/unreadMessages",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      const data = await response.json();
+      console.log("Unread messages:", data);
+      setUnreadCount(data.unreadCount);
+    };
+
+    fetchUnreadMessages();
+  }, []);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -78,9 +98,7 @@ const Header = ({ currentPath }) => {
                   }`}
                   className="block text-left px-4 py-2 text-[#264534] hover:bg-gray-200"
                 >
-                  <p className="font-bold">
-                    Buscar Psicologo
-                  </p>
+                  <p className="font-bold">Buscar Psicologo</p>
                 </a>
               </li>
             </>
@@ -88,9 +106,14 @@ const Header = ({ currentPath }) => {
         case "psicologo":
           return (
             <>
-              <li>
-                <a className="text-[#264534] font-bold" href="/my-patients">
-                  Mis Pacientes
+              <li className="relative flex gap-2">
+                <a href="/mensajes">
+                  <p className="text-[#264534] font-bold">Mensajes</p>
+                  {unreadCount > 0 && (
+                    <span class="absolute top-[-5px] right-0 grid min-h-[24px] min-w-[24px] translate-x-2/4 -translate-y-2/4 place-items-center rounded-full bg-red-600 py-1 px-1 text-xs text-white">
+                      {unreadCount}
+                    </span>
+                  )}
                 </a>
               </li>
               <li>
@@ -271,13 +294,15 @@ const Header = ({ currentPath }) => {
                       </p>
                     </a>
                     {user.rol === "paciente" && ( // Aquí se añade la condición
-      <a
-        href="/mis-preferencias"
-        className="block text-left px-4 py-2 text-black hover:bg-gray-200"
-      >
-        <p className="border-b-[#75B781] border-b-[1px]">Mis Preferencias</p>
-      </a>
-    )}
+                      <a
+                        href="/mis-preferencias"
+                        className="block text-left px-4 py-2 text-black hover:bg-gray-200"
+                      >
+                        <p className="border-b-[#75B781] border-b-[1px]">
+                          Mis Preferencias
+                        </p>
+                      </a>
+                    )}
                     <button
                       className="block text-left w-full px-4 py-2 text-black hover:bg-gray-200"
                       onClick={handleLogout}
