@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
-
+import Loader from "./Loader";
+import Button from "./Button";
 const SessionList = ({ variant = "list" }) => {
   const [sesiones, setSesiones] = useState([]);
-
+  const [loading, setLoading] = useState(true);
   const fetchSesionesHoy = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -19,6 +20,8 @@ const SessionList = ({ variant = "list" }) => {
       setSesiones(data);
     } catch (error) {
       console.error("Error al obtener las sesiones de hoy:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -34,10 +37,20 @@ const SessionList = ({ variant = "list" }) => {
     return `${dia}/${mes}/${año}`;
   };
 
+  if (loading) {
+    return <Loader />;
+  }
+
   return (
-    <div className={variant === "modal" ? "w-full" : "w-[80%] mx-auto mt-6"}>
+    <div
+      className={
+        variant === "modal"
+          ? "flex flex-col w-full gap-5"
+          : "w-[80%] flex flex-col gap-5 items-center justify-center mx-auto"
+      }
+    >
       <h2
-        className={`text-3xl font-semibold mb-4 text-[#75B781] text-center font-Muli ${
+        className={`text-3xl font-semibold text-greenPsique text-center font-Muli ${
           variant === "modal" ? "" : "mt-4"
         }`}
       >
@@ -61,18 +74,19 @@ const SessionList = ({ variant = "list" }) => {
           ))}
         </ul>
       ) : (
-        <p className="text-2xl text-red-600 font-Muli text-center">
+        <p className="text-3xl text-red-600 font-Muli text-center">
           No hay sesiones programadas para hoy.
         </p>
       )}
       {variant === "list" && (
-        <div className="text-center mt-4">
-          <a
-            href="/mi-agenda"
-            className="inline-block bg-blue-500 text-white py-2 px-4 rounded"
-          >
-            Ver Agenda
-          </a>
+        <div className="flex flex-col gap-10 items-center">
+          <div className="w-[350px]">
+            <Button
+              color="primary"
+              text="Ver Agenda"
+              onClick={() => (window.location.href = `/mi-agenda`)}
+            />
+          </div>
         </div>
       )}
     </div>
