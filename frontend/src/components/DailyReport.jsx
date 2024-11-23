@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
 import ModalSesionesHoy from "./ModalSesionesHoy";
+import Loader from "./Loader";
 
 const DailyReport = () => {
   const [mostrarModal, setMostrarModal] = useState(false);
   const [sesiones, setSesiones] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const mostrarModalHoy = () => {
     const reporteHoy = localStorage.getItem("reporte_mostrado");
@@ -33,6 +35,8 @@ const DailyReport = () => {
       setSesiones(data);
     } catch (error) {
       console.error("Error al obtener las sesiones de hoy:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -49,6 +53,9 @@ const DailyReport = () => {
 
   const handleCloseModal = () => setMostrarModal(false);
 
+  if (loading) {
+    return <Loader />;
+  }
   return (
     <>
       {mostrarModal && (
