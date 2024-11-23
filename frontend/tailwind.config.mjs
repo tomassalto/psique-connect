@@ -17,6 +17,11 @@ export default {
       fontFamily: {
         Nobile: ["Nobile", "sans-serif"],
         Muli: ["Muli", "sans-serif"],
+        Merriweather: ["Merriweather", "serif"],
+      },
+      colors: {
+        greenPsique: "#75B781",
+        darkGreen: "#2A352F",
       },
     },
   },
