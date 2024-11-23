@@ -12,26 +12,26 @@ const OnBoarding = ({ onComplete }) => {
     {
       title: "¿Qué tipo de modalidad prefieres?",
       options: [
-        { label: "Online", value: 1 }, // id_tematica = 1
-        { label: "Presencial", value: 2 }, // id_tematica = 2
+        { label: "Online", value: 1 },
+        { label: "Presencial", value: 2 },
       ],
       key: "tematica",
     },
     {
       title: "¿Qué corriente psicológica prefieres?",
       options: [
-        { label: "Cognitivo-conductual", value: 1 }, // id_corriente = 1
-        { label: "Psicoanalítica", value: 2 }, // id_corriente = 2
-        { label: "Terapia-introspectiva", value: 3 }, // id_corriente = 2
+        { label: "Cognitivo-conductual", value: 1 },
+        { label: "Psicoanalítica", value: 2 },
+        { label: "Terapia-introspectiva", value: 3 },
       ],
       key: "corriente",
     },
     {
       title: "¿Qué patología quieres tratar?",
       options: [
-        { label: "Depresión", value: 1 }, // id_patologia = 1
-        { label: "Suicidio", value: 2 }, // id_patologia = 2
-        { label: "Drogas", value: 3 }, // id_patologia = 2
+        { label: "Depresión", value: 1 },
+        { label: "Suicidio", value: 2 },
+        { label: "Drogas", value: 3 },
       ],
       key: "patologia",
     },
@@ -40,22 +40,18 @@ const OnBoarding = ({ onComplete }) => {
   const handleOptionSelect = (value) => {
     const key = questions[currentStep].key;
 
-    // Actualiza las preferencias antes de avanzar
     setPreferences((prev) => {
       const updatedPreferences = { ...prev, [key]: value };
 
-      // Imprime las preferencias actualizadas
       console.log("Preferencias actualizadas:", updatedPreferences);
 
-      // Si estás en la última pregunta, llama a handleSubmit
       if (currentStep === questions.length - 1) {
-        handleSubmit(updatedPreferences); // Pasar las preferencias actualizadas
+        handleSubmit(updatedPreferences);
       }
 
       return updatedPreferences;
     });
 
-    // Avanza a la siguiente pregunta si no es la última
     if (currentStep < questions.length - 1) {
       setCurrentStep((prev) => prev + 1);
     }
@@ -78,7 +74,7 @@ const OnBoarding = ({ onComplete }) => {
 
       await fetch("http://127.0.0.1:8000/api/guardar_preferencias_y_match", {
         method: "POST",
-        body: JSON.stringify(preferences), // Usa las preferencias pasadas
+        body: JSON.stringify(preferences),
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -93,7 +89,7 @@ const OnBoarding = ({ onComplete }) => {
 
   return (
     <div className="flex flex-col gap-20">
-      <h2 className="text-3xl font-bold text-center text-[#75B781]">
+      <h2 className="text-3xl font-bold text-center text-greenPsique">
         {questions[currentStep].title}
       </h2>
       <div className="options flex gap-10 h-[62px]">
@@ -101,7 +97,7 @@ const OnBoarding = ({ onComplete }) => {
           <button
             key={option.value}
             onClick={() => handleOptionSelect(option.value)}
-            className="bg-[#75B781] px-5 py-3 w-full h-full font-Muli rounded flex items-center text-[16px] justify-center sm:px-5 text-white text-lg"
+            className="bg-greenPsique px-5 py-3 w-full h-full font-Muli rounded flex items-center text-[16px] justify-center sm:px-5 text-white text-lg"
           >
             {option.label}
           </button>
