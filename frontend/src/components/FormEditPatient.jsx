@@ -84,7 +84,7 @@ const FormEditPatient = ({ user, setEditMode, onBack }) => {
           <div className="flex flex-col lg:gap-5 justify-center lg:flex-row">
             <div className="flex flex-col gap-[15px]">
               <div className="flex flex-col justify-start items-start">
-                <p className="text-[#75B781] text-[16px] font-bold">DNI:</p>
+                <p className="text-greenPsique text-[16px] font-bold">DNI:</p>
                 <input
                   type="number"
                   id="dni"
@@ -111,7 +111,9 @@ const FormEditPatient = ({ user, setEditMode, onBack }) => {
                 ) : null}
               </div>
               <div className="flex flex-col justify-start items-start">
-                <p className="text-[#75B781] text-[16px] font-bold">Nombre:</p>
+                <p className="text-greenPsique text-[16px] font-bold">
+                  Nombre:
+                </p>
                 <input
                   type="text"
                   id="nombre"
@@ -138,7 +140,7 @@ const FormEditPatient = ({ user, setEditMode, onBack }) => {
                 ) : null}
               </div>
               <div className="flex flex-col justify-start items-start">
-                <p className="text-[#75B781] text-[16px] font-bold">
+                <p className="text-greenPsique text-[16px] font-bold">
                   Apellido:
                 </p>
                 <input
@@ -167,7 +169,7 @@ const FormEditPatient = ({ user, setEditMode, onBack }) => {
                 ) : null}
               </div>
               <div className="flex flex-col justify-start items-start">
-                <p className="text-[#75B781] text-[16px] font-bold">Email:</p>
+                <p className="text-greenPsique text-[16px] font-bold">Email:</p>
                 <input
                   type="email"
                   placeholder="Email:"
