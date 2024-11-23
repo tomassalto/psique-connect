@@ -117,3 +117,19 @@ export const editPatient = Yup.object({
       "Email inválido"
     ),
 });
+
+export const mensajeSchema = Yup.object({
+  mensaje: Yup.string()
+    .required("El mensaje no puede estar vacío")
+    .min(1, "El mensaje no puede estar vacío"),
+});
+
+export const ratingSchema = Yup.object({
+  rating: Yup.number()
+    .min(0.5, "La calificación mínima es 0.5")
+    .max(5, "La calificación máxima es 5")
+    .required("La calificación es requerida"),
+  comment: Yup.string()
+    .required("El comentario no puede estar vacío")
+    .min(1, "El comentario no puede estar vacío"),
+});
