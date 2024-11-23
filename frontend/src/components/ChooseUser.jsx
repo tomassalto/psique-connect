@@ -14,13 +14,13 @@ const Registro = () => {
             <div className="flex space-x-4">
               <button
                 onClick={() => setTipoRegistro("paciente")}
-                className="px-4 py-2 bg-[#75B781] text-white rounded"
+                className="px-4 py-2 bg-greenPsique text-white rounded"
               >
                 Paciente
               </button>
               <button
                 onClick={() => setTipoRegistro("psicologo")}
-                className="px-4 py-2 bg-[#2A352F] text-white rounded"
+                className="px-4 py-2 bg-darkGreen text-white rounded"
               >
                 Psicologo
               </button>
