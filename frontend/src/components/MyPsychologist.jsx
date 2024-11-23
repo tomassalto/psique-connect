@@ -1,9 +1,13 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import RatingForm from "./RatingForm";
+import Loader from "./Loader";
+import Button from "./Button";
+import { toastService } from "../services/toastService";
 
 const MisPsicologos = () => {
   const [psychologists, setPsychologists] = useState([]);
   const [selectedPsychologist, setSelectedPsychologist] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchPsychologists();
@@ -11,22 +15,28 @@ const MisPsicologos = () => {
 
   const fetchPsychologists = async () => {
     const token = localStorage.getItem("token");
-    const response = await fetch("http://127.0.0.1:8000/api/mis-psicologos", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    const data = await response.json();
-    console.log(data);
-    // Fetch session count for each psychologist
-    const psychologistsWithSessions = await Promise.all(
-      data.map(async (psychologist) => {
-        const sessionCount = await fetchSessionCount(psychologist.matricula);
-        return { ...psychologist, sesion_count: sessionCount };
-      })
-    );
 
-    setPsychologists(psychologistsWithSessions);
+    try {
+      const response = await fetch("http://127.0.0.1:8000/api/mis-psicologos", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+      const psychologistsWithSessions = await Promise.all(
+        data.map(async (psychologist) => {
+          const sessionCount = await fetchSessionCount(psychologist.matricula);
+          return { ...psychologist, sesion_count: sessionCount };
+        })
+      );
+
+      setPsychologists(psychologistsWithSessions);
+    } catch (error) {
+      console.error("Error fetching psychologists:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const fetchSessionCount = async (matriculaPsicologo) => {
@@ -62,48 +72,65 @@ const MisPsicologos = () => {
     const data = await response.json();
     if (data.success) {
       fetchPsychologists();
-      alert("Relación terminada.");
+      toastService.success("Relación terminada.");
     } else {
-      alert("Error al terminar la relación.");
+      toastService.error("Error al terminar la relación.");
     }
   };
-
+  if (loading) return <Loader />;
   return (
-    <div className="container mx-auto p-4">
-      <h2 className="text-2xl font-semibold mb-4">Mis Psicólogos</h2>
-      <ul className="space-y-4">
-        {psychologists.map((psychologist) => (
-          <li
-            key={psychologist.matricula}
-            className="flex items-center justify-between bg-white p-4 shadow rounded-lg"
-          >
-            <div>
-              <h3 className="font-semibold text-lg">{psychologist.nombre}</h3>
-              <p className="text-gray-600">
-                Sesiones hasta la fecha: {psychologist.sesion_count}
-              </p>
-            </div>
-            <div className="space-x-2">
-              <button
-                onClick={() => handleRate(psychologist)}
-                className="px-4 py-2 bg-blue-500 text-white rounded disabled:opacity-50"
-                disabled={
-                  psychologist.actual === 1 && psychologist.sesion_count >= 5
-                }
-              >
-                Calificar
-              </button>
-              {psychologist.actual === 1 && (
+    <section className="flex flex-col gap-[30px] justify-center items-center pt-[120px] pb-[70px]">
+      <h2 className="text-3xl font-semibold mb-4 font-Muli text-greenPsique">
+        Mis Psicólogos
+      </h2>
+      <ul className="space-y-4 w-full max-w-3xl">
+        {psychologists.length > 0 ? (
+          psychologists.map((psychologist) => (
+            <li
+              key={psychologist.matricula}
+              className="flex items-center justify-between bg-white p-4 shadow rounded-lg w-full"
+            >
+              <div>
+                <h3 className="font-semibold text-lg">{psychologist.nombre}</h3>
+                <p className="text-gray-600">
+                  Sesiones hasta la fecha: {psychologist.sesion_count}
+                </p>
+              </div>
+              <div className="space-x-2">
                 <button
-                  onClick={() => handleEndRelation(psychologist.matricula)}
-                  className="px-4 py-2 bg-red-500 text-white rounded"
+                  onClick={() => handleRate(psychologist)}
+                  className="px-4 py-2 bg-blue-500 text-white rounded disabled:opacity-50"
+                  disabled={
+                    psychologist.actual === 1 && psychologist.sesion_count < 5
+                  }
                 >
-                  Terminar Relación
+                  Calificar
                 </button>
-              )}
+                {psychologist.actual === 1 && (
+                  <button
+                    onClick={() => handleEndRelation(psychologist.matricula)}
+                    className="px-4 py-2 bg-red-500 text-white rounded"
+                  >
+                    Terminar Relación
+                  </button>
+                )}
+              </div>
+            </li>
+          ))
+        ) : (
+          <div className="flex flex-col gap-10 items-center">
+            <p className="text-3xl text-red-600 font-Muli text-center">
+              No se encontraron Psicólogos relacionados con usted.
+            </p>
+            <div className="w-[350px]">
+              <Button
+                onClick={() => (window.location.href = `/encontrar-psicologo`)}
+                color="primary"
+                text="Encontrar Psicólogo"
+              />
             </div>
-          </li>
-        ))}
+          </div>
+        )}
       </ul>
       {selectedPsychologist && (
         <RatingForm
@@ -111,7 +138,7 @@ const MisPsicologos = () => {
           onClose={() => setSelectedPsychologist(null)}
         />
       )}
-    </div>
+    </section>
   );
 };
 

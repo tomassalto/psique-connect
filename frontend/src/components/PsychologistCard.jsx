@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import Loader from "./Loader";
 import MessageModal from "./MessageModal";
 import Filter from "./Filter";
 import Button from "./Button";
@@ -6,7 +7,6 @@ import Button from "./Button";
 const PsychologistCard = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [psychologists, setPsychologists] = useState([]);
   const [psicologos, setPsicologos] = useState([]);
   const [filteredPsicologos, setFilteredPsicologos] = useState([]);
   const [selectedPsicologo, setSelectedPsicologo] = useState(null);
@@ -38,7 +38,6 @@ const PsychologistCard = () => {
         return response.json();
       })
       .then((data) => {
-        console.log("Data received from API:", data);
         if (data.nombre) {
           setUser(data);
         } else {
@@ -47,19 +46,15 @@ const PsychologistCard = () => {
       })
       .catch((error) => {
         console.error("Error fetching user data:", error);
-      })
-      .finally(() => setLoading(false));
+      });
 
     const fetchPsychologists = async () => {
       try {
         const response = await fetch("http://127.0.0.1:8000/api/psicologos", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         });
 
         if (response.status === 403) {
-          console.log(response.status);
           window.location.href = "/";
         } else if (!response.ok) {
           throw new Error("Error fetching psychologists");
@@ -69,6 +64,8 @@ const PsychologistCard = () => {
         setFilteredPsicologos(data);
       } catch (error) {
         console.error("Error al fetch:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -96,86 +93,101 @@ const PsychologistCard = () => {
 
   return (
     <section className="flex flex-col gap-[30px] justify-center items-center pt-[120px] pb-[70px]">
-      <h1 className="text-3xl font-bold text-center text-[#75B781]">
-        Encontrá tu psicólogo ideal
-      </h1>
-      <div className="flex flex-col justify-center items-center gap-10 mac:flex-row">
-        <Filter
-          onFilter={handleFilteredResults}
-          selectedFilters={selectedFilters}
-          setSelectedFilters={setSelectedFilters}
-        />
-
-        <div className="flex justify-end">
-          <button
-            onClick={clearFilters}
-            className="bg-red-500 w-[150px] text-white py-2 px-4 rounded hover:bg-red-600 h-[48px]"
-          >
-            Limpiar Filtros
-          </button>
-        </div>
-      </div>
-      <div className="flex flex-col gap-[30px] w-[340px] sm:w-[590px] lg:w-[990px] xl:w-[980px] mac:w-[1040px] hd:w-[1036px] fullhd:w-[1120px]">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredPsicologos.length > 0
-            ? filteredPsicologos.map((psicologo) => (
-                <div
-                  key={psicologo.matricula}
-                  className="p-4 border border-[#75B781] rounded-lg shadow-md hover:shadow-lg transition-shadow"
-                >
-                  <p>
-                    <strong>Nombre:</strong> {psicologo.nombre}
-                  </p>
-                  <p>
-                    <strong>Apellido:</strong> {psicologo.apellido}
-                  </p>
-                  <p>
-                    <strong>Email:</strong> {psicologo.email}
-                  </p>
-                  <p>
-                    <strong>Matrícula:</strong> {psicologo.matricula}
-                  </p>
-                  <p>
-                    <strong>Patología:</strong> {psicologo.patologia?.nombre}
-                  </p>
-                  <p>
-                    <strong>Corriente:</strong> {psicologo.corriente?.nombre}
-                  </p>
-                  <p>
-                    <strong>Temática:</strong> {psicologo.tematica?.nombre}
-                  </p>
-                  <div className="flex flex-col gap-5">
-                    <button
-                      onClick={() =>
-                        (window.location.href = `/calificaciones/${psicologo.matricula}`)
-                      }
-                      className="px-4 py-2 bg-[#2A352F] text-white rounded"
-                    >
-                      Ver Calificaciones
-                    </button>
-                    <Button
-                      text="Contactar"
-                      color="primary"
-                      onClick={() => handleContactar(psicologo)}
-                    />
+      {loading ? (
+        <Loader />
+      ) : (
+        <>
+          <h1 className="text-3xl font-bold text-center text-greenPsique font-Muli">
+            Encontrá tu psicólogo ideal
+          </h1>
+          <div className="flex flex-col justify-center items-center gap-10 mac:flex-row">
+            <Filter
+              onFilter={handleFilteredResults}
+              selectedFilters={selectedFilters}
+              setSelectedFilters={setSelectedFilters}
+            />
+            <div className="flex justify-end">
+              <button
+                onClick={clearFilters}
+                className="bg-red-500 w-[150px] font-Muli text-white py-2 px-4 rounded hover:bg-red-600 h-[48px]"
+              >
+                Limpiar Filtros
+              </button>
+            </div>
+          </div>
+          <div className="flex flex-col gap-[30px] w-[340px] sm:w-[590px] lg:w-[990px] xl:w-[980px] mac:w-[1040px] hd:w-[1036px] fullhd:w-[1120px]">
+            {psicologos.length === 0 ? (
+              <div className="flex justify-center items-center w-full">
+                <p className="text-3xl text-red-600 font-Muli text-center">
+                  No hay psicólogos registrados en el sistema.
+                </p>
+              </div>
+            ) : filteredPsicologos.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredPsicologos.map((psicologo) => (
+                  <div
+                    key={psicologo.matricula}
+                    className="flex flex-col p-4 border border-greenPsique rounded-lg shadow-md hover:shadow-lg transition-shadow gap-4 justify-between"
+                  >
+                    <div>
+                      <p>
+                        <strong>Nombre:</strong> {psicologo.nombre}
+                      </p>
+                      <p>
+                        <strong>Apellido:</strong> {psicologo.apellido}
+                      </p>
+                      <p>
+                        <strong>Email:</strong> {psicologo.email}
+                      </p>
+                      <p>
+                        <strong>Matrícula:</strong> {psicologo.matricula}
+                      </p>
+                      <p>
+                        <strong>Patología:</strong>{" "}
+                        {psicologo.patologia?.nombre}
+                      </p>
+                      <p>
+                        <strong>Corriente:</strong>{" "}
+                        {psicologo.corriente?.nombre}
+                      </p>
+                      <p>
+                        <strong>Temática:</strong> {psicologo.tematica?.nombre}
+                      </p>
+                    </div>
+                    <div className="flex flex-col gap-5">
+                      <Button
+                        onClick={() =>
+                          (window.location.href = `/calificaciones/${psicologo.matricula}`)
+                        }
+                        color="secondary"
+                        text="Ver Calificaciones"
+                      />
+                      <Button
+                        text="Contactar"
+                        color="primary"
+                        onClick={() => handleContactar(psicologo)}
+                      />
+                    </div>
                   </div>
-                </div>
-              ))
-            : null}{" "}
-        </div>
-
-        {filteredPsicologos.length === 0 && (
-          <p className="text-2xl text-red-600 font-Muli text-center">
-            No se encontraron psicólogos.
-          </p>
-        )}
-      </div>
-      <MessageModal
-        showModal={showModal}
-        onClose={() => setShowModal(false)}
-        matriculaPsicologo={selectedPsicologo?.matricula}
-        nombrePsicologo={selectedPsicologo?.nombre || ""}
-      />
+                ))}
+              </div>
+            ) : (
+              <div className="flex justify-center items-center w-full">
+                <p className="text-3xl text-red-600 font-Muli text-center">
+                  No se encontraron psicólogos con los filtros de búsqueda
+                  actuales.
+                </p>
+              </div>
+            )}
+          </div>
+          <MessageModal
+            showModal={showModal}
+            onClose={() => setShowModal(false)}
+            matriculaPsicologo={selectedPsicologo?.matricula}
+            nombrePsicologo={selectedPsicologo?.nombre || ""}
+          />
+        </>
+      )}
     </section>
   );
 };

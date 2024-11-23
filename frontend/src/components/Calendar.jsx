@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { Calendar, momentLocalizer } from "react-big-calendar";
 import moment from "moment";
+import Loader from "./Loader";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { toastService } from "../services/toastService";
 
 const localizer = momentLocalizer(moment);
 
@@ -55,7 +57,9 @@ const MyCalendar = () => {
         if (data.rol === "psicologo") {
           setMatriculaPsicologo(data.matricula);
         } else {
-          alert("No tienes permiso para acceder a este calendario.");
+          toastService.error(
+            "No tienes permiso para acceder a este calendario."
+          );
         }
       } catch (error) {
         console.error("Error fetching user profile:", error);
@@ -112,7 +116,9 @@ const MyCalendar = () => {
       fetchSessions();
       setModalVisible(false);
     } else {
-      alert("Por favor, proporciona un título y DNI para la sesión.");
+      toastService.error(
+        "Por favor, proporciona un título y DNI para la sesión."
+      );
     }
   };
 
@@ -157,7 +163,7 @@ const MyCalendar = () => {
         await cancelSession(event.id_sesion);
         fetchSessions();
       } else {
-        alert("No se encontró el ID de la sesión.");
+        toastService.error("No se encontró el ID de la sesión.");
       }
     }
   };
@@ -200,7 +206,7 @@ const MyCalendar = () => {
   };
 
   if (loading) {
-    return <div>Cargando sesiones...</div>;
+    return <Loader />;
   }
 
   return (

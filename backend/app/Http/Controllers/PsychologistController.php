@@ -141,10 +141,13 @@ class PsychologistController extends Controller
             $psychologist->save();
         }
 
-
         return response()->json([
             'ratings' => $ratings,
-            'average' => $averageRating
+            'average' => $averageRating,
+            'psychologist' => [
+                'nombre' => $psychologist->nombre,
+                'apellido' => $psychologist->apellido
+            ]
         ]);
     }
 }

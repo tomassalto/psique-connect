@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import Button from "./Button";
 import OnBoarding from "./OnBoarding";
-import DailyReport from "./DailyReport";
+
 const Header = ({ currentPath }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -27,6 +27,10 @@ const Header = ({ currentPath }) => {
     };
 
     fetchUnreadMessages();
+
+    const interval = setInterval(fetchUnreadMessages, 10000);
+
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
@@ -79,7 +83,7 @@ const Header = ({ currentPath }) => {
             <>
               <li>
                 <a
-                  className="block text-left px-4 py-2 text-[#264534] hover:bg-gray-200 font-bold"
+                  className="block text-left py-2 text-[#264534] hover:bg-gray-200 font-bold"
                   href={`${
                     currentPath === "/match-psicologo"
                       ? "#"
@@ -96,7 +100,7 @@ const Header = ({ currentPath }) => {
                       ? "#"
                       : "/encontrar-psicologo"
                   }`}
-                  className="block text-left px-4 py-2 text-[#264534] hover:bg-gray-200"
+                  className="block text-left py-2 text-[#264534] hover:bg-gray-200"
                 >
                   <p className="font-bold">Buscar Psicologo</p>
                 </a>
@@ -243,7 +247,7 @@ const Header = ({ currentPath }) => {
         <ul className="flex gap-[40px] items-center h-[52px] sm:text-[16px] lg:text-xl">
           <li>
             <a
-              className="h-[52px] hover:border-b-[2px] hover:border-[#75B781]"
+              className="h-[52px] hover:border-b-[2px] hover:border-greenPsique"
               href={`${currentPath === "/" ? "#" : "/"}`}
             >
               <p className="contents items-center text-[#264534] font-Muli text-center font-bold h-[52px]">
@@ -254,7 +258,7 @@ const Header = ({ currentPath }) => {
           <li>
             <a
               href="/como-funciona"
-              className=" hover:border-b-[2px] hover:border-[#75B781]"
+              className=" hover:border-b-[2px] hover:border-greenPsique"
             >
               <p className="contents text-[#264534] font-Muli font-bold">
                 ¿Cómo funciona?
@@ -264,7 +268,7 @@ const Header = ({ currentPath }) => {
           <li>
             <a
               href="/blog"
-              className=" hover:border-b-[2px] hover:border-[#75B781]"
+              className=" hover:border-b-[2px] hover:border-greenPsique"
             >
               <p className="contents text-[#264534] font-Muli font-bold">
                 Blog
@@ -278,7 +282,7 @@ const Header = ({ currentPath }) => {
             ) : user ? (
               <div className="relative">
                 <button
-                  className="focus:outline-none text-[#264534] font-bold border-b-[#75B781] border-b-[1px]"
+                  className="focus:outline-none text-[#264534] font-bold border-b-greenPsique border-b-[1px]"
                   onClick={() => setDropdownOpen(!dropdownOpen)}
                 >
                   Hola, {user.nombre}!
@@ -289,7 +293,7 @@ const Header = ({ currentPath }) => {
                       href="/perfil"
                       className="block text-left px-4 py-2 text-black hover:bg-gray-200"
                     >
-                      <p className=" border-b-[#75B781] border-b-[1px]">
+                      <p className=" border-b-greenPsique border-b-[1px]">
                         Mi Perfil
                       </p>
                     </a>
@@ -300,7 +304,7 @@ const Header = ({ currentPath }) => {
                             href="/mis-preferencias"
                             className="block text-left px-4 py-2 text-black hover:bg-gray-200"
                           >
-                            <p className="border-b-[#75B781] border-b-[1px]">
+                            <p className="border-b-greenPsique border-b-[1px]">
                               Mis Preferencias
                             </p>
                           </a>
@@ -310,7 +314,7 @@ const Header = ({ currentPath }) => {
                             href="/mis-psicologos"
                             className="block text-left px-4 py-2 text-black hover:bg-gray-200"
                           >
-                            <p className="border-b-[#75B781] border-b-[1px]">
+                            <p className="border-b-greenPsique border-b-[1px]">
                               Mis Psicologos
                             </p>
                           </a>
@@ -320,7 +324,7 @@ const Header = ({ currentPath }) => {
                     {user.rol === "psicologo" && (
                       <a href="reporte-diario">
                         <button className="block w-full text-left px-4 py-2 text-black hover:bg-gray-200">
-                          <p className=" border-b-[#75B781] border-b-[1px]">
+                          <p className=" border-b-greenPsique border-b-[1px]">
                             Reporte diario
                           </p>
                         </button>
@@ -330,7 +334,7 @@ const Header = ({ currentPath }) => {
                       className="block text-left w-full px-4 py-2 text-black hover:bg-gray-200"
                       onClick={handleLogout}
                     >
-                      <p className=" border-b-[#75B781] border-b-[1px]">
+                      <p className=" border-b-greenPsique border-b-[1px]">
                         Cerrar sesión
                       </p>
                     </button>

@@ -1,9 +1,12 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
+import Loader from "./Loader";
+import { toastService } from "../services/toastService";
 
 const Messages = () => {
   const [messages, setMessages] = useState([]);
   const [selectedMessage, setSelectedMessage] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchMessages = async () => {
@@ -23,10 +26,16 @@ const Messages = () => {
         setMessages(data);
       } catch (error) {
         console.error("Error al obtener los mensajes:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchMessages();
+
+    const interval = setInterval(fetchMessages, 10000);
+
+    return () => clearInterval(interval);
   }, []);
 
   const handleOpenModal = async (message) => {
@@ -67,43 +76,63 @@ const Messages = () => {
       );
       const data = await response.json();
       if (response.ok) {
-        alert("Paciente tomado exitosamente");
+        toastService.success("Paciente tomado exitosamente");
       } else {
-        alert(data.message || "Error al tomar paciente");
+        toastService.error(data.message || "Error al tomar paciente");
       }
     } catch (error) {
       console.error("Error:", error);
     }
   };
 
+  if (loading) {
+    return <Loader />;
+  }
+
   return (
-    <section className="flex flex-col items-center pt-10">
-      <h1 className="text-2xl font-bold mb-5">Mensajes de Pacientes</h1>
+    <section className="flex flex-col gap-[30px] justify-center items-center pt-[120px] pb-[70px]">
+      <h1 className="text-3xl font-bold font-Muli text-greenPsique">
+        Mensajes de Pacientes
+      </h1>
       <div className="w-full max-w-3xl">
-        {messages.map((message, index) => (
-          <div
-            key={message.id_mensaje || index}
-            className="p-4 border mb-4 rounded-lg shadow-md"
-          >
-            <p>
-              <strong>Paciente:</strong> {message.paciente.nombre}{" "}
-              {message.paciente.apellido}
-            </p>
-            <p>
-              <strong>Mensaje:</strong>{" "}
-              {message.contenido
-                ? message.contenido.substring(0, 50)
-                : "Sin mensaje"}
-              ...
-            </p>
-            <button
-              onClick={() => handleOpenModal(message)}
-              className="mt-2 bg-blue-500 text-white px-4 py-2 rounded"
+        {messages.length > 0 ? (
+          messages.map((message, index) => (
+            <div
+              key={message.id_mensaje || index}
+              className="p-4 border mb-4 rounded-lg shadow-md relative"
             >
-              Ver Detalles
-            </button>
-          </div>
-        ))}
+              <div className="flex items-center gap-2">
+                <p className="flex-1">
+                  <strong>Paciente:</strong> {message.paciente.nombre}{" "}
+                  {message.paciente.apellido}
+                </p>
+                {message.leido === 0 && (
+                  <div className="flex items-center gap-1">
+                    <span className="w-3 h-3 bg-red-500 rounded-full"></span>
+                    <span className="text-sm text-red-500">Nuevo</span>
+                  </div>
+                )}
+              </div>
+              <p>
+                <strong>Mensaje:</strong>{" "}
+                {message.contenido
+                  ? message.contenido.substring(0, 50)
+                  : "Sin mensaje"}
+                ...
+              </p>
+              <button
+                onClick={() => handleOpenModal(message)}
+                className="mt-2 bg-blue-500 text-white px-4 py-2 rounded"
+              >
+                Ver Detalles
+              </button>
+            </div>
+          ))
+        ) : (
+          <p className="text-3xl text-red-600 font-Muli text-center">
+            No tenes ningún mensaje.
+          </p>
+        )}
       </div>
 
       {showModal && selectedMessage && (

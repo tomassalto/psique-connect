@@ -22,6 +22,9 @@ class DatabaseSeeder extends Seeder
             RolesTableSeeder::class,
             PacienteSeeder::class,
             PsicologoSeeder::class,
+            PsicologoPacienteSeeder::class,
+            SesionSeeder::class,
+            CalificacionSeeder::class,
         ]);
     }
 }

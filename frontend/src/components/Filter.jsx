@@ -99,13 +99,13 @@ const Filter = ({ onFilter, selectedFilters, setSelectedFilters }) => {
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           placeholder="Buscar psicólogo por nombre o matrícula"
-          className="truncate border-[1px] border-[#75B781] p-2 h-[48px]"
+          className="truncate border-[1px] border-greenPsique p-2 h-[48px]"
         />
 
         <select
           value={selectedCorriente}
           onChange={(e) => setSelectedCorriente(e.target.value)}
-          className="truncate border-[1px] border-[#75B781] p-2 h-[48px]"
+          className="truncate border-[1px] border-greenPsique p-2 h-[48px]"
         >
           <option value="">Seleccione corriente</option>
           {corrientes.map((corriente) => (
@@ -118,7 +118,7 @@ const Filter = ({ onFilter, selectedFilters, setSelectedFilters }) => {
         <select
           value={selectedTematica}
           onChange={(e) => setSelectedTematica(e.target.value)}
-          className="truncate border-[1px] border-[#75B781] p-2 h-[48px]"
+          className="truncate border-[1px] border-greenPsique p-2 h-[48px]"
         >
           <option value="">Seleccione temática</option>
           {tematicas.map((tematica) => (
@@ -131,7 +131,7 @@ const Filter = ({ onFilter, selectedFilters, setSelectedFilters }) => {
         <select
           value={selectedPatologia}
           onChange={(e) => setSelectedPatologia(e.target.value)}
-          className="truncate border-[1px] border-[#75B781] p-2 h-[48px]"
+          className="truncate border-[1px] border-greenPsique p-2 h-[48px]"
         >
           <option value="">Seleccione patología</option>
           {patologias.map((patologia) => (
