@@ -9,6 +9,7 @@ use App\Models\Mensaje;
 use App\Models\Patologia;
 use Illuminate\Http\Request;
 use App\Models\Psicologo;
+use App\Models\Sesion;
 use App\Models\Tematica;
 use Illuminate\Support\Facades\Auth;
 
@@ -149,5 +150,33 @@ class PsychologistController extends Controller
                 'apellido' => $psychologist->apellido
             ]
         ]);
+    }
+
+    public function getSesionesByPaciente($dni_paciente)
+    {
+        $psicologo = Auth::user();
+
+        $sesiones = Sesion::where('matricula_psicologo', $psicologo->matricula)
+            ->where('dni_paciente', $dni_paciente)
+            ->orderBy('fecha', 'desc')
+            ->orderBy('hora', 'desc')
+            ->with('paciente')
+            ->get();
+
+        return response()->json($sesiones);
+    }
+
+    public function getMisPacientes()
+    {
+        $psicologo = Auth::user();
+
+        $pacientes = DB::table('psicologo_paciente')
+            ->join('paciente', 'psicologo_paciente.dni_paciente', '=', 'paciente.dni')
+            ->where('matricula_psicologo', $psicologo->matricula)
+            ->where('actual', true)
+            ->select('paciente.*')
+            ->get();
+
+        return response()->json($pacientes);
     }
 }
