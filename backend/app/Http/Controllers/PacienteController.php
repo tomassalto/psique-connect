@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\Psicologo;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\RelacionTerminada;
 
 class PacienteController extends Controller
 {
@@ -178,12 +180,14 @@ class PacienteController extends Controller
         $validated = $request->validate([
             'matricula_psicologo' => 'required|integer',
         ]);
-
+        $psicologo = Psicologo::where('matricula', $validated['matricula_psicologo'])->first();
         DB::table('psicologo_paciente')
             ->where('dni_paciente', $paciente->dni)
             ->where('matricula_psicologo', $validated['matricula_psicologo'])
             ->update(['actual' => false]);
 
+        Mail::to($psicologo->email)
+            ->send(new RelacionTerminada($paciente, $psicologo));
         return response()->json(['success' => true]);
     }
 
