@@ -10,6 +10,7 @@ import { toastService } from "../services/toastService";
 const localizer = momentLocalizer(moment);
 
 const MyCalendar = () => {
+  const [savingSession, setSavingSession] = useState(false);
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [matriculaPsicologo, setMatriculaPsicologo] = useState("");
@@ -44,7 +45,6 @@ const MyCalendar = () => {
 
   const fetchUserProfile = async () => {
     const token = localStorage.getItem("token");
-
     if (token) {
       try {
         const response = await fetch("http://127.0.0.1:8000/api/perfil", {
@@ -53,7 +53,6 @@ const MyCalendar = () => {
           },
         });
         const data = await response.json();
-
         if (data.rol === "psicologo") {
           setMatriculaPsicologo(data.matricula);
         } else {
@@ -87,7 +86,6 @@ const MyCalendar = () => {
           end: new Date(`${event.fecha}T${event.hora}`),
         }))
     );
-
     setLoading(false);
   };
 
@@ -101,6 +99,7 @@ const MyCalendar = () => {
 
   const saveNewSession = async () => {
     if (newEventTitle && newEventDNI) {
+      setSavingSession(true);
       const sessionData = {
         title: newEventTitle,
         dni_paciente: parseInt(newEventDNI, 10),
@@ -112,8 +111,8 @@ const MyCalendar = () => {
       };
 
       await saveSession(sessionData);
-
-      fetchSessions();
+      await fetchSessions();
+      setSavingSession(false);
       setModalVisible(false);
     } else {
       toastService.error(
@@ -133,7 +132,7 @@ const MyCalendar = () => {
       body: JSON.stringify(sessionData),
     });
     if (response.status === 201) {
-      toast.success("¡Sesion creada con éxito!", {
+      toast.success("¡Sesión creada con éxito!", {
         position: "bottom-center",
         autoClose: 2000,
         hideProgressBar: false,
@@ -211,57 +210,102 @@ const MyCalendar = () => {
 
   return (
     <div>
+      {(loading || savingSession) && <Loader />}
+
       {modalVisible && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-            <h2 className="text-lg font-semibold mb-4">Agregar Nueva Sesión</h2>
-            <label className="block mb-2">Título:</label>
-            <input
-              type="text"
-              className="border rounded-md p-2 mb-4 w-full"
-              value={newEventTitle}
-              onChange={(e) => setNewEventTitle(e.target.value)}
-            />
-            <label className="block mb-2">DNI Paciente:</label>
-            <select
-              className="border rounded-md p-2 mb-4 w-full"
-              value={newEventDNI}
-              onChange={(e) => setNewEventDNI(e.target.value)}
-            >
-              <option value="">Selecciona un paciente</option>
-              {pacientesDNI.map((dni) => (
-                <option key={dni} value={dni}>
-                  {dni}
-                </option>
-              ))}
-            </select>
-            <label className="block mb-2">Fecha:</label>
-            <input
-              type="date"
-              className="border rounded-md p-2 mb-4 w-full"
-              value={newEventDate}
-              onChange={(e) => setNewEventDate(e.target.value)}
-            />
-            <label className="block mb-2">Hora:</label>
-            <input
-              type="time"
-              className="border rounded-md p-2 mb-4 w-full"
-              value={newEventTime}
-              onChange={(e) => setNewEventTime(e.target.value)}
-            />
-            <div className="flex justify-end">
-              <button
-                onClick={saveNewSession}
-                className="bg-blue-500 text-white px-4 py-2 rounded-md mr-2"
-              >
-                Guardar Sesión
-              </button>
-              <button
-                onClick={() => setModalVisible(false)}
-                className="bg-gray-300 text-gray-700 px-4 py-2 rounded-md"
-              >
-                Cancelar
-              </button>
+            <h2 className="text-xl font-semibold mb-4 text-center text-greenPsique">
+              Nueva Sesión
+            </h2>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Título de la sesión:
+                </label>
+                <input
+                  type="text"
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-greenPsique focus:border-greenPsique"
+                  value={newEventTitle}
+                  onChange={(e) => setNewEventTitle(e.target.value)}
+                  placeholder="Ingrese un título"
+                  disabled={savingSession}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  DNI del Paciente:
+                </label>
+                <select
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-greenPsique focus:border-greenPsique"
+                  value={newEventDNI}
+                  onChange={(e) => setNewEventDNI(e.target.value)}
+                  disabled={savingSession}
+                >
+                  <option value="">Seleccione un paciente</option>
+                  {pacientesDNI.map((dni) => (
+                    <option key={dni} value={dni}>
+                      {dni}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Fecha:
+                </label>
+                <input
+                  type="date"
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-greenPsique focus:border-greenPsique"
+                  value={newEventDate}
+                  onChange={(e) => setNewEventDate(e.target.value)}
+                  disabled={savingSession}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Hora:
+                </label>
+                <input
+                  type="time"
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-greenPsique focus:border-greenPsique"
+                  value={newEventTime}
+                  onChange={(e) => setNewEventTime(e.target.value)}
+                  disabled={savingSession}
+                />
+              </div>
+
+              <div className="flex justify-end space-x-3 mt-6">
+                <button
+                  onClick={saveNewSession}
+                  disabled={savingSession}
+                  className={`px-4 py-2 rounded-md text-white transition-colors duration-200 
+                    ${
+                      savingSession
+                        ? "bg-gray-400 cursor-not-allowed"
+                        : "bg-greenPsique hover:bg-greenPsiqueHover"
+                    }`}
+                >
+                  {savingSession ? "Guardando..." : "Guardar Sesión"}
+                </button>
+
+                <button
+                  onClick={() => setModalVisible(false)}
+                  disabled={savingSession}
+                  className={`px-4 py-2 rounded-md transition-colors duration-200 
+                    ${
+                      savingSession
+                        ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                        : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                    }`}
+                >
+                  Cancelar
+                </button>
+              </div>
             </div>
           </div>
         </div>

@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\SesionCreada;
 use App\Models\Paciente;
 use App\Models\Sesion;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 
 class SesionController extends Controller
 {
@@ -13,7 +15,7 @@ class SesionController extends Controller
     public function store(Request $request)
     {
         $psicologo = auth()->user();
-        $isPaciente = Paciente::where('dni', $request['dni_paciente'])->exists();
+        $paciente = Paciente::where('dni', $request['dni_paciente'])->first();
 
         $request->validate([
             'dni_paciente' => 'required|integer',
@@ -23,7 +25,7 @@ class SesionController extends Controller
         ]);
 
 
-        if (!$isPaciente) {
+        if (!$paciente) {
             return response()->json(['message' => 'DNI del paciente incorrecto'], 404);
         }
 
@@ -36,6 +38,12 @@ class SesionController extends Controller
             'presencial' => false,
             'cancelado' => false,
         ]);
+
+        Mail::to($paciente->email)
+            ->send(new SesionCreada($sesion, $paciente, $psicologo, false));
+
+        Mail::to($psicologo->email)
+            ->send(new SesionCreada($sesion, $paciente, $psicologo, true));
 
         return response()->json($sesion, 201);
     }

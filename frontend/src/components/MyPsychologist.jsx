@@ -8,6 +8,7 @@ const MisPsicologos = () => {
   const [psychologists, setPsychologists] = useState([]);
   const [selectedPsychologist, setSelectedPsychologist] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [endingRelation, setEndingRelation] = useState(false);
 
   useEffect(() => {
     fetchPsychologists();
@@ -58,28 +59,36 @@ const MisPsicologos = () => {
   };
 
   const handleEndRelation = async (matricula_psicologo) => {
-    const response = await fetch(
-      "http://127.0.0.1:8000/api/terminar-relacion",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-        body: JSON.stringify({ matricula_psicologo }),
+    setEndingRelation(true);
+    try {
+      const response = await fetch(
+        "http://127.0.0.1:8000/api/terminar-relacion",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          body: JSON.stringify({ matricula_psicologo }),
+        }
+      );
+      const data = await response.json();
+      if (data.success) {
+        await fetchPsychologists();
+        toastService.success("Relación terminada con éxito.");
+      } else {
+        toastService.error("Error al terminar la relación.");
       }
-    );
-    const data = await response.json();
-    if (data.success) {
-      fetchPsychologists();
-      toastService.success("Relación terminada.");
-    } else {
+    } catch (error) {
       toastService.error("Error al terminar la relación.");
+    } finally {
+      setEndingRelation(false);
     }
   };
   if (loading) return <Loader />;
   return (
     <section className="flex flex-col gap-[30px] justify-center items-center pt-[120px] pb-[70px]">
+      {(loading || endingRelation) && <Loader />}
       <h2 className="text-3xl font-semibold mb-4 font-Muli text-greenPsique">
         Mis Psicólogos
       </h2>
