@@ -85,6 +85,16 @@ const Header = ({ currentPath }) => {
                 <a
                   className="block text-left py-2 text-[#264534] hover:bg-gray-200 font-bold"
                   href={`${
+                    currentPath === "/mis-sesiones" ? "#" : "/mis-sesiones"
+                  }`}
+                >
+                  Mis Sesiones
+                </a>
+              </li>
+              <li>
+                <a
+                  className="block text-left py-2 text-[#264534] hover:bg-gray-200 font-bold"
+                  href={`${
                     currentPath === "/match-psicologo"
                       ? "#"
                       : "/match-psicologo"
@@ -110,6 +120,16 @@ const Header = ({ currentPath }) => {
         case "psicologo":
           return (
             <>
+              <li>
+                <a
+                  className="block text-left py-2 text-[#264534] hover:bg-gray-200 font-bold"
+                  href={`${
+                    currentPath === "/mis-pacientes" ? "#" : "/mis-pacientes"
+                  }`}
+                >
+                  Mis Pacientes
+                </a>
+              </li>
               <li className="relative flex gap-2">
                 <a href="/mensajes">
                   <p className="text-[#264534] font-bold">Mensajes</p>
