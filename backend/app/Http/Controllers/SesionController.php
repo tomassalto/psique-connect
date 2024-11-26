@@ -81,4 +81,16 @@ class SesionController extends Controller
 
         return response()->json($sesionesHoy);
     }
+
+    public function misSesiones()
+    {
+        $paciente = auth()->user();
+
+        $sesiones = Sesion::where('dni_paciente', $paciente->dni)
+            ->orderBy('fecha', 'desc')
+            ->orderBy('hora', 'desc')
+            ->get();
+
+        return response()->json($sesiones);
+    }
 }
