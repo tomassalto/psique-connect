@@ -86,18 +86,18 @@ const MisSesiones = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="flex flex-col gap-[30px] justify-center items-center pt-[120px] pb-[70px]">
       {(loading || processingPayment) && <Loader />}
 
       <h2 className="text-3xl font-Muli text-center font-bold mb-6 text-greenPsique">
         Mis Sesiones
       </h2>
 
-      <div className="grid gap-4">
+      <div className="grid grid-cols-3 gap-4">
         {sesiones.map((sesion) => (
           <div
             key={sesion.id_sesion}
-            className="border rounded-lg p-4 shadow-sm"
+            className="border rounded-lg p-4 shadow-sm w-[500px]"
           >
             <div className="flex justify-between items-center">
               <div>
@@ -127,7 +127,7 @@ const MisSesiones = () => {
                 ) : null}
                 {sesion.pago && sesion.comprobante_path ? (
                   <Button
-                    text="Ver Comprobante"
+                    text="Comprobante"
                     onClick={() => verComprobante(sesion.id_sesion)}
                     className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
                   />
