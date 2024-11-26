@@ -83,32 +83,38 @@ const MisPacientes = () => {
   if (loading) return <Loader />;
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="flex flex-col gap-[30px] justify-center items-center pt-[120px] pb-[70px]">
       <h2 className="text-3xl font-Muli text-center font-bold mb-6 text-greenPsique">
         Mis Pacientes
       </h2>
-
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {pacientes.map((paciente) => (
-          <div
-            key={paciente.dni}
-            className="border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow"
-          >
-            <h3 className="font-semibold text-lg mb-2">
-              {paciente.nombre} {paciente.apellido}
-            </h3>
-            <p className="text-gray-600">DNI: {paciente.dni}</p>
-            <p className="text-gray-600">Email: {paciente.email}</p>
-            <button
-              onClick={() => handleOpenModal(paciente)}
-              className="mt-4 bg-greenPsique text-white px-4 py-2 rounded hover:bg-opacity-90"
+      {!loading && pacientes.length === 0 ? (
+        <div className="flex justify-center items-center w-full">
+          <p className="text-3xl text-red-600 font-Muli text-center">
+            No tienes pacientes asignados.
+          </p>
+        </div>
+      ) : (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {pacientes.map((paciente) => (
+            <div
+              key={paciente.dni}
+              className="border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow"
             >
-              Ver Historial
-            </button>
-          </div>
-        ))}
-      </div>
-
+              <h3 className="font-semibold text-lg mb-2">
+                {paciente.nombre} {paciente.apellido}
+              </h3>
+              <p className="text-gray-600">DNI: {paciente.dni}</p>
+              <p className="text-gray-600">Email: {paciente.email}</p>
+              <button
+                onClick={() => handleOpenModal(paciente)}
+                className="mt-4 bg-greenPsique text-white px-4 py-2 rounded hover:bg-opacity-90"
+              >
+                Ver Historial
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
       {showModal && selectedPaciente && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-lg p-6 w-[600px] h-[500px] flex flex-col">

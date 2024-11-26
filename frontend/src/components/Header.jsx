@@ -145,6 +145,14 @@ const Header = ({ currentPath }) => {
                   Agenda
                 </a>
               </li>
+              <li>
+                <a
+                  className="block text-left py-2 text-[#264534] hover:bg-gray-200 font-bold"
+                  href={`${currentPath === "/metricas" ? "#" : "/metricas"}`}
+                >
+                  Metricas
+                </a>
+              </li>
             </>
           );
         default:

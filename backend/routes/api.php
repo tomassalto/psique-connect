@@ -8,6 +8,7 @@ use App\Http\Controllers\PacienteController;
 use App\Http\Controllers\PerfilController;
 use App\Http\Controllers\PsychologistController;
 use App\Http\Controllers\MensajeController;
+use App\Http\Controllers\MetricasController;
 use App\Http\Controllers\PagoController;
 
 Route::get('/tematicas', [OptionsController::class, 'getTematicas']);
@@ -51,6 +52,7 @@ Route::middleware(['auth:sanctum', 'role:psicologo'])->group(function () {
     Route::get('/sesiones-de-hoy', [SesionController::class, 'sesionesDeHoy']);
     Route::get('/mis-pacientes', [PsychologistController::class, 'getMisPacientes']);
     Route::get('/sesiones-paciente/{dni_paciente}', [PsychologistController::class, 'getSesionesByPaciente']);
+    Route::get('/metricas-psicologo', [MetricasController::class, 'getMetricasPsicologo']);
 });
 Route::middleware('auth:sanctum')->group(function () {});
 
