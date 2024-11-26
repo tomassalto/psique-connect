@@ -46,7 +46,9 @@ export const registerPsychologistSchema = Yup.object({
     .required("Promedio es requerido"),
   codigo_postal: Yup.string().required("Código postal es requerido"),
   id_tematica: Yup.string().required("Temática es requerida"),
-  id_patologia: Yup.string().required("Patología es requerida"),
+  patologias: Yup.array()
+    .min(1, "Debe seleccionar al menos una patología")
+    .required("Debe seleccionar al menos una patología"),
   id_corriente: Yup.string().required("Corriente psicológica es requerida"),
   email: Yup.string()
     .email("Email inválido")
@@ -93,7 +95,9 @@ export const editPsychologist = Yup.object({
     .required("Promedio es requerido"),
   codigo_postal: Yup.string().required("Código postal es requerido"),
   id_tematica: Yup.string().required("Temática es requerida"),
-  id_patologia: Yup.string().required("Patología es requerida"),
+  patologias: Yup.array()
+    .min(1, "Debe seleccionar al menos una patología")
+    .required("Debe seleccionar al menos una patología"),
   id_corriente: Yup.string().required("Corriente psicológica es requerida"),
   email: Yup.string()
     .email("Email inválido")

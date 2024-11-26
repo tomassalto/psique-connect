@@ -35,16 +35,15 @@ class PsychologistController extends Controller
     public function search(Request $request)
     {
         $searchTerm = $request->query('search');
-
         $corriente = $request->query('corriente');
         $tematica = $request->query('tematica');
-        $patologia = $request->query('patologia');
+        $patologias = $request->query('patologias') ? explode(',', $request->query('patologias')) : null;
 
-        $query = Psicologo::with('patologia', 'corriente', 'tematica');
+        $query = Psicologo::with(['patologias', 'corriente', 'tematica']);
 
+        // Aplicar filtros básicos
         if ($searchTerm) {
             $query->where(function ($q) use ($searchTerm) {
-
                 if (is_numeric($searchTerm)) {
                     $q->where('matricula', $searchTerm);
                 } else {
@@ -62,22 +61,77 @@ class PsychologistController extends Controller
             $query->where('id_tematica', $tematica);
         }
 
-        if ($patologia) {
-            $query->where('id_patologia', $patologia);
-        }
+        // Obtener psicólogos y calcular coincidencias
+        $psicologos = $query->get()->map(function ($psicologo) use ($patologias) {
+            $coincidencias = 0;
 
-        $psicologos = $query->get();
+            // Calcular coincidencias de patologías
+            if ($patologias) {
+                $patologiasDelPsicologo = $psicologo->patologias->pluck('id_patologia')->toArray();
+                $coincidencias = count(array_intersect($patologias, $patologiasDelPsicologo));
+            }
 
-        return response()->json($psicologos);
+            return [
+                'matricula' => $psicologo->matricula,
+                'nombre' => $psicologo->nombre,
+                'apellido' => $psicologo->apellido,
+                'email' => $psicologo->email,
+                'promedio' => $psicologo->promedio ?? 0,
+                'patologias' => $psicologo->patologias->map(function ($patologia) {
+                    return [
+                        'id_patologia' => $patologia->id_patologia,
+                        'nombre' => $patologia->nombre
+                    ];
+                }),
+                'corriente' => [
+                    'id_corriente' => $psicologo->corriente->id_corriente,
+                    'nombre' => $psicologo->corriente->nombre
+                ],
+                'tematica' => [
+                    'id_tematica' => $psicologo->tematica->id_tematica,
+                    'nombre' => $psicologo->tematica->nombre
+                ],
+                'coincidencias' => $coincidencias
+            ];
+        });
+
+        // Ordenar resultados
+        $psicologosOrdenados = $psicologos->sortBy(function ($psicologo) {
+            // Orden inverso: más coincidencias primero, luego mejor promedio
+            return [-$psicologo['coincidencias'], -$psicologo['promedio']];
+        })->values();
+
+        return response()->json($psicologosOrdenados);
     }
-
     public function index()
     {
-        $psicologos = Psicologo::with('patologia', 'corriente', 'tematica')->get();
+        $psicologos = Psicologo::with(['patologias', 'corriente', 'tematica'])->get()
+            ->map(function ($psicologo) {
+                return [
+                    'matricula' => $psicologo->matricula,
+                    'nombre' => $psicologo->nombre,
+                    'apellido' => $psicologo->apellido,
+                    'email' => $psicologo->email,
+                    'promedio' => $psicologo->promedio,
+                    'patologias' => $psicologo->patologias->map(function ($patologia) {
+                        return [
+                            'id_patologia' => $patologia->id_patologia,
+                            'nombre' => $patologia->nombre
+                        ];
+                    }),
+                    'corriente' => [
+                        'id_corriente' => $psicologo->corriente->id_corriente,
+                        'nombre' => $psicologo->corriente->nombre
+                    ],
+                    'tematica' => [
+                        'id_tematica' => $psicologo->tematica->id_tematica,
+                        'nombre' => $psicologo->tematica->nombre
+                    ]
+                ];
+            });
 
         return response()->json($psicologos);
     }
-
     public function getMessages()
     {
         $psicologo = Auth::user();

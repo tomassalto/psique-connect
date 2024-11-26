@@ -6,23 +6,26 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
-    public function up()
+    public function up(): void
     {
         Schema::create('psicologo_patologia', function (Blueprint $table) {
-            $table->id('id_psicologo_patologia');
-            $table->integer('matricula_psicolgo');
+            $table->id();
+            $table->integer('matricula_psicologo');
             $table->unsignedBigInteger('id_patologia');
-
-            $table->foreign('matricula_psicolgo')->references('matricula')->on('psicologo');
-            $table->foreign('id_patologia')->references('id_patologia')->on('patologia');
             $table->timestamps();
+
+            $table->foreign('matricula_psicologo')
+                ->references('matricula')
+                ->on('psicologo')
+                ->onDelete('cascade');
+            $table->foreign('id_patologia')
+                ->references('id_patologia')
+                ->on('patologia')
+                ->onDelete('cascade');
         });
     }
 
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('psicologo_patologia');
     }

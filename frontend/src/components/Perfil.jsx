@@ -86,6 +86,17 @@ const Perfil = () => {
                         <p className="text-[20px]">
                           <strong>Promedio:</strong> {user.promedio}
                         </p>
+                        <div className="text-[20px]">
+                          <strong>Patologías que trata:</strong>
+                          <ul className="list-disc pl-8 mt-2">
+                            {user.patologias &&
+                              user.patologias.map((patologia) => (
+                                <li key={patologia.id_patologia}>
+                                  {patologia.nombre}
+                                </li>
+                              ))}
+                          </ul>
+                        </div>
                       </div>
                     ) : user.rol === "paciente" ? (
                       <div className="flex flex-col gap-[30px]">

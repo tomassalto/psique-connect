@@ -1,16 +1,46 @@
 import React, { useState, useEffect } from "react";
 import Button from "./Button";
 
-const Filter = ({ onFilter, selectedFilters, setSelectedFilters }) => {
+const Filter = ({
+  onFilter,
+  selectedFilters,
+  setSelectedFilters,
+  clearAllFilters,
+}) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [corrientes, setCorrientes] = useState([]);
   const [tematicas, setTematicas] = useState([]);
   const [patologias, setPatologias] = useState([]);
+  const [showPatologiasModal, setShowPatologiasModal] = useState(false);
+  const [selectedPatologias, setSelectedPatologias] = useState([]);
 
   const [selectedCorriente, setSelectedCorriente] = useState("");
   const [selectedTematica, setSelectedTematica] = useState("");
   const [selectedPatologia, setSelectedPatologia] = useState("");
 
+  const handleClearFilters = () => {
+    setSearchTerm("");
+    setSelectedCorriente("");
+    setSelectedTematica("");
+    setSelectedPatologias([]);
+
+    setSelectedFilters({
+      corriente: "",
+      tematica: "",
+      patologia: "",
+      searchTerm: "",
+    });
+
+    handleSearch(new Event("submit"));
+  };
+  useEffect(() => {
+    if (clearAllFilters) {
+      setSearchTerm("");
+      setSelectedCorriente("");
+      setSelectedTematica("");
+      setSelectedPatologias([]);
+    }
+  }, [clearAllFilters]);
   useEffect(() => {
     const fetchOptions = async () => {
       try {
@@ -58,7 +88,7 @@ const Filter = ({ onFilter, selectedFilters, setSelectedFilters }) => {
         search: searchTerm,
         corriente: selectedCorriente,
         tematica: selectedTematica,
-        patologia: selectedPatologia,
+        patologias: selectedPatologias.join(","),
       }).toString();
 
       const response = await fetch(
@@ -82,12 +112,23 @@ const Filter = ({ onFilter, selectedFilters, setSelectedFilters }) => {
       console.error("Error:", error);
     }
   };
+
   useEffect(() => {
     setSelectedCorriente(selectedFilters.corriente);
     setSelectedTematica(selectedFilters.tematica);
     setSelectedPatologia(selectedFilters.patologia);
     setSearchTerm(selectedFilters.searchTerm);
   }, [selectedFilters]);
+
+  const handlePatologiaChange = (patologiaId) => {
+    setSelectedPatologias((prev) => {
+      if (prev.includes(patologiaId)) {
+        return prev.filter((id) => id !== patologiaId);
+      } else {
+        return [...prev, patologiaId];
+      }
+    });
+  };
   return (
     <div className="filter-section">
       <form
@@ -128,22 +169,70 @@ const Filter = ({ onFilter, selectedFilters, setSelectedFilters }) => {
           ))}
         </select>
 
-        <select
-          value={selectedPatologia}
-          onChange={(e) => setSelectedPatologia(e.target.value)}
-          className="truncate border-[1px] border-greenPsique p-2 h-[48px]"
+        <button
+          type="button"
+          onClick={() => setShowPatologiasModal(true)}
+          className="truncate border-[1px] border-greenPsique p-2 h-[48px] min-w-[200px] text-left relative"
         >
-          <option value="">Seleccione patología</option>
-          {patologias.map((patologia) => (
-            <option key={patologia.id_patologia} value={patologia.id_patologia}>
-              {patologia.nombre}
-            </option>
-          ))}
-        </select>
+          {selectedPatologias.length > 0
+            ? `${selectedPatologias.length} patologías seleccionadas`
+            : "Seleccionar patologías"}
+        </button>
+
         <div>
           <Button text="Buscar" color="primary" type="submit" />
         </div>
       </form>
+      {showPatologiasModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg w-[500px] max-h-[80vh] overflow-y-auto">
+            <h3 className="text-xl font-bold mb-4 text-greenPsique">
+              Seleccionar Patologías
+            </h3>
+            <div className="grid grid-cols-2 gap-4">
+              {patologias.map((patologia) => (
+                <div
+                  key={patologia.id_patologia}
+                  className="flex items-center gap-2"
+                >
+                  <input
+                    type="checkbox"
+                    id={`patologia-${patologia.id_patologia}`}
+                    checked={selectedPatologias.includes(
+                      patologia.id_patologia
+                    )}
+                    onChange={() =>
+                      handlePatologiaChange(patologia.id_patologia)
+                    }
+                    className="w-4 h-4"
+                  />
+                  <label htmlFor={`patologia-${patologia.id_patologia}`}>
+                    {patologia.nombre}
+                  </label>
+                </div>
+              ))}
+            </div>
+            <div className="mt-6 flex justify-end gap-4">
+              <button
+                type="button"
+                onClick={() => setShowPatologiasModal(false)}
+                className="bg-gray-500 text-white px-4 py-2 rounded"
+              >
+                Cerrar
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowPatologiasModal(false);
+                }}
+                className="bg-greenPsique text-white px-4 py-2 rounded"
+              >
+                Aplicar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

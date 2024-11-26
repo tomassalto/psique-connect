@@ -25,7 +25,6 @@ class Psicologo extends Authenticatable
         'promedio',
         'codigo_postal',
         'id_tematica',
-        'id_patologia',
         'id_corriente',
         'email',
         'password',
@@ -59,9 +58,16 @@ class Psicologo extends Authenticatable
         return $this->belongsTo(Tematica::class, 'id_tematica', 'id_tematica');
     }
 
-    public function patologia()
+    public function patologias()
     {
-        return $this->belongsTo(Patologia::class, 'id_patologia', 'id_patologia');
+        return $this->belongsToMany(
+            Patologia::class,
+            'psicologo_patologia',
+            'matricula_psicologo',
+            'id_patologia',
+            'matricula',
+            'id_patologia'
+        );
     }
 
     public function corriente()

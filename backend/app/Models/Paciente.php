@@ -47,4 +47,16 @@ class Paciente extends Authenticatable
     {
         return $this->belongsToMany(\Spatie\Permission\Models\Role::class, 'model_has_roles', 'model_id', 'role_id');
     }
+
+    public function patologias()
+    {
+        return $this->belongsToMany(
+            Patologia::class,
+            'paciente_patologia',
+            'dni_paciente',
+            'id_patologia',
+            'dni',
+            'id_patologia'
+        );
+    }
 }

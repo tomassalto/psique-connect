@@ -11,12 +11,24 @@ const PsychologistCard = () => {
   const [filteredPsicologos, setFilteredPsicologos] = useState([]);
   const [selectedPsicologo, setSelectedPsicologo] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [clearTrigger, setClearTrigger] = useState(false);
   const [selectedFilters, setSelectedFilters] = useState({
     corriente: "",
     tematica: "",
     patologia: "",
     searchTerm: "",
   });
+
+  const clearFilters = () => {
+    setSelectedFilters({
+      corriente: "",
+      tematica: "",
+      patologia: "",
+      searchTerm: "",
+    });
+    setClearTrigger((prev) => !prev); // Toggle para forzar la actualización
+    setFilteredPsicologos(psicologos);
+  };
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -76,16 +88,6 @@ const PsychologistCard = () => {
     setFilteredPsicologos(results);
   };
 
-  const clearFilters = () => {
-    setSelectedFilters({
-      corriente: "",
-      tematica: "",
-      patologia: "",
-      searchTerm: "",
-    });
-    setFilteredPsicologos(psicologos);
-  };
-
   const handleContactar = (psicologo) => {
     setSelectedPsicologo(psicologo);
     setShowModal(true);
@@ -105,6 +107,7 @@ const PsychologistCard = () => {
               onFilter={handleFilteredResults}
               selectedFilters={selectedFilters}
               setSelectedFilters={setSelectedFilters}
+              clearAllFilters={clearTrigger}
             />
             <div className="flex justify-end">
               <button
@@ -143,8 +146,8 @@ const PsychologistCard = () => {
                         <strong>Matrícula:</strong> {psicologo.matricula}
                       </p>
                       <p>
-                        <strong>Patología:</strong>{" "}
-                        {psicologo.patologia?.nombre}
+                        <strong>Patologías:</strong>{" "}
+                        {psicologo.patologias.map((p) => p.nombre).join(", ")}
                       </p>
                       <p>
                         <strong>Corriente:</strong>{" "}

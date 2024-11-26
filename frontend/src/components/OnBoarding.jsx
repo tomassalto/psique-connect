@@ -1,12 +1,27 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 const OnBoarding = ({ onComplete }) => {
   const [currentStep, setCurrentStep] = useState(0);
+  const [patologias, setPatologias] = useState([]);
   const [preferences, setPreferences] = useState({
     tematica: null,
     corriente: null,
-    patologia: null,
+    patologias: [],
   });
+
+  useEffect(() => {
+    // Cargar las patologías desde la API
+    const fetchPatologias = async () => {
+      try {
+        const response = await fetch("http://127.0.0.1:8000/api/patologias");
+        const data = await response.json();
+        setPatologias(data);
+      } catch (error) {
+        console.error("Error fetching patologias:", error);
+      }
+    };
+    fetchPatologias();
+  }, []);
 
   const questions = [
     {
@@ -28,31 +43,29 @@ const OnBoarding = ({ onComplete }) => {
     },
     {
       title: "¿Qué patología quieres tratar?",
-      options: [
-        { label: "Depresión", value: 1 },
-        { label: "Suicidio", value: 2 },
-        { label: "Drogas", value: 3 },
-      ],
-      key: "patologia",
+      options: patologias.map((p) => ({
+        label: p.nombre,
+        value: p.id_patologia,
+      })),
+      key: "patologias",
+      type: "multiple",
     },
   ];
 
-  const handleOptionSelect = (value) => {
+  const handleOptionSelect = (value, type) => {
     const key = questions[currentStep].key;
 
     setPreferences((prev) => {
-      const updatedPreferences = { ...prev, [key]: value };
-
-      console.log("Preferencias actualizadas:", updatedPreferences);
-
-      if (currentStep === questions.length - 1) {
-        handleSubmit(updatedPreferences);
+      if (type === "multiple") {
+        const updatedPatologias = prev.patologias.includes(value)
+          ? prev.patologias.filter((id) => id !== value)
+          : [...prev.patologias, value];
+        return { ...prev, [key]: updatedPatologias };
       }
-
-      return updatedPreferences;
+      return { ...prev, [key]: value };
     });
 
-    if (currentStep < questions.length - 1) {
+    if (type === "single" && currentStep < questions.length - 1) {
       setCurrentStep((prev) => prev + 1);
     }
   };
@@ -63,15 +76,14 @@ const OnBoarding = ({ onComplete }) => {
     }
   };
 
-  const handleSubmit = async (preferences) => {
+  const handleSubmit = async () => {
+    if (preferences.patologias.length === 0) {
+      alert("Por favor, selecciona al menos una patología");
+      return;
+    }
+
     try {
       const token = localStorage.getItem("token");
-
-      if (!token) {
-        window.location.href = "/login";
-        return;
-      }
-
       await fetch("http://127.0.0.1:8000/api/guardar_preferencias_y_match", {
         method: "POST",
         body: JSON.stringify(preferences),
@@ -80,7 +92,6 @@ const OnBoarding = ({ onComplete }) => {
           Authorization: `Bearer ${token}`,
         },
       });
-
       onComplete();
     } catch (error) {
       console.error("Error al guardar las preferencias", error);
@@ -92,24 +103,66 @@ const OnBoarding = ({ onComplete }) => {
       <h2 className="text-3xl font-bold text-center text-greenPsique">
         {questions[currentStep].title}
       </h2>
-      <div className="options flex gap-10 h-[62px]">
-        {questions[currentStep].options.map((option) => (
-          <button
-            key={option.value}
-            onClick={() => handleOptionSelect(option.value)}
-            className="bg-greenPsique px-5 py-3 w-full h-full font-Muli rounded flex items-center text-[16px] justify-center sm:px-5 text-white text-lg"
-          >
-            {option.label}
-          </button>
-        ))}
-        {currentStep > 0 && (
-          <button
-            onClick={handleBack}
-            className="bg-red-500 w-[150px] text-white py-2 px-6 rounded hover:bg-red-600 h-full"
-          >
-            Atrás
-          </button>
-        )}
+
+      <div className="flex flex-col gap-6">
+        <div
+          className={`options flex ${
+            questions[currentStep].type === "multiple"
+              ? "grid grid-cols-4"
+              : "flex-row justify-evenly"
+          } gap-4`}
+        >
+          {questions[currentStep].options.map((option) => (
+            <div key={option.value} className="flex wrapper items-center gap-2">
+              {questions[currentStep].type === "multiple" ? (
+                <>
+                  <input
+                    type="checkbox"
+                    id={`patologia-${option.value}`}
+                    checked={preferences.patologias.includes(option.value)}
+                    onChange={() =>
+                      handleOptionSelect(option.value, "multiple")
+                    }
+                    className="w-4 h-4"
+                  />
+                  <label
+                    className="text-black"
+                    htmlFor={`patologia-${option.value}`}
+                  >
+                    {option.label}
+                  </label>
+                </>
+              ) : (
+                <button
+                  onClick={() => handleOptionSelect(option.value, "single")}
+                  className="bg-greenPsique px-5 py-3 w-full font-Muli rounded text-white"
+                >
+                  {option.label}
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
+
+        <div className="flex justify-between gap-4">
+          {currentStep > 0 && (
+            <button
+              onClick={handleBack}
+              className="bg-gray-500 px-5 py-3 w-full font-Muli rounded text-white"
+            >
+              Atrás
+            </button>
+          )}
+
+          {currentStep === questions.length - 1 && (
+            <button
+              onClick={handleSubmit}
+              className="bg-greenPsique px-5 py-3 w-full font-Muli rounded text-white"
+            >
+              Guardar Preferencias
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );

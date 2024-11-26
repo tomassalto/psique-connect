@@ -76,16 +76,18 @@ const MatchPsicologos = () => {
                             <strong>Matrícula:</strong> {psicologo.matricula}
                           </p>
                           <p>
-                            <strong>Patología:</strong>{" "}
-                            {psicologo.nombre_patologia}
+                            <strong>Patologías:</strong>{" "}
+                            {psicologo.patologias
+                              .map((p) => p.nombre)
+                              .join(", ")}
                           </p>
                           <p>
                             <strong>Corriente:</strong>{" "}
-                            {psicologo.nombre_corriente}
+                            {psicologo.corriente.nombre}
                           </p>
                           <p>
                             <strong>Temática:</strong>{" "}
-                            {psicologo.nombre_tematica}
+                            {psicologo.tematica.nombre}
                           </p>
                         </div>
                         <div className="flex flex-col gap-5">

@@ -48,9 +48,9 @@ class PerfilController extends Controller
                             'promedio' => $psicologo->promedio,
                             'codigo_postal' => $psicologo->codigo_postal,
                             'id_tematica' => $psicologo->id_tematica,
-                            'id_patologia' => $psicologo->id_patologia,
+                            'patologias' => $psicologo->patologias,
                             'id_corriente' => $psicologo->id_corriente,
-                            'rol' => $firstRole // Devuelve solo el primer rol
+                            'rol' => $firstRole
                         ]);
                     } else {
                         return response()->json(['error' => 'Psicólogo no encontrado'], 404);
@@ -104,29 +104,23 @@ class PerfilController extends Controller
                 'promedio' => 'required|numeric|between:0,10',
                 'codigo_postal' => 'required|integer',
                 'id_tematica' => 'required|integer',
-                'id_patologia' => 'required|integer',
+                'patologias' => 'required|array|min:1',
+                'patologias.*' => 'exists:patologia,id_patologia',
                 'id_corriente' => 'required|integer',
                 'email' => 'required|email'
             ]);
 
-            $user = Psicologo::where('email', $request->email)->orWhere('matricula', $request->matricula)->first();
+            $user = Psicologo::where('email', $request->email)
+                ->orWhere('matricula', $request->matricula)
+                ->first();
 
             if (!$user) {
                 return response()->json(['message' => 'Psicólogo no encontrado.'], 404);
             }
 
-            $user->update($request->only([
-                'nombre',
-                'apellido',
-                'telefono',
-                'promedio',
-                'codigo_postal',
-                'id_tematica',
-                'id_patologia',
-                'id_corriente',
-                'email'
-            ]));
+            $user->update($request->except(['patologias']));
 
+            $user->patologias()->sync($request->patologias);
             return response()->json(['message' => 'Perfil del psicólogo actualizado con éxito.'], 201);
         } else {
             return response()->json(['message' => 'Rol no autorizado para esta acción.'], 403);

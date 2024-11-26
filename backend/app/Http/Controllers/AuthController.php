@@ -95,7 +95,8 @@ class AuthController extends Controller
             'promedio' => 'required|numeric|between:0,10',
             'codigo_postal' => 'required|integer',
             'id_tematica' => 'required|integer',
-            'id_patologia' => 'required|integer',
+            'patologias' => 'required|array|min:1',
+            'patologias.*' => 'exists:patologia,id_patologia',
             'id_corriente' => 'required|integer',
             'email' => 'required|email|unique:psicologo',
             'password' => 'required|confirmed|min:8',
@@ -109,22 +110,21 @@ class AuthController extends Controller
             'promedio' => $validatedData['promedio'],
             'codigo_postal' => $validatedData['codigo_postal'],
             'id_tematica' => $validatedData['id_tematica'],
-            'id_patologia' => $validatedData['id_patologia'],
             'id_corriente' => $validatedData['id_corriente'],
             'email' => $validatedData['email'],
             'password' => bcrypt($validatedData['password']),
         ]);
 
-        // Obtener o crear el rol
+        // Asignar el rol
         $role = \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'psicologo', 'guard_name' => 'web']);
-
-        // Asignar el rol al paciente
         DB::table('model_has_roles')->insert([
             'role_id' => $role->id,
-            'model_type' => 'App\Models\Psicologo',  // Tipo de modelo correcto
-            'model_id' => $psicologo->matricula             // El ID del psicologo
+            'model_type' => 'App\Models\Psicologo',
+            'model_id' => $psicologo->matricula
         ]);
-        $psicologo->save();
+
+        // Asociar las patologías seleccionadas
+        $psicologo->patologias()->attach($validatedData['patologias']);
 
         return response()->json($psicologo, 201);
     }

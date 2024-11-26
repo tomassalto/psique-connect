@@ -75,11 +75,23 @@ const EditPreferences = () => {
           <h1 className="text-3xl font-bold font-Muli text-center text-greenPsique">
             Editar Preferencias
           </h1>
-          <ul className="list-disc list-inside">
-            <li>Patología: {preferences.patologia}</li>
-            <li>Corriente: {preferences.corriente}</li>
-            <li>Temática: {preferences.tematica}</li>
-          </ul>
+          <div className="flex flex-col gap-[20px] text-[20px]">
+            <div>
+              <strong>Temática:</strong> {preferences.tematica}
+            </div>
+            <div>
+              <strong>Corriente:</strong> {preferences.corriente}
+            </div>
+            <div>
+              <strong>Patologías a tratar:</strong>
+              <ul className="list-disc pl-8 mt-2">
+                {preferences.patologias &&
+                  preferences.patologias.map((patologia) => (
+                    <li key={patologia.id_patologia}>{patologia.nombre}</li>
+                  ))}
+              </ul>
+            </div>
+          </div>
           <Button
             color="primary"
             text="Editar Preferencias"

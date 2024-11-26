@@ -10,11 +10,13 @@ const FormEditPsychologist = ({ user, setEditMode, onBack }) => {
   const [codigoPostales, setCodigoPostales] = useState([]);
   const [tematicas, setTematicas] = useState([]);
   const [patologias, setPatologias] = useState([]);
+  const [selectedPatologias, setSelectedPatologias] = useState(
+    user.patologias ? user.patologias.map((p) => p.id_patologia) : []
+  );
   const [corrientes, setCorrientes] = useState([]);
 
   const handleBack = () => {
-    // Lógica para manejar el retroceso, si la necesitas
-    onBack(); // Llama a la función onBack pasada como prop
+    onBack();
   };
 
   useEffect(() => {
@@ -48,7 +50,9 @@ const FormEditPsychologist = ({ user, setEditMode, onBack }) => {
       promedio: user.promedio || "",
       codigo_postal: user.codigo_postal || "",
       id_tematica: user.id_tematica || "",
-      id_patologia: user.id_patologia || "",
+      patologias: user.patologias
+        ? user.patologias.map((p) => p.id_patologia)
+        : [],
       id_corriente: user.id_corriente || "",
     },
     validationSchema: editPsychologist,
@@ -114,7 +118,7 @@ const FormEditPsychologist = ({ user, setEditMode, onBack }) => {
             Te pedimos que completes tus datos nuevamente
           </p>
         </div>
-        <div className="flex flex-col lg:flex-row lg:justify-between px-[25px] py-[30px] lg:px-[60px]">
+        <div className="flex flex-col lg:flex-row lg:justify-between px-[25px] py-[30px] lg:px-[30px] lg:gap-10">
           <div className="flex w-full sm:w-[540px] lg:w-[417px]">
             <div className="flex flex-col  lg:gap-y-[15px]">
               <div className="flex flex-col gap-[10px] w-[290px] sm:w-[540px] lg:w-[417px]">
@@ -286,135 +290,144 @@ const FormEditPsychologist = ({ user, setEditMode, onBack }) => {
                   </div>
                 ) : null}
               </div>
+              <div className="flex flex-col gap-[10px]">
+                <select
+                  id="id_tematica"
+                  name="id_tematica"
+                  value={formik.values.id_tematica}
+                  onChange={(e) => {
+                    formik.setFieldValue("id_tematica", Number(e.target.value));
+                  }}
+                  onBlur={formik.handleBlur}
+                  className="h-[50px] border-b-[1px] border-[#75b781]"
+                >
+                  <option value="">Selecciona una temática</option>
+                  {tematicas.map((tematica) => (
+                    <option
+                      key={tematica.id_tematica}
+                      value={tematica.id_tematica}
+                    >
+                      {tematica.nombre}
+                    </option>
+                  ))}
+                </select>
+                {formik.touched.id_tematica && formik.errors.id_tematica ? (
+                  <div className="flex gap-1 text-[#E50505] text-[13px] font-poppins ">
+                    <img
+                      src="/icons/form/error.svg"
+                      width={18}
+                      height={18}
+                      alt="error"
+                    />
+                    {formik.errors.id_tematica}
+                  </div>
+                ) : null}
+              </div>
+              <div className="flex flex-col gap-[10px]">
+                <select
+                  name="id_corriente"
+                  id="id_corriente"
+                  value={formik.values.id_corriente}
+                  onChange={(e) => {
+                    formik.setFieldValue(
+                      "id_corriente",
+                      Number(e.target.value)
+                    );
+                  }}
+                  onBlur={formik.handleBlur}
+                  className="h-[50px] border-b-[1px] border-[#75b781]"
+                >
+                  <option value="">Selecciona una corriente</option>
+                  {corrientes.map((corriente) => (
+                    <option
+                      key={corriente.id_corriente}
+                      value={corriente.id_corriente}
+                    >
+                      {corriente.nombre}
+                    </option>
+                  ))}
+                </select>
+                {formik.touched.id_corriente && formik.errors.id_corriente ? (
+                  <div className="flex gap-1 text-[#E50505] text-[13px] font-poppins ">
+                    <img
+                      src="/icons/form/error.svg"
+                      width={18}
+                      height={18}
+                      alt="error"
+                    />
+                    {formik.errors.id_corriente}
+                  </div>
+                ) : null}
+              </div>
+
+              <div className="flex flex-col gap-[10px]">
+                <input
+                  type="email"
+                  placeholder="Email:"
+                  id="email"
+                  name="email"
+                  className={`h-[50px] border-b-[1px] border-[#75b781] placeholder:font-Muli lg:w-[417px] ${
+                    formik.touched.email && formik.errors.email
+                      ? "border-[#E50505]"
+                      : ""
+                  }`}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  value={formik.values.email}
+                />
+                {formik.touched.email && formik.errors.email ? (
+                  <div className="flex gap-1 text-[#E50505] text-[13px] font-poppins ">
+                    <img
+                      src="/icons/form/error.svg"
+                      width={18}
+                      height={18}
+                      alt="error"
+                    />
+                    {formik.errors.email}
+                  </div>
+                ) : null}
+              </div>
             </div>
           </div>
           <div className="flex flex-col gap-y-[15px]">
             <div className="flex flex-col gap-[10px]">
-              <select
-                id="id_tematica"
-                name="id_tematica"
-                value={formik.values.id_tematica}
-                onChange={(e) => {
-                  formik.setFieldValue("id_tematica", Number(e.target.value));
-                }}
-                onBlur={formik.handleBlur}
-                className="h-[50px] border-b-[1px] border-[#75b781]"
-              >
-                <option value="">Selecciona una temática</option>
-                {tematicas.map((tematica) => (
-                  <option
-                    key={tematica.id_tematica}
-                    value={tematica.id_tematica}
-                  >
-                    {tematica.nombre}
-                  </option>
-                ))}
-              </select>
-              {formik.touched.id_tematica && formik.errors.id_tematica ? (
-                <div className="flex gap-1 text-[#E50505] text-[13px] font-poppins ">
-                  <img
-                    src="/icons/form/error.svg"
-                    width={18}
-                    height={18}
-                    alt="error"
-                  />
-                  {formik.errors.id_tematica}
-                </div>
-              ) : null}
-            </div>
-            <div className="flex flex-col gap-[10px]">
-              <select
-                id="id_patologia"
-                name="id_patologia"
-                value={formik.values.id_patologia}
-                onChange={(e) => {
-                  formik.setFieldValue("id_patologia", Number(e.target.value));
-                }}
-                onBlur={formik.handleBlur}
-                className="h-[50px] border-b-[1px] border-[#75b781]"
-              >
-                <option value="">Selecciona una patología</option>
+              <label className="font-medium">Patologías que trata:</label>
+              <div className="grid grid-cols-2 gap-4">
                 {patologias.map((patologia) => (
-                  <option
+                  <div
                     key={patologia.id_patologia}
-                    value={patologia.id_patologia}
+                    className="flex items-center"
                   >
-                    {patologia.nombre}
-                  </option>
+                    <input
+                      type="checkbox"
+                      id={`patologia-${patologia.id_patologia}`}
+                      name="patologias"
+                      value={patologia.id_patologia}
+                      checked={selectedPatologias.includes(
+                        patologia.id_patologia
+                      )}
+                      onChange={(e) => {
+                        const value = Number(e.target.value);
+                        setSelectedPatologias((prev) =>
+                          e.target.checked
+                            ? [...prev, value]
+                            : prev.filter((id) => id !== value)
+                        );
+                        formik.setFieldValue(
+                          "patologias",
+                          e.target.checked
+                            ? [...selectedPatologias, value]
+                            : selectedPatologias.filter((id) => id !== value)
+                        );
+                      }}
+                      className="mr-2"
+                    />
+                    <label htmlFor={`patologia-${patologia.id_patologia}`}>
+                      {patologia.nombre}
+                    </label>
+                  </div>
                 ))}
-              </select>
-              {formik.touched.id_patologia && formik.errors.id_patologia ? (
-                <div className="flex gap-1 text-[#E50505] text-[13px] font-poppins ">
-                  <img
-                    src="/icons/form/error.svg"
-                    width={18}
-                    height={18}
-                    alt="error"
-                  />
-                  {formik.errors.id_patologia}
-                </div>
-              ) : null}
-            </div>
-            <div className="flex flex-col gap-[10px]">
-              <select
-                name="id_corriente"
-                id="id_corriente"
-                value={formik.values.id_corriente}
-                onChange={(e) => {
-                  formik.setFieldValue("id_corriente", Number(e.target.value));
-                }}
-                onBlur={formik.handleBlur}
-                className="h-[50px] border-b-[1px] border-[#75b781]"
-              >
-                <option value="">Selecciona una corriente</option>
-                {corrientes.map((corriente) => (
-                  <option
-                    key={corriente.id_corriente}
-                    value={corriente.id_corriente}
-                  >
-                    {corriente.nombre}
-                  </option>
-                ))}
-              </select>
-              {formik.touched.id_corriente && formik.errors.id_corriente ? (
-                <div className="flex gap-1 text-[#E50505] text-[13px] font-poppins ">
-                  <img
-                    src="/icons/form/error.svg"
-                    width={18}
-                    height={18}
-                    alt="error"
-                  />
-                  {formik.errors.id_corriente}
-                </div>
-              ) : null}
-            </div>
-
-            <div className="flex flex-col gap-[10px]">
-              <input
-                type="email"
-                placeholder="Email:"
-                id="email"
-                name="email"
-                className={`h-[50px] border-b-[1px] border-[#75b781] placeholder:font-Muli lg:w-[417px] ${
-                  formik.touched.email && formik.errors.email
-                    ? "border-[#E50505]"
-                    : ""
-                }`}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                value={formik.values.email}
-              />
-              {formik.touched.email && formik.errors.email ? (
-                <div className="flex gap-1 text-[#E50505] text-[13px] font-poppins ">
-                  <img
-                    src="/icons/form/error.svg"
-                    width={18}
-                    height={18}
-                    alt="error"
-                  />
-                  {formik.errors.email}
-                </div>
-              ) : null}
+              </div>
             </div>
           </div>
         </div>

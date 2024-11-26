@@ -10,6 +10,7 @@ use App\Models\Psicologo;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\RelacionTerminada;
+use App\Models\Paciente;
 
 class PacienteController extends Controller
 {
@@ -20,75 +21,83 @@ class PacienteController extends Controller
     }
     public function guardarPreferenciasYMatch(Request $request)
     {
-
         $paciente = auth()->user();
-
 
         $tematica = $request->input('tematica');
         $corriente = $request->input('corriente');
-        $patologia = $request->input('patologia');
+        $patologias = $request->input('patologias');
 
-
-        if (is_null($tematica) || is_null($corriente) || is_null($patologia)) {
+        if (is_null($tematica) || is_null($corriente) || empty($patologias)) {
             return response()->json(['error' => 'Datos incompletos'], 400);
         }
 
+        $preferencias = Preferencia::updateOrCreate(
+            ['dni_paciente' => $paciente->dni],
+            [
+                'id_tematica' => $tematica,
+                'id_corriente' => $corriente,
+            ]
+        );
 
-        $preferencias = Preferencia::where('dni_paciente', $paciente->dni)->first();
+        $paciente->patologias()->sync($patologias);
 
-        if ($preferencias) {
-
-            $preferencias->id_tematica = $tematica;
-            $preferencias->id_corriente = $corriente;
-            $preferencias->id_patologia = $patologia;
-            $preferencias->save();
-        } else {
-
-            $preferencias = new Preferencia();
-            $preferencias->dni_paciente = $paciente->dni;
-            $preferencias->id_tematica = $tematica;
-            $preferencias->id_corriente = $corriente;
-            $preferencias->id_patologia = $patologia;
-            $preferencias->save();
-        }
-
-
+        // Marcar onboarding como completado
         $paciente->onboarding = true;
         $paciente->save();
 
+        // Eliminar matches anteriores
         DB::table('match')->where('dni_paciente', $paciente->dni)->delete();
 
-
-        $psicologos = Psicologo::with(['patologia', 'corriente', 'tematica'])
-            ->where('id_tematica', $tematica)
-            ->orWhere('id_corriente', $corriente)
-            ->orWhere('id_patologia', $patologia)
-            ->orderByRaw("
-            (id_tematica = ? AND id_corriente = ? AND id_patologia = ?) DESC, 
-            (id_tematica = ? AND id_corriente = ?) DESC, 
-            (id_tematica = ? AND id_patologia = ?) DESC
-        ", [
-                $tematica,
-                $corriente,
-                $patologia,
-                $tematica,
-                $corriente,
-                $tematica,
-                $patologia
-            ])
-            ->limit(5)
+        // Obtener psicólogos con coincidencias
+        $psicologos = Psicologo::with(['patologias', 'corriente', 'tematica'])
+            ->where(function ($query) use ($tematica, $corriente, $patologias) {
+                // Psicólogos que coinciden en tematica
+                $query->where('id_tematica', $tematica)
+                    // O coinciden en corriente
+                    ->orWhere('id_corriente', $corriente)
+                    // O tienen alguna de las patologías seleccionadas
+                    ->orWhereHas('patologias', function ($q) use ($patologias) {
+                        $q->whereIn('patologia.id_patologia', $patologias);
+                    });
+            })
             ->get();
 
+        // Calcular puntuación para cada psicólogo
+        $psicologosConPuntaje = $psicologos->map(function ($psicologo) use ($tematica, $corriente, $patologias) {
+            $puntaje = 0;
 
-        foreach ($psicologos as $psicologo) {
+            // Coincidencia de temática
+            if ($psicologo->id_tematica == $tematica) {
+                $puntaje += 3;
+            }
+
+            // Coincidencia de corriente
+            if ($psicologo->id_corriente == $corriente) {
+                $puntaje += 3;
+            }
+
+            $patologiasCoincidentes = $psicologo->patologias
+                ->whereIn('id_patologia', $patologias)
+                ->count();
+            $puntaje += $patologiasCoincidentes * 2;
+
+            return [
+                'psicologo' => $psicologo,
+                'puntaje' => $puntaje
+            ];
+        })
+            ->sortByDesc('puntaje')
+            ->take(5);
+
+        // Guardar los 5 mejores matches
+        foreach ($psicologosConPuntaje as $match) {
             DB::table('match')->insert([
                 'dni_paciente' => $paciente->dni,
-                'matricula_psicologo' => $psicologo->matricula,
+                'matricula_psicologo' => $match['psicologo']->matricula,
             ]);
         }
 
-
-        return response()->json($psicologos);
+        return response()->json($psicologosConPuntaje->pluck('psicologo'));
     }
 
 
@@ -97,34 +106,58 @@ class PacienteController extends Controller
         $paciente = auth()->user();
 
 
-        $matches = DB::table('match')
-            ->join('psicologo', 'match.matricula_psicologo', '=', 'psicologo.matricula')
-            ->join('patologia', 'psicologo.id_patologia', '=', 'patologia.id_patologia')
-            ->join('corriente', 'psicologo.id_corriente', '=', 'corriente.id_corriente')
-            ->join('tematica', 'psicologo.id_tematica', '=', 'tematica.id_tematica')
+        $matches = Psicologo::with(['patologias', 'corriente', 'tematica'])
+            ->join('match', 'psicologo.matricula', '=', 'match.matricula_psicologo')
             ->where('match.dni_paciente', $paciente->dni)
-            ->select(
-                'psicologo.*',
-                'patologia.nombre as nombre_patologia',
-                'corriente.nombre as nombre_corriente',
-                'tematica.nombre as nombre_tematica'
-            )
-            ->get();
+            ->select('psicologo.*')
+            ->get()
+            ->map(function ($psicologo) {
+                return [
+                    'matricula' => $psicologo->matricula,
+                    'nombre' => $psicologo->nombre,
+                    'apellido' => $psicologo->apellido,
+                    'email' => $psicologo->email,
+                    'telefono' => $psicologo->telefono,
+                    'promedio' => $psicologo->promedio,
+                    'patologias' => $psicologo->patologias->map(function ($patologia) {
+                        return [
+                            'id_patologia' => $patologia->id_patologia,
+                            'nombre' => $patologia->nombre
+                        ];
+                    }),
+                    'corriente' => [
+                        'id_corriente' => $psicologo->corriente->id_corriente,
+                        'nombre' => $psicologo->corriente->nombre
+                    ],
+                    'tematica' => [
+                        'id_tematica' => $psicologo->tematica->id_tematica,
+                        'nombre' => $psicologo->tematica->nombre
+                    ]
+                ];
+            });
 
         return response()->json($matches);
     }
-
     public function getUserPreferences($dni_paciente)
     {
         $preferencias = Preferencia::where('dni_paciente', $dni_paciente)
-            ->with(['tematica', 'patologia', 'corriente'])
+            ->with(['tematica', 'corriente'])
+            ->first();
+
+        $paciente = Paciente::with('patologias')
+            ->where('dni', $dni_paciente)
             ->first();
 
         return response()->json([
             'dni_paciente' => $preferencias->dni_paciente,
             'tematica' => $preferencias->tematica ? $preferencias->tematica->nombre : null,
-            'patologia' => $preferencias->patologia ? $preferencias->patologia->nombre : null,
             'corriente' => $preferencias->corriente ? $preferencias->corriente->nombre : null,
+            'patologias' => $paciente->patologias->map(function ($patologia) {
+                return [
+                    'id_patologia' => $patologia->id_patologia,
+                    'nombre' => $patologia->nombre
+                ];
+            })
         ]);
     }
 
