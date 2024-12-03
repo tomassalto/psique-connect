@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import Button from "./Button";
 import OnBoarding from "./OnBoarding";
+import "./Header.css";
 
 const Header = ({ currentPath }) => {
   const [user, setUser] = useState(null);
@@ -9,6 +10,23 @@ const Header = ({ currentPath }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [isScrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 0) {
+        setScrolled(true);
+      } else {
+        setScrolled(false);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
 
   useEffect(() => {
     const fetchUnreadMessages = async () => {
@@ -163,7 +181,11 @@ const Header = ({ currentPath }) => {
   };
 
   return (
-    <header className="flex items-center justify-start gap-2 p-4 bg-white text-white shadow-md lg:justify-end xl:px-[70px]">
+    <header
+      className={`flex items-center justify-start gap-2 p-4 bg-white text-white shadow-md lg:justify-end xl:px-[70px] ${
+        isScrolled ? "fixed lg:flex w-full animated fadeInDown z-50" : "flex"
+      }`}
+    >
       <div className="flex items-center gap-4 lg:hidden">
         {loading ? (
           <div className="text-gray-400">Cargando...</div>

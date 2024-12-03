@@ -1,0 +1,100 @@
+---
+import Image from "astro/components/Image.astro";
+---
+
+<footer class="bg-greenPsique py-[60px] flex justify-center items-center">
+  <div
+    class="flex flex-col px-3 w-[311px] gap-[60px] sm:w-[90%] 2k:w-[1210px] 4k:w-[1675px]"
+  >
+    <div class="flex justify-between">
+      <div class="flex items-center justify-center font-montserrat font-bold">
+        <Image
+          src="/logo.png"
+          alt="psique logo"
+          width={90}
+          height={90}
+          class="size-40"
+        />
+      </div>
+      <div class="flex text-base gap-[15px] text-white items-center">
+        <button>
+          <Image
+            src="/icons/footer/instagram.svg"
+            alt="instgram icon"
+            width={30}
+            height={30}
+            class="size-10"
+          />
+        </button>
+        <button>
+          <Image
+            src="/icons/footer/linkedin.svg"
+            alt="linkedin icon"
+            width={30}
+            height={30}
+            class="size-10"
+          />
+        </button>
+        <button>
+          <Image
+            src="/icons/footer/facebook.svg"
+            alt="facebook icon"
+            width={30}
+            height={30}
+            class="size-10"
+          />
+        </button>
+        <button>
+          <Image
+            src="/icons/footer/tiktok.svg"
+            alt="tiktok icon"
+            width={30}
+            height={30}
+            class="size-10"
+          />
+        </button>
+        <button>
+          <Image
+            src="/icons/footer/spotify.svg"
+            alt="spotify icon"
+            width={30}
+            height={30}
+            class="size-10"
+          />
+        </button>
+        <button>
+          <Image
+            src="/icons/footer/youtube.svg"
+            alt="youtube icon"
+            width={30}
+            height={30}
+            class="size-10"
+          />
+        </button>
+        <button>
+          <Image
+            src="/icons/footer/twitter.svg"
+            alt="twitter icon"
+            width={30}
+            height={30}
+            class="size-10"
+          />
+        </button>
+      </div>
+    </div>
+    <div class="flex flex-col w-full items-end gap-5">
+      <a class="text-white text-[20px]" href="mailto:psiqueconnectpsc@gmail.com"
+        >psiqueconnectpsc@gmail.com</a
+      >
+      <div class="flex flex-col gap-2 text-white text-end">
+        <p>Terminos y condiciones</p>
+        <p>Políticas de privacidad</p>
+      </div>
+    </div>
+    <div class="bg-white h-[2px]"></div>
+    <div class="text-white text-center text-base font-medium sm:w-full">
+      © Copyright 2024 Psique-Connect | Casi todos los derechos reservados |
+      Argentina
+    </div>
+  </div>
+</footer>
