@@ -1,0 +1,78 @@
+@media (min-width: 320px) and (max-width: 639px) {
+  .swiper.swiper-initialized.swiper-horizontal.swiper-backface-hidden,
+  .swiper-wrapper,
+  .swiper-slide.swiper-slide-active,
+  .swiper-slide.swiper-slide-next,
+  .swiper.swiper-initialized.swiper-horizontal.swiper-backface-hidden,
+  .swiper-wrapper,
+  .swiper-slide {
+    width: 300px;
+  }
+}
+@media (min-width: 640px) and (max-width: 1023px) {
+  .swiper.swiper-initialized.swiper-horizontal.swiper-backface-hidden,
+  .swiper-wrapper,
+  .swiper-slide.swiper-slide-active,
+  .swiper-slide.swiper-slide-next,
+  .swiper.swiper-initialized.swiper-horizontal.swiper-backface-hidden,
+  .swiper-wrapper,
+  .swiper-slide {
+    width: 577px;
+  }
+}
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .swiper.swiper-initialized.swiper-horizontal.swiper-backface-hidden,
+  .swiper-wrapper,
+  .swiper-slide.swiper-slide-active,
+  .swiper-slide.swiper-slide-next,
+  .swiper.swiper-initialized.swiper-horizontal.swiper-backface-hidden,
+  .swiper-wrapper,
+  .swiper-slide {
+    width: 824px;
+  }
+}
+@media (min-width: 1280px) and (max-width: 1439px) {
+  .swiper.swiper-initialized.swiper-horizontal.swiper-backface-hidden,
+  .swiper-wrapper,
+  .swiper-slide.swiper-slide-active,
+  .swiper-slide.swiper-slide-next,
+  .swiper.swiper-initialized.swiper-horizontal.swiper-backface-hidden,
+  .swiper-wrapper,
+  .swiper-slide {
+    width: 980px;
+  }
+}
+@media (min-width: 1440px) and (max-width: 1535px) {
+  .swiper.swiper-initialized.swiper-horizontal.swiper-backface-hidden,
+  .swiper-wrapper,
+  .swiper-slide.swiper-slide-active,
+  .swiper-slide.swiper-slide-next,
+  .swiper.swiper-initialized.swiper-horizontal.swiper-backface-hidden,
+  .swiper-wrapper,
+  .swiper-slide {
+    width: 1040px;
+  }
+}
+@media (min-width: 1536px) and (max-width: 1919px) {
+  .swiper.swiper-initialized.swiper-horizontal.swiper-backface-hidden,
+  .swiper-wrapper,
+  .swiper-slide.swiper-slide-active,
+  .swiper-slide.swiper-slide-next,
+  .swiper.swiper-initialized.swiper-horizontal.swiper-backface-hidden,
+  .swiper-wrapper,
+  .swiper-slide {
+    width: 1036px;
+  }
+}
+@media (min-width: 1920px) and (max-width: 3840px) {
+  .swiper.swiper-initialized.swiper-horizontal.swiper-backface-hidden,
+  .swiper-wrapper,
+  .swiper-slide.swiper-slide-active,
+  .swiper-slide.swiper-slide-next,
+  .swiper.swiper-initialized.swiper-horizontal.swiper-backface-hidden,
+  .swiper-wrapper,
+  .swiper-slide {
+    width: 1120px;
+    height: 100%;
+  }
+}
