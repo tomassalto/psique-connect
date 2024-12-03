@@ -5,23 +5,22 @@ export default {
     extend: {
       screens: {
         xs: "390px",
-        xsm: "500px",
-        sm: "640px",
-        md: "768px",
-        lg: "1024px",
-        xl: "1280px",
         mac: "1440px",
         hd: "1536px",
         fullhd: "1920px",
+        "2k": "2560px",
+        "4k": "3840px",
       },
       fontFamily: {
         Nobile: ["Nobile", "sans-serif"],
         Muli: ["Muli", "sans-serif"],
         Merriweather: ["Merriweather", "serif"],
+        montserrat: ["Montserrat", "sans-serif"],
       },
       colors: {
         greenPsique: "#75B781",
         darkGreen: "#2A352F",
+        dark: "#151515",
       },
     },
   },
