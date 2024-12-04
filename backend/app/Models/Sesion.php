@@ -16,6 +16,7 @@ class Sesion extends Model
         'matricula_psicologo',
         'fecha',
         'hora',
+        'comentario',
         'presencial',
         'cancelado',
     ];

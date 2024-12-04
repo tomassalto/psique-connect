@@ -17,6 +17,7 @@ return new class extends Migration
             $table->integer('matricula_psicologo');
             $table->date('fecha');
             $table->time('hora');
+            $table->string('comentario')->nullable();
             $table->boolean('presencial');
             $table->boolean('cancelado')->default(false);
             $table->foreign('dni_paciente')->references('dni')->on('paciente');

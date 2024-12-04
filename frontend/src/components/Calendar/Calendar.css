@@ -1,0 +1,10 @@
+.rbc-toolbar-label {
+  font-size: 32px;
+  color: #75b781;
+  font-weight: bold;
+}
+.calendar-container {
+  height: calc(100vh - 70px);
+  display: flex;
+  flex-direction: column;
+}
