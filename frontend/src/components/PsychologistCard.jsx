@@ -2,11 +2,14 @@ import { useEffect, useState } from "react";
 import Loader from "./Loader";
 import Filter from "./Filter";
 import Button from "./Button";
+import MessageModal from "./MessageModal";
 
 const PsychologistCard = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [psicologos, setPsicologos] = useState([]);
+  const [selectedPsicologo, setSelectedPsicologo] = useState(null);
+  const [showModal, setShowModal] = useState(false);
   const [selectedFilters, setSelectedFilters] = useState({
     corriente: "",
     tematica: "",
@@ -17,7 +20,6 @@ const PsychologistCard = () => {
     maxAge: "",
   });
 
-  // Fetch profile
   useEffect(() => {
     const token = localStorage.getItem("token");
 
@@ -51,7 +53,6 @@ const PsychologistCard = () => {
     fetchPsychologists({});
   }, []);
 
-  // Fetch psychologists from backend
   const fetchPsychologists = async (filters = {}) => {
     try {
       const token = localStorage.getItem("token");
@@ -80,7 +81,6 @@ const PsychologistCard = () => {
     }
   };
 
-  // Helper to clear filters
   const clearFilters = () => {
     setSelectedFilters({
       corriente: "",
@@ -94,7 +94,6 @@ const PsychologistCard = () => {
     fetchPsychologists({});
   };
 
-  // Calculate age from date of birth
   const calculateAge = (dateOfBirth) => {
     const birthDate = new Date(dateOfBirth);
     const today = new Date();
@@ -120,6 +119,11 @@ const PsychologistCard = () => {
     });
 
     return sanitizedFilters;
+  };
+
+  const handleContactar = (psicologo) => {
+    setSelectedPsicologo(psicologo);
+    setShowModal(true);
   };
 
   return (
@@ -226,6 +230,12 @@ const PsychologistCard = () => {
               </div>
             )}
           </div>
+          <MessageModal
+            showModal={showModal}
+            onClose={() => setShowModal(false)}
+            matriculaPsicologo={selectedPsicologo?.matricula}
+            nombrePsicologo={selectedPsicologo?.nombre || ""}
+          />
         </>
       )}
     </section>
