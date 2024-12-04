@@ -1,47 +1,20 @@
 import React, { useState, useEffect } from "react";
 import Button from "./Button";
 
-const Filter = ({
-  onFilter,
-  selectedFilters,
-  setSelectedFilters,
-  clearAllFilters,
-}) => {
-  const [searchTerm, setSearchTerm] = useState("");
+const Filter = ({ onFilter, selectedFilters, setSelectedFilters }) => {
+  const [searchTerm, setSearchTerm] = useState(
+    selectedFilters.searchTerm || ""
+  );
   const [corrientes, setCorrientes] = useState([]);
   const [tematicas, setTematicas] = useState([]);
   const [patologias, setPatologias] = useState([]);
+  const [selectedPatologias, setSelectedPatologias] = useState(
+    selectedFilters.patologias || []
+  );
   const [showPatologiasModal, setShowPatologiasModal] = useState(false);
-  const [selectedPatologias, setSelectedPatologias] = useState([]);
 
-  const [selectedCorriente, setSelectedCorriente] = useState("");
-  const [selectedTematica, setSelectedTematica] = useState("");
-  const [selectedPatologia, setSelectedPatologia] = useState("");
-
-  const handleClearFilters = () => {
-    setSearchTerm("");
-    setSelectedCorriente("");
-    setSelectedTematica("");
-    setSelectedPatologias([]);
-
-    setSelectedFilters({
-      corriente: "",
-      tematica: "",
-      patologia: "",
-      searchTerm: "",
-    });
-
-    handleSearch(new Event("submit"));
-  };
   useEffect(() => {
-    if (clearAllFilters) {
-      setSearchTerm("");
-      setSelectedCorriente("");
-      setSelectedTematica("");
-      setSelectedPatologias([]);
-    }
-  }, [clearAllFilters]);
-  useEffect(() => {
+    // Fetch options for corrientes, tematicas, and patologias
     const fetchOptions = async () => {
       try {
         const corrienteResponse = await fetch(
@@ -65,78 +38,64 @@ const Filter = ({
     fetchOptions();
   }, []);
 
+  // Handle search
+  const handleSearch = (e) => {
+    e.preventDefault();
+
+    const filters = {
+      searchTerm,
+      corriente: selectedFilters.corriente,
+      tematica: selectedFilters.tematica,
+      patologias: selectedPatologias,
+      genero: selectedFilters.genero,
+      minAge: selectedFilters.minAge,
+      maxAge: selectedFilters.maxAge,
+    };
+
+    onFilter(filters); // Send filters to the parent component
+  };
+
+  // Handle cambios en filtros
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setSelectedFilters({
-      ...selectedFilters,
+    setSelectedFilters((prevFilters) => ({
+      ...prevFilters,
       [name]: value,
-    });
+    }));
   };
-
-  const handleSearch = async (e) => {
-    e.preventDefault();
-    const token = localStorage.getItem("token");
-
-    if (!token) {
-      window.location.href = "/login";
-      return;
-    }
-
-    console.log("Valor de búsqueda:", searchTerm);
-    try {
-      const queryParams = new URLSearchParams({
-        search: searchTerm,
-        corriente: selectedCorriente,
-        tematica: selectedTematica,
-        patologias: selectedPatologias.join(","),
-      }).toString();
-
-      const response = await fetch(
-        `http://127.0.0.1:8000/api/psicologos/search?${queryParams}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Error al buscar psicólogos");
-      }
-
-      const data = await response.json();
-      onFilter(data);
-    } catch (error) {
-      console.error("Error:", error);
-    }
-  };
-
-  useEffect(() => {
-    setSelectedCorriente(selectedFilters.corriente);
-    setSelectedTematica(selectedFilters.tematica);
-    setSelectedPatologia(selectedFilters.patologia);
-    setSearchTerm(selectedFilters.searchTerm);
-  }, [selectedFilters]);
 
   const handlePatologiaChange = (patologiaId) => {
-    setSelectedPatologias((prev) => {
-      if (prev.includes(patologiaId)) {
-        return prev.filter((id) => id !== patologiaId);
-      } else {
-        return [...prev, patologiaId];
-      }
-    });
+    setSelectedPatologias((prev) =>
+      prev.includes(patologiaId)
+        ? prev.filter((id) => id !== patologiaId)
+        : [...prev, patologiaId]
+    );
   };
+
+  const handleClearFilters = () => {
+    setSearchTerm("");
+    setSelectedFilters({
+      corriente: "",
+      tematica: "",
+      patologia: "",
+      searchTerm: "",
+      genero: "",
+      minAge: "",
+      maxAge: "",
+    });
+    setSelectedPatologias([]);
+    onFilter({}); // Send an empty filter object to reset results
+  };
+
   return (
     <div className="filter-section">
       <form
         onSubmit={handleSearch}
-        className="flex items-center gap-10 flex-wrap justify-center"
+        className="flex justify-center items-center gap-10 flex-wrap"
       >
         <input
           type="text"
+          name="searchTerm"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           placeholder="Buscar psicólogo por nombre o matrícula"
@@ -144,8 +103,9 @@ const Filter = ({
         />
 
         <select
-          value={selectedCorriente}
-          onChange={(e) => setSelectedCorriente(e.target.value)}
+          name="corriente"
+          value={selectedFilters.corriente || ""}
+          onChange={handleInputChange}
           className="truncate border-[1px] border-greenPsique p-2 h-[48px]"
         >
           <option value="">Seleccione corriente</option>
@@ -157,8 +117,9 @@ const Filter = ({
         </select>
 
         <select
-          value={selectedTematica}
-          onChange={(e) => setSelectedTematica(e.target.value)}
+          name="tematica"
+          value={selectedFilters.tematica || ""}
+          onChange={handleInputChange}
           className="truncate border-[1px] border-greenPsique p-2 h-[48px]"
         >
           <option value="">Seleccione temática</option>
@@ -167,6 +128,35 @@ const Filter = ({
               {tematica.nombre}
             </option>
           ))}
+        </select>
+
+        <input
+          type="number"
+          name="minAge"
+          placeholder="Edad mínima"
+          value={selectedFilters.minAge || ""}
+          onChange={handleInputChange}
+          className="truncate border-[1px] border-greenPsique p-2 h-[48px] w-[100px]"
+        />
+
+        <input
+          type="number"
+          name="maxAge"
+          placeholder="Edad máxima"
+          value={selectedFilters.maxAge || ""}
+          onChange={handleInputChange}
+          className="truncate border-[1px] border-greenPsique p-2 h-[48px] w-[100px]"
+        />
+
+        <select
+          name="genero"
+          value={selectedFilters.genero || ""}
+          onChange={handleInputChange}
+          className="truncate border-[1px] border-greenPsique p-2 h-[48px]"
+        >
+          <option value="">Seleccione género</option>
+          <option value="Masculino">Masculino</option>
+          <option value="Femenino">Femenino</option>
         </select>
 
         <button
@@ -183,6 +173,7 @@ const Filter = ({
           <Button text="Buscar" color="primary" type="submit" />
         </div>
       </form>
+
       {showPatologiasModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg w-[500px] max-h-[80vh] overflow-y-auto">

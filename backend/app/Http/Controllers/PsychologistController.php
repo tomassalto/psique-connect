@@ -38,10 +38,12 @@ class PsychologistController extends Controller
         $corriente = $request->query('corriente');
         $tematica = $request->query('tematica');
         $patologias = $request->query('patologias') ? explode(',', $request->query('patologias')) : null;
+        $genero = $request->query('genero');
+        $minAge = $request->query('minAge');
+        $maxAge = $request->query('maxAge');
 
         $query = Psicologo::with(['patologias', 'corriente', 'tematica']);
 
-        // Aplicar filtros básicos
         if ($searchTerm) {
             $query->where(function ($q) use ($searchTerm) {
                 if (is_numeric($searchTerm)) {
@@ -61,48 +63,37 @@ class PsychologistController extends Controller
             $query->where('id_tematica', $tematica);
         }
 
-        // Obtener psicólogos y calcular coincidencias
-        $psicologos = $query->get()->map(function ($psicologo) use ($patologias) {
-            $coincidencias = 0;
+        if ($genero) {
+            $query->where('genero', $genero);
+        }
 
-            // Calcular coincidencias de patologías
-            if ($patologias) {
-                $patologiasDelPsicologo = $psicologo->patologias->pluck('id_patologia')->toArray();
-                $coincidencias = count(array_intersect($patologias, $patologiasDelPsicologo));
-            }
+        if ($patologias) {
+            $query->whereHas('patologias', function ($q) use ($patologias) {
+                $q->whereIn('id_patologia', $patologias);
+            });
+        }
 
-            return [
-                'matricula' => $psicologo->matricula,
-                'nombre' => $psicologo->nombre,
-                'apellido' => $psicologo->apellido,
-                'email' => $psicologo->email,
-                'promedio' => $psicologo->promedio ?? 0,
-                'patologias' => $psicologo->patologias->map(function ($patologia) {
-                    return [
-                        'id_patologia' => $patologia->id_patologia,
-                        'nombre' => $patologia->nombre
-                    ];
-                }),
-                'corriente' => [
-                    'id_corriente' => $psicologo->corriente->id_corriente,
-                    'nombre' => $psicologo->corriente->nombre
-                ],
-                'tematica' => [
-                    'id_tematica' => $psicologo->tematica->id_tematica,
-                    'nombre' => $psicologo->tematica->nombre
-                ],
-                'coincidencias' => $coincidencias
-            ];
-        });
+        if ($minAge || $maxAge) {
+            $today = now();
+            $query->where(function ($q) use ($minAge, $maxAge, $today) {
+                if ($minAge) {
+                    $minDate = $today->copy()->subYears($minAge)->endOfDay();
+                    $q->where('fecha_nacimiento', '<=', $minDate);
+                }
+                if ($maxAge) {
+                    $maxDate = $today->copy()->subYears($maxAge)->startOfDay();
+                    $q->where('fecha_nacimiento', '>=', $maxDate);
+                }
+            });
+        }
 
-        // Ordenar resultados
-        $psicologosOrdenados = $psicologos->sortBy(function ($psicologo) {
-            // Orden inverso: más coincidencias primero, luego mejor promedio
-            return [-$psicologo['coincidencias'], -$psicologo['promedio']];
-        })->values();
+        $psicologos = $query->get();
 
-        return response()->json($psicologosOrdenados);
+        return response()->json($psicologos);
     }
+
+
+
     public function index()
     {
         $psicologos = Psicologo::with(['patologias', 'corriente', 'tematica'])->get()
@@ -111,6 +102,9 @@ class PsychologistController extends Controller
                     'matricula' => $psicologo->matricula,
                     'nombre' => $psicologo->nombre,
                     'apellido' => $psicologo->apellido,
+                    'genero' => $psicologo->genero,
+                    'fecha_nacimiento' => $psicologo->fecha_nacimiento,
+                    'foto' => $psicologo->foto,
                     'email' => $psicologo->email,
                     'promedio' => $psicologo->promedio,
                     'patologias' => $psicologo->patologias->map(function ($patologia) {
