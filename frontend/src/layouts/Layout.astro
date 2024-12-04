@@ -29,9 +29,9 @@ const { title } = Astro.props;
   <body>
     <Header currentPath={Astro.url.pathname} client:load />
     <div id="main-content" class="flex flex-col min-h-screen">
+      <Toast client:visible />
       <slot />
     </div>
-    <Toast client:visible />
     <Footer />
   </body>
   <style is:global>
