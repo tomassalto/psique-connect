@@ -6,6 +6,8 @@ use App\Models\Paciente;
 use App\Models\Psicologo;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 class PerfilController extends Controller
 {
@@ -47,6 +49,9 @@ class PerfilController extends Controller
                             'telefono' => $psicologo->telefono,
                             'promedio' => $psicologo->promedio,
                             'codigo_postal' => $psicologo->codigo_postal,
+                            'genero' => $psicologo->genero,
+                            'fecha_nacimiento' => $psicologo->fecha_nacimiento,
+                            'foto' => $psicologo->foto,
                             'id_tematica' => $psicologo->id_tematica,
                             'patologias' => $psicologo->patologias,
                             'id_corriente' => $psicologo->id_corriente,
@@ -68,9 +73,8 @@ class PerfilController extends Controller
 
     public function update(Request $request)
     {
-
+        Log::info('Datos recibidos en el request:', $request->all());
         $roles = $request->user()->getRoleNames();
-
         if ($roles->contains('paciente')) {
 
             $request->validate([
@@ -103,24 +107,44 @@ class PerfilController extends Controller
                 'telefono' => 'required|string|max:20',
                 'promedio' => 'required|numeric|between:0,10',
                 'codigo_postal' => 'required|integer',
+                'genero' => 'required|string|in:masculino,femenino',
+                'fecha_nacimiento' => 'required|date',
+                'foto' => 'nullable|image|mimes:jpg,png|max:2048',
                 'id_tematica' => 'required|integer',
                 'patologias' => 'required|array|min:1',
                 'patologias.*' => 'exists:patologia,id_patologia',
                 'id_corriente' => 'required|integer',
-                'email' => 'required|email'
+                'email' => 'required|email',
             ]);
 
-            $user = Psicologo::where('email', $request->email)
-                ->orWhere('matricula', $request->matricula)
-                ->first();
 
-            if (!$user) {
-                return response()->json(['message' => 'Psicólogo no encontrado.'], 404);
+            $psicologo = Psicologo::find($request->matricula);
+            if (!$psicologo) {
+                return response()->json(['error' => 'Psicólogo no encontrado'], 404);
             }
 
-            $user->update($request->except(['patologias']));
+            $psicologo->nombre = $request->nombre;
+            $psicologo->apellido = $request->apellido;
+            $psicologo->telefono = $request->telefono;
+            $psicologo->promedio = $request->promedio;
+            $psicologo->codigo_postal = $request->codigo_postal;
+            $psicologo->genero = $request->genero;
+            $psicologo->fecha_nacimiento = $request->fecha_nacimiento;
+            $psicologo->id_tematica = $request->id_tematica;
+            $psicologo->id_corriente = $request->id_corriente;
+            $psicologo->email = $request->email;
 
-            $user->patologias()->sync($request->patologias);
+            if ($request->hasFile('foto')) {
+                if ($psicologo->foto && Storage::exists($psicologo->foto)) {
+                    Storage::delete($psicologo->foto);
+                }
+                $path = $request->file('foto')->store('fotos_psicologos', 'public');
+                $psicologo->foto = $path;
+            }
+
+            $psicologo->save();
+
+            $psicologo->patologias()->sync($request->patologias);
             return response()->json(['message' => 'Perfil del psicólogo actualizado con éxito.'], 201);
         } else {
             return response()->json(['message' => 'Rol no autorizado para esta acción.'], 403);

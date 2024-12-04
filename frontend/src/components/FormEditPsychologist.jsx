@@ -47,6 +47,9 @@ const FormEditPsychologist = ({ user, setEditMode, onBack }) => {
       email: user.email || "",
       matricula: user.matricula || "",
       telefono: user.telefono || "",
+      foto: user.foto || "",
+      genero: user.genero || "",
+      fecha_nacimiento: user.fecha_nacimiento || "",
       promedio: user.promedio || "",
       codigo_postal: user.codigo_postal || "",
       id_tematica: user.id_tematica || "",
@@ -59,15 +62,27 @@ const FormEditPsychologist = ({ user, setEditMode, onBack }) => {
     onSubmit: async (values) => {
       try {
         const token = localStorage.getItem("token");
+        const formData = new FormData();
+        Object.keys(values).forEach((key) => {
+          if (key === "foto" && values.foto instanceof File) {
+            formData.append(key, values.foto); // Adjunta la nueva foto
+          } else if (key === "patologias") {
+            values.patologias.forEach((id) =>
+              formData.append("patologias[]", id)
+            );
+          } else {
+            formData.append(key, values[key]);
+          }
+        });
+        console.log(formData);
         const response = await fetch(
           "http://127.0.0.1:8000/api/update-patient",
           {
-            method: "PUT",
+            method: "POST",
             headers: {
               Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
             },
-            body: JSON.stringify(values),
+            body: formData,
           }
         );
         if (response.status === 201) {
@@ -121,7 +136,10 @@ const FormEditPsychologist = ({ user, setEditMode, onBack }) => {
         <div className="flex flex-col lg:flex-row lg:justify-between px-[25px] py-[30px] lg:px-[30px] lg:gap-10">
           <div className="flex w-full sm:w-[540px] lg:w-[417px]">
             <div className="flex flex-col  lg:gap-y-[15px]">
-              <div className="flex flex-col gap-[10px] w-[290px] sm:w-[540px] lg:w-[417px]">
+              <div className="flex flex-col gap-[2px] w-[290px] sm:w-[540px] lg:w-[417px]">
+                <p className="text-greenPsique text-[16px] font-bold">
+                  Matrícula:
+                </p>
                 <input
                   type="number"
                   id="matricula"
@@ -148,7 +166,10 @@ const FormEditPsychologist = ({ user, setEditMode, onBack }) => {
                   </div>
                 ) : null}
               </div>
-              <div className="flex flex-col gap-[10px]">
+              <div className="flex flex-col gap-[2px]">
+                <p className="text-greenPsique text-[16px] font-bold">
+                  Nombre:
+                </p>
                 <input
                   type="text"
                   placeholder="Nombre:"
@@ -175,7 +196,10 @@ const FormEditPsychologist = ({ user, setEditMode, onBack }) => {
                   </div>
                 ) : null}
               </div>
-              <div className="flex flex-col gap-[10px]">
+              <div className="flex flex-col gap-[2px]">
+                <p className="text-greenPsique text-[16px] font-bold">
+                  Apellido:
+                </p>
                 <input
                   type="text"
                   placeholder="Apellido:"
@@ -202,7 +226,10 @@ const FormEditPsychologist = ({ user, setEditMode, onBack }) => {
                   </div>
                 ) : null}
               </div>
-              <div className="flex flex-col gap-[10px]">
+              <div className="flex flex-col gap-[2px]">
+                <p className="text-greenPsique text-[16px] font-bold">
+                  Teléfono:
+                </p>
                 <input
                   type="text"
                   placeholder="Teléfono:"
@@ -229,7 +256,133 @@ const FormEditPsychologist = ({ user, setEditMode, onBack }) => {
                   </div>
                 ) : null}
               </div>
-              <div className="flex flex-col gap-[10px]">
+              <div className="flex flex-col gap-[2px]">
+                <div className="flex flex-col gap-5">
+                  <p className="text-greenPsique text-[16px] font-bold">
+                    Foto de perfil:
+                  </p>
+                  <div>
+                    <input
+                      type="file"
+                      id="foto"
+                      name="foto"
+                      accept=".jpg,.jpeg,.png"
+                      onChange={(event) => {
+                        const file = event.currentTarget.files[0];
+                        formik.setFieldValue("foto", file);
+                      }}
+                      className={`mb-2 items-center ${
+                        formik.touched.foto && formik.errors.foto
+                          ? "border-red-500"
+                          : ""
+                      }`}
+                    />
+                    {formik.touched.foto && formik.errors.foto && (
+                      <div className="text-red-500 text-sm">
+                        {formik.errors.foto}
+                      </div>
+                    )}
+                    {formik.values.foto &&
+                    typeof formik.values.foto === "string" ? (
+                      <div className="mt-2">
+                        <p className="font-bold">Vista previa foto actual:</p>
+                        <img
+                          src={
+                            user.foto.startsWith("../../storage")
+                              ? `http://127.0.0.1:8000/storage/${user.foto.replace(
+                                  "../../storage/app/public/",
+                                  ""
+                                )}`
+                              : `http://127.0.0.1:8000/storage/${user.foto}`
+                          }
+                          alt="Vista previa"
+                          className="max-w-[200px] max-h-[200px] object-cover rounded"
+                        />
+                      </div>
+                    ) : (
+                      <>
+                        {formik.values.foto && (
+                          <div className="mt-2">
+                            <p className="font-bold">
+                              Vista previa de imagen a subir:
+                            </p>
+                            <img
+                              src={URL.createObjectURL(formik.values.foto)}
+                              alt="Vista previa"
+                              className="max-w-[200px] max-h-[200px] object-cover rounded"
+                            />
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+              <div className="flex flex-col gap-[2px]">
+                <p className="text-greenPsique text-[16px] font-bold">
+                  Género:
+                </p>
+                <select
+                  id="genero"
+                  name="genero"
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  value={formik.values.genero}
+                  className={`h-[50px] border-b-[1px] border-[#75b781] placeholder:font-Muli lg:w-[417px] ${
+                    formik.touched.genero && formik.errors.genero
+                      ? "border-[#E50505]"
+                      : ""
+                  }`}
+                >
+                  <option value="" label="Selecciona un género" />
+                  <option value="masculino">Masculino</option>
+                  <option value="femenino">Femenino</option>
+                </select>
+                {formik.touched.genero && formik.errors.genero ? (
+                  <div className="flex gap-1 text-[#E50505] text-[13px] font-poppins ">
+                    <img
+                      src="/icons/form/error.svg"
+                      width={18}
+                      height={18}
+                      alt="error"
+                    />
+                    {formik.errors.genero}
+                  </div>
+                ) : null}
+              </div>
+              <div className="flex flex-col gap-[2px]">
+                <p className="text-greenPsique text-[16px] font-bold">
+                  Fecha de nacimiento:
+                </p>
+                <input
+                  type="date"
+                  id="fecha_nacimiento"
+                  name="fecha_nacimiento"
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  value={formik.values.fecha_nacimiento || ""}
+                  className={`h-[50px] border-b-[1px] border-[#75b781] placeholder:font-Muli lg:w-[417px] ${
+                    formik.touched.fecha_nacimiento &&
+                    formik.errors.fecha_nacimiento
+                      ? "border-[#E50505]"
+                      : ""
+                  }`}
+                />
+                {formik.touched.fecha_nacimiento &&
+                formik.errors.fecha_nacimiento ? (
+                  <div className="flex gap-1 text-[#E50505] text-[13px] font-poppins ">
+                    <img
+                      src="/icons/form/error.svg"
+                      width={18}
+                      height={18}
+                      alt="error"
+                    />
+                    {formik.errors.fecha_nacimiento}
+                  </div>
+                ) : null}
+              </div>
+              <div className="flex flex-col gap-[2px]">
+                <p className=" text-[16px] font-bold">Promedio:</p>
                 <input
                   type="number"
                   placeholder="Promedio:"
@@ -257,7 +410,10 @@ const FormEditPsychologist = ({ user, setEditMode, onBack }) => {
                 ) : null}
               </div>
 
-              <div className="flex flex-col gap-[10px] lg:w-[417px]">
+              <div className="flex flex-col gap-[2px] lg:w-[417px]">
+                <p className="text-greenPsique text-[16px] font-bold">
+                  Localidad:
+                </p>
                 <select
                   name="codigo_postal"
                   id="codigo_postal"
@@ -290,7 +446,10 @@ const FormEditPsychologist = ({ user, setEditMode, onBack }) => {
                   </div>
                 ) : null}
               </div>
-              <div className="flex flex-col gap-[10px]">
+              <div className="flex flex-col gap-[2px]">
+                <p className="text-greenPsique text-[16px] font-bold">
+                  Temática:
+                </p>
                 <select
                   id="id_tematica"
                   name="id_tematica"
@@ -323,7 +482,10 @@ const FormEditPsychologist = ({ user, setEditMode, onBack }) => {
                   </div>
                 ) : null}
               </div>
-              <div className="flex flex-col gap-[10px]">
+              <div className="flex flex-col gap-[2px]">
+                <p className="text-greenPsique text-[16px] font-bold">
+                  Corriente:
+                </p>
                 <select
                   name="id_corriente"
                   id="id_corriente"
@@ -360,7 +522,8 @@ const FormEditPsychologist = ({ user, setEditMode, onBack }) => {
                 ) : null}
               </div>
 
-              <div className="flex flex-col gap-[10px]">
+              <div className="flex flex-col gap-[2px]">
+                <p className="text-greenPsique text-[16px] font-bold">Email:</p>
                 <input
                   type="email"
                   placeholder="Email:"
@@ -390,8 +553,10 @@ const FormEditPsychologist = ({ user, setEditMode, onBack }) => {
             </div>
           </div>
           <div className="flex flex-col gap-y-[15px]">
-            <div className="flex flex-col gap-[10px]">
-              <label className="font-medium">Patologías que trata:</label>
+            <div className="flex flex-col gap-[2px]">
+              <p className="text-greenPsique text-[16px] font-bold">
+                Patologías que trata:
+              </p>
               <div className="grid grid-cols-2 gap-4">
                 {patologias.map((patologia) => (
                   <div

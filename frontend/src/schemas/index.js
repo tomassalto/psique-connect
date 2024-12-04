@@ -40,6 +40,23 @@ export const registerPsychologistSchema = Yup.object({
   telefono: Yup.string()
     .matches(/^\d{10}$/, "El teléfono debe tener 10 dígitos")
     .required("Teléfono es requerido"),
+  foto: Yup.mixed()
+    .nullable()
+    .test("fileSize", "El archivo es demasiado grande", (value) => {
+      if (!value) return true;
+      return value.size <= 2 * 1024 * 1024;
+    })
+    .test("fileType", "Formato de imagen no válido", (value) => {
+      if (!value) return true;
+      const supportedFormats = ["image/jpg", "image/jpeg", "image/png"];
+      return supportedFormats.includes(value.type);
+    }),
+  genero: Yup.string()
+    .oneOf(["masculino", "femenino"], "Género es requerido")
+    .required("Género es requerido"),
+  fecha_nacimiento: Yup.date()
+    .required("Fecha de nacimiento es requerida")
+    .nullable(),
   promedio: Yup.number()
     .min(0, "El promedio debe ser mayor o igual a 0")
     .max(10, "El promedio debe ser menor o igual a 10")
@@ -89,6 +106,23 @@ export const editPsychologist = Yup.object({
   telefono: Yup.string()
     .matches(/^\d{10}$/, "El teléfono debe tener 10 dígitos")
     .required("Teléfono es requerido"),
+  foto: Yup.mixed()
+    .nullable()
+    .test("fileSize", "El archivo es demasiado grande", (value) => {
+      if (!value) return true;
+      return value.size <= 2 * 1024 * 1024;
+    })
+    .test("fileType", "Formato de imagen no válido", (value) => {
+      if (!value) return true;
+      const supportedFormats = ["image/jpg", "image/jpeg", "image/png"];
+      return supportedFormats.includes(value.type);
+    }),
+  genero: Yup.string()
+    .oneOf(["masculino", "femenino"], "Género es requerido")
+    .required("Género es requerido"),
+  fecha_nacimiento: Yup.date()
+    .required("Fecha de nacimiento es requerida")
+    .nullable(),
   promedio: Yup.number()
     .min(0, "El promedio debe ser mayor o igual a 0")
     .max(10, "El promedio debe ser menor o igual a 10")

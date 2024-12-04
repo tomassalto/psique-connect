@@ -86,7 +86,6 @@ class AuthController extends Controller
 
     public function registerPsicologo(Request $request)
     {
-
         $validatedData = $request->validate([
             'matricula' => 'required|unique:psicologo|integer',
             'nombre' => 'required|string|max:255',
@@ -94,6 +93,9 @@ class AuthController extends Controller
             'telefono' => 'required|string|max:15',
             'promedio' => 'required|numeric|between:0,10',
             'codigo_postal' => 'required|integer',
+            'genero' => 'required|string|in:masculino,femenino',
+            'fecha_nacimiento' => 'required|date',
+            'foto' => 'nullable|image|mimes:jpg,png|max:2048',
             'id_tematica' => 'required|integer',
             'patologias' => 'required|array|min:1',
             'patologias.*' => 'exists:patologia,id_patologia',
@@ -102,20 +104,30 @@ class AuthController extends Controller
             'password' => 'required|confirmed|min:8',
         ]);
 
+        $data = $validatedData;
+
+        if ($request->hasFile('foto')) {
+            $file = $request->file('foto');
+            $path = $file->store('fotos_psicologos', 'public');
+            $data['foto'] = $path;
+        }
+
         $psicologo = Psicologo::create([
-            'matricula' => $validatedData['matricula'],
-            'nombre' => $validatedData['nombre'],
-            'apellido' => $validatedData['apellido'],
-            'telefono' => $validatedData['telefono'],
-            'promedio' => $validatedData['promedio'],
-            'codigo_postal' => $validatedData['codigo_postal'],
-            'id_tematica' => $validatedData['id_tematica'],
-            'id_corriente' => $validatedData['id_corriente'],
-            'email' => $validatedData['email'],
-            'password' => bcrypt($validatedData['password']),
+            'matricula' => $data['matricula'],
+            'nombre' => $data['nombre'],
+            'apellido' => $data['apellido'],
+            'telefono' => $data['telefono'],
+            'promedio' => $data['promedio'],
+            'codigo_postal' => $data['codigo_postal'],
+            'genero' => $data['genero'],
+            'fecha_nacimiento' => $validatedData['fecha_nacimiento'],
+            'id_tematica' => $data['id_tematica'],
+            'id_corriente' => $data['id_corriente'],
+            'email' => $data['email'],
+            'password' => bcrypt($data['password']),
+            'foto' => $data['foto'] ?? null,
         ]);
 
-        // Asignar el rol
         $role = \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'psicologo', 'guard_name' => 'web']);
         DB::table('model_has_roles')->insert([
             'role_id' => $role->id,
@@ -123,8 +135,7 @@ class AuthController extends Controller
             'model_id' => $psicologo->matricula
         ]);
 
-        // Asociar las patologías seleccionadas
-        $psicologo->patologias()->attach($validatedData['patologias']);
+        $psicologo->patologias()->attach($data['patologias']);
 
         return response()->json($psicologo, 201);
     }

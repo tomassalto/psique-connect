@@ -18,6 +18,9 @@ return new class extends Migration
             $table->string('telefono', 20);
             $table->decimal('promedio', 3, 2);
             $table->bigInteger('codigo_postal');
+            $table->string('genero');
+            $table->date('fecha_nacimiento');
+            $table->string('foto')->nullable();
             $table->unsignedBigInteger('id_tematica');
             $table->unsignedBigInteger('id_corriente');
             $table->string('email')->unique();

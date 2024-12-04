@@ -43,6 +43,22 @@ const MatchPsicologos = () => {
     setShowModal(true);
   };
 
+  const calculateAge = (dateOfBirth) => {
+    const birthDate = new Date(dateOfBirth);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDifference = today.getMonth() - birthDate.getMonth();
+
+    if (
+      monthDifference < 0 ||
+      (monthDifference === 0 && today.getDate() < birthDate.getDate())
+    ) {
+      age--;
+    }
+
+    return age;
+  };
+
   return (
     <section className="flex flex-col gap-[30px] justify-center items-center pt-[120px] pb-[70px]">
       {loading ? (
@@ -59,51 +75,74 @@ const MatchPsicologos = () => {
                 ? psicologos.map((psicologo) => (
                     <div
                       key={psicologo.matricula}
-                      className="p-4 border border-greenPsique rounded-lg shadow-md hover:shadow-lg transition-shadow"
+                      className="flex flex-col p-4 border border-greenPsique rounded-lg shadow-md hover:shadow-lg transition-shadow gap-4 justify-between"
                     >
+                      <div>
+                        <div className="flex flex-col gap-4">
+                          <div className="flex items-center justify-center">
+                            <img
+                              src={
+                                psicologo.foto.startsWith("../../storage")
+                                  ? `http://127.0.0.1:8000/storage/${psicologo.foto.replace(
+                                      "../../storage/app/public/",
+                                      ""
+                                    )}`
+                                  : `http://127.0.0.1:8000/storage/${psicologo.foto}`
+                              }
+                              alt={`Foto de ${psicologo.nombre}`}
+                              className="h-[350px] w-full object-cover rounded-lg"
+                            />
+                          </div>
+                          <div>
+                            <p>
+                              <strong>Nombre:</strong> {psicologo.nombre}
+                            </p>
+                            <p>
+                              <strong>Apellido:</strong> {psicologo.apellido}
+                            </p>
+                            <p>
+                              <strong>Edad: </strong>
+                              {calculateAge(psicologo.fecha_nacimiento)} años
+                            </p>
+                            <p>
+                              <strong>Genero:</strong> {psicologo.genero}
+                            </p>
+                            <p>
+                              <strong>Email:</strong> {psicologo.email}
+                            </p>
+                            <p>
+                              <strong>Matrícula:</strong> {psicologo.matricula}
+                            </p>
+                            <p>
+                              <strong>Patologías:</strong>{" "}
+                              {psicologo.patologias
+                                .map((p) => p.nombre)
+                                .join(", ")}
+                            </p>
+                            <p>
+                              <strong>Corriente:</strong>{" "}
+                              {psicologo.corriente?.nombre}
+                            </p>
+                            <p>
+                              <strong>Temática:</strong>{" "}
+                              {psicologo.tematica?.nombre}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
                       <div className="flex flex-col gap-5">
-                        <div>
-                          <p>
-                            <strong>Nombre:</strong> {psicologo.nombre}
-                          </p>
-                          <p>
-                            <strong>Apellido:</strong> {psicologo.apellido}
-                          </p>
-                          <p>
-                            <strong>Email:</strong> {psicologo.email}
-                          </p>
-                          <p>
-                            <strong>Matrícula:</strong> {psicologo.matricula}
-                          </p>
-                          <p>
-                            <strong>Patologías:</strong>{" "}
-                            {psicologo.patologias
-                              .map((p) => p.nombre)
-                              .join(", ")}
-                          </p>
-                          <p>
-                            <strong>Corriente:</strong>{" "}
-                            {psicologo.corriente.nombre}
-                          </p>
-                          <p>
-                            <strong>Temática:</strong>{" "}
-                            {psicologo.tematica.nombre}
-                          </p>
-                        </div>
-                        <div className="flex flex-col gap-5">
-                          <Button
-                            onClick={() =>
-                              (window.location.href = `/calificaciones/${psicologo.matricula}`)
-                            }
-                            color="secondary"
-                            text="Ver Calificaciones"
-                          />
-                          <Button
-                            text="Contactar"
-                            color="primary"
-                            onClick={() => handleContactar(psicologo)}
-                          />
-                        </div>
+                        <Button
+                          onClick={() =>
+                            (window.location.href = `/calificaciones/${psicologo.matricula}`)
+                          }
+                          color="secondary"
+                          text="Ver Calificaciones"
+                        />
+                        <Button
+                          text="Contactar"
+                          color="primary"
+                          onClick={() => handleContactar(psicologo)}
+                        />
                       </div>
                     </div>
                   ))

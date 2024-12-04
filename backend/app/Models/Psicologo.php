@@ -15,7 +15,7 @@ class Psicologo extends Authenticatable
     protected $table = 'psicologo';
     protected $guard_name = 'web';
 
-    protected $primaryKey = 'matricula';  // Definir 'matricula' como clave primaria
+    protected $primaryKey = 'matricula';
     public $incrementing = false;
     protected $fillable = [
         'matricula',
@@ -24,6 +24,9 @@ class Psicologo extends Authenticatable
         'telefono',
         'promedio',
         'codigo_postal',
+        'genero',
+        'fecha_nacimiento',
+        'foto',
         'id_tematica',
         'id_corriente',
         'email',
@@ -46,7 +49,9 @@ class Psicologo extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
+        'fecha_nacimiento' => 'date',
     ];
+
 
     public function localidad()
     {
