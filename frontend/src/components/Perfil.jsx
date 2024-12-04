@@ -36,8 +36,13 @@ const Perfil = () => {
     fetchProfile();
   }, []);
 
+  const formatDate = (dateString) => {
+    const [year, month, day] = dateString.split("-");
+    return `${day}/${month}/${year}`; // Cambiar el formato a dd/mm/yyyy
+  };
+
   return (
-    <section className="flex flex-col justify-center items-center pt-[120px] pb-[70px]">
+    <section className="flex flex-col justify-center items-center py-[120px]">
       <div className="flex flex-col items-center gap-[50px] w-[340px] sm:w-[580px] lg:w-[851px] xl:w-[980px] mac:w-[1040px] hd:w-[1036px] fullhd:w-[1120px]">
         {loading ? (
           <Loader />
@@ -68,11 +73,34 @@ const Perfil = () => {
                         <h1 className="text-greenPsique text-4xl text-center font-Muli">
                           Perfil del Psicólogo
                         </h1>
+                        <div className="flex justify-center">
+                          {user.foto && (
+                            <img
+                              src={
+                                user.foto.startsWith("../../storage")
+                                  ? `http://127.0.0.1:8000/storage/${user.foto.replace(
+                                      "../../storage/app/public/",
+                                      ""
+                                    )}`
+                                  : `http://127.0.0.1:8000/storage/${user.foto}`
+                              }
+                              alt={`Foto de ${user.nombre}`}
+                              className="h-[500px] w-full object-cover rounded-lg"
+                            />
+                          )}
+                        </div>
                         <p className="text-[20px]">
                           <strong>Nombre:</strong> {user.nombre}
                         </p>
                         <p className="text-[20px]">
                           <strong>Apellido:</strong> {user.apellido}
+                        </p>
+                        <p className="text-[20px]">
+                          <strong>Fecha de nacimiento:</strong>{" "}
+                          {formatDate(user.fecha_nacimiento)}
+                        </p>
+                        <p className="text-[20px]">
+                          <strong>Genero:</strong> {user.genero}
                         </p>
                         <p className="text-[20px]">
                           <strong>Email:</strong> {user.email}

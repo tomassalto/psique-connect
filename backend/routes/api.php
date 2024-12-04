@@ -11,6 +11,10 @@ use App\Http\Controllers\MensajeController;
 use App\Http\Controllers\MetricasController;
 use App\Http\Controllers\PagoController;
 
+Route::post('/registrar_paciente', [AuthController::class, 'registerPaciente']);
+Route::post('/register_psicologo', [AuthController::class, 'registerPsicologo']);
+Route::post('/login', [AuthController::class, 'login']);
+
 Route::get('/tematicas', [OptionsController::class, 'getTematicas']);
 Route::get('/patologias', [OptionsController::class, 'getPatologias']);
 Route::get('/corrientes', [OptionsController::class, 'getCorrientes']);
@@ -31,13 +35,10 @@ Route::middleware(['auth:sanctum', 'role:paciente'])->group(function () {
     Route::get('/mis-sesiones', [SesionController::class, 'misSesiones']);
     Route::post('/crear-pago', [PagoController::class, 'crearPago']);
 });
-Route::post('/registrar_paciente', [AuthController::class, 'registerPaciente']);
-Route::post('/register_psicologo', [AuthController::class, 'registerPsicologo']);
-Route::post('/login', [AuthController::class, 'login']);
 
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/perfil', [PerfilController::class, 'show']);
-    Route::put('/update-patient', [PerfilController::class, 'update'])->middleware('auth');
+    Route::post('/update-patient', [PerfilController::class, 'update']);
 });
 
 Route::middleware(['auth:sanctum', 'role:psicologo'])->group(function () {
