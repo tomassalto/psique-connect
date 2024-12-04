@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import Button from "./Button";
-import OnBoarding from "./OnBoarding";
+import Button from "../Button";
+import OnBoarding from "../OnBoarding";
 import "./Header.css";
 
 const Header = ({ currentPath }) => {

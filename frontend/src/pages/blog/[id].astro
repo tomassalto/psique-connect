@@ -6,5 +6,5 @@ const { id } = Astro.params;
 ---
 
 <Layout title="Al Crédito | Blog">
-  <BlogDetail id={id} client:visible />
+  <BlogDetail id={id} client:only />
 </Layout>

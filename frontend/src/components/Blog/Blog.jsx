@@ -1,4 +1,3 @@
-export const prerender = true;
 import React, { useState, useEffect } from "react";
 import Slider from "../Slider";
 import ourBlogData from "../../data/our_blog.json";

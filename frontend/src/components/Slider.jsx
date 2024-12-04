@@ -35,6 +35,7 @@ const Slider = ({ items, cardWidth }) => {
             id={item.id}
             link={false}
             card_width={cardWidth}
+            url={window.location.pathname}
           />
         </SwiperSlide>
       ))}
