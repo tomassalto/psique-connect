@@ -1,27 +1,76 @@
 import React, { useEffect, useState } from "react";
-import { Calendar, momentLocalizer } from "react-big-calendar";
+import { Calendar, dateFnsLocalizer } from "react-big-calendar";
+import Loader from "../Loader";
 import moment from "moment";
-import Loader from "./Loader";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { toastService } from "../services/toastService";
+import { toastService } from "../../services/toastService";
+import "./Calendar.css";
 
-const localizer = momentLocalizer(moment);
+import format from "date-fns/format";
+import parse from "date-fns/parse";
+import startOfWeek from "date-fns/startOfWeek";
+import getDay from "date-fns/getDay";
+import { es } from "date-fns/locale";
+
+const locales = { es };
+
+const localizer = dateFnsLocalizer({
+  format,
+  parse,
+  startOfWeek: () => startOfWeek(new Date(), { locale: es }),
+  getDay,
+  locales,
+});
+
+const messages = {
+  today: "Hoy",
+  previous: "Atrás",
+  next: "Siguiente",
+  month: "Mes",
+  week: "Semana",
+  day: "Día",
+  agenda: "Agenda",
+  date: "Fecha",
+  time: "Hora",
+  event: "Evento",
+  allDay: "Todo el día",
+  noEventsInRange: "No hay eventos en este rango",
+  showMore: (total) => `+ Ver más (${total})`,
+};
+
+const capitalizeFirstLetter = (string) => {
+  return string.charAt(0).toUpperCase() + string.slice(1);
+};
+
+const formats = {
+  dateFormat: (date, culture, localizer) =>
+    capitalizeFirstLetter(localizer.format(date, "dd", culture)),
+  dayFormat: (date, culture, localizer) =>
+    capitalizeFirstLetter(localizer.format(date, "eeee", culture)),
+  weekdayFormat: (date, culture, localizer) =>
+    capitalizeFirstLetter(localizer.format(date, "eeee", culture)),
+  monthHeaderFormat: (date, culture, localizer) =>
+    capitalizeFirstLetter(localizer.format(date, "MMMM yyyy", culture)),
+};
 
 const MyCalendar = () => {
   const [savingSession, setSavingSession] = useState(false);
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [matriculaPsicologo, setMatriculaPsicologo] = useState("");
-  const [modalVisible, setModalVisible] = useState(false);
+  const [createModalVisible, setCreateModalVisible] = useState(false);
+  const [detailsModalVisible, setDetailsModalVisible] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [newEventComment, setNewEventComment] = useState("");
   const [newEventTitle, setNewEventTitle] = useState("");
   const [newEventDNI, setNewEventDNI] = useState("");
   const [newEventDate, setNewEventDate] = useState(
     moment().format("YYYY-MM-DD")
   );
   const [newEventTime, setNewEventTime] = useState(moment().format("HH:mm"));
-  const [pacientesDNI, setPacientesDNI] = useState([]);
+  const [pacientes, setPacientes] = useState([]);
 
   const fetchPacientesDNI = async () => {
     const token = localStorage.getItem("token");
@@ -34,7 +83,7 @@ const MyCalendar = () => {
       }
     );
     const data = await response.json();
-    setPacientesDNI(data);
+    setPacientes(data);
   };
 
   useEffect(() => {
@@ -81,7 +130,8 @@ const MyCalendar = () => {
         .map((event) => ({
           ...event,
           id_sesion: event.id_sesion,
-          title: `Sesion con paciente ${event.dni_paciente}`,
+          title: `Sesion con paciente ${event.nombre} ${event.apellido} - ${event.dni_paciente}`,
+          comentario: event.comentario,
           start: new Date(`${event.fecha}T${event.hora}`),
           end: new Date(`${event.fecha}T${event.hora}`),
         }))
@@ -90,7 +140,7 @@ const MyCalendar = () => {
   };
 
   const handleSelect = ({ start }) => {
-    setModalVisible(true);
+    setCreateModalVisible(true);
     setNewEventDNI("");
     setNewEventTitle("");
     setNewEventDate(moment(start).format("YYYY-MM-DD"));
@@ -98,14 +148,14 @@ const MyCalendar = () => {
   };
 
   const saveNewSession = async () => {
-    if (newEventTitle && newEventDNI) {
+    if (newEventDNI) {
       setSavingSession(true);
       const sessionData = {
-        title: newEventTitle,
         dni_paciente: parseInt(newEventDNI, 10),
         matricula_psicologo: matriculaPsicologo,
         fecha: newEventDate,
         hora: newEventTime,
+        comentario: newEventComment,
         presencial: true,
         cancelado: false,
       };
@@ -113,37 +163,72 @@ const MyCalendar = () => {
       await saveSession(sessionData);
       await fetchSessions();
       setSavingSession(false);
-      setModalVisible(false);
+      setCreateModalVisible(false);
     } else {
-      toastService.error(
-        "Por favor, proporciona un título y DNI para la sesión."
-      );
+      toastService.error("Por favor, selecciona un DNI para la sesión.");
     }
   };
 
   const saveSession = async (sessionData) => {
     const token = localStorage.getItem("token");
-    const response = await fetch("http://127.0.0.1:8000/api/guardar_sesion", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(sessionData),
-    });
-    if (response.status === 201) {
-      toast.success("¡Sesión creada con éxito!", {
-        position: "bottom-center",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
+    try {
+      const response = await fetch("http://127.0.0.1:8000/api/guardar_sesion", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(sessionData),
       });
-    } else {
-      toast.error("DNI incorrecto. Intenta de nuevo.", {
+
+      if (response.ok) {
+        toast.success("¡Sesión creada con éxito!", {
+          position: "bottom-center",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
+      } else if (response.status === 409) {
+        toast.error("Ya existe una sesión en este horario.", {
+          position: "bottom-center",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
+      } else if (response.status === 404) {
+        toast.error("DNI del paciente incorrecto.", {
+          position: "bottom-center",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
+      } else {
+        toast.error("Error al guardar la sesión. Intenta de nuevo.", {
+          position: "bottom-center",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
+      }
+    } catch (error) {
+      console.error("Error al guardar la sesión:", error);
+      toast.error("Error de conexión. Intenta de nuevo.", {
         position: "bottom-center",
         autoClose: 2000,
         hideProgressBar: false,
@@ -156,15 +241,9 @@ const MyCalendar = () => {
     }
   };
 
-  const handleEventClick = async (event) => {
-    if (window.confirm("¿Está seguro de que desea cancelar esta sesión?")) {
-      if (event.id_sesion) {
-        await cancelSession(event.id_sesion);
-        fetchSessions();
-      } else {
-        toastService.error("No se encontró el ID de la sesión.");
-      }
-    }
+  const handleEventClick = (event) => {
+    setSelectedEvent(event);
+    setDetailsModalVisible(true);
   };
 
   const cancelSession = async (id_sesion) => {
@@ -176,6 +255,18 @@ const MyCalendar = () => {
         Authorization: `Bearer ${token}`,
       },
     });
+    toast.success("Sesión cancelada correctamente.", {
+      position: "bottom-center",
+      autoClose: 2000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "light",
+    });
+    setDetailsModalVisible(false);
+    fetchSessions();
   };
 
   const eventStyleGetter = (event) => {
@@ -209,10 +300,10 @@ const MyCalendar = () => {
   }
 
   return (
-    <div>
+    <div className="calendar-container">
       {(loading || savingSession) && <Loader />}
 
-      {modalVisible && (
+      {createModalVisible && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white p-6 rounded-lg shadow-lg w-96">
             <h2 className="text-xl font-semibold mb-4 text-center text-greenPsique">
@@ -222,14 +313,12 @@ const MyCalendar = () => {
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Título de la sesión:
+                  Comentario:
                 </label>
-                <input
-                  type="text"
+                <textarea
                   className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-greenPsique focus:border-greenPsique"
-                  value={newEventTitle}
-                  onChange={(e) => setNewEventTitle(e.target.value)}
-                  placeholder="Ingrese un título"
+                  onChange={(e) => setNewEventComment(e.target.value)}
+                  placeholder="Ingrese un comentario (opcional)"
                   disabled={savingSession}
                 />
               </div>
@@ -245,9 +334,9 @@ const MyCalendar = () => {
                   disabled={savingSession}
                 >
                   <option value="">Seleccione un paciente</option>
-                  {pacientesDNI.map((dni) => (
-                    <option key={dni} value={dni}>
-                      {dni}
+                  {pacientes.map((paciente) => (
+                    <option key={paciente.dni} value={paciente.dni}>
+                      {paciente.nombre} {paciente.apellido} - {paciente.dni}
                     </option>
                   ))}
                 </select>
@@ -294,7 +383,7 @@ const MyCalendar = () => {
                 </button>
 
                 <button
-                  onClick={() => setModalVisible(false)}
+                  onClick={() => setCreateModalVisible(false)}
                   disabled={savingSession}
                   className={`px-4 py-2 rounded-md transition-colors duration-200 
                     ${
@@ -311,12 +400,55 @@ const MyCalendar = () => {
         </div>
       )}
 
+      {detailsModalVisible && selectedEvent && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+            <h2 className="text-xl font-semibold mb-4 text-center text-greenPsique">
+              Detalles de la sesión
+            </h2>
+            <p>
+              <strong>Paciente:</strong> {selectedEvent.nombre}{" "}
+              {selectedEvent.apellido} - {selectedEvent.dni_paciente}
+            </p>
+            <p>
+              <strong>Fecha:</strong>{" "}
+              {moment(selectedEvent.start).format("DD/MM/YYYY")}
+            </p>
+            <p>
+              <strong>Hora:</strong>{" "}
+              {moment(selectedEvent.start).format("HH:mm")}
+            </p>
+            <p>
+              <strong>Comentario:</strong>{" "}
+              {selectedEvent.comentario || "Ninguno"}
+            </p>
+            <div className="flex justify-end space-x-3 mt-6">
+              <button
+                onClick={() => cancelSession(selectedEvent.id_sesion)}
+                className="bg-red-500 w-[150px] font-Muli text-white py-2 px-4 rounded hover:bg-red-600 h-[48px]"
+              >
+                Cancelar sesión
+              </button>
+              <button
+                onClick={() => setDetailsModalVisible(false)}
+                className="px-4 py-2 rounded-md transition-colors duration-200 bg-darkGreen text-white"
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <Calendar
         localizer={localizer}
         events={events}
+        messages={messages}
+        formats={formats}
+        culture="es"
         startAccessor="start"
         endAccessor="end"
-        style={{ height: 500, margin: "50px" }}
+        style={{ flexGrow: 1, margin: "50px" }}
         selectable
         onSelectEvent={handleEventClick}
         onSelectSlot={handleSelect}

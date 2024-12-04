@@ -168,11 +168,13 @@ class PsychologistController extends Controller
     public function getPacientesDNI()
     {
         $psicologo = Auth::user();
-        $dniPacientes = DB::table('psicologo_paciente')
-            ->where('matricula_psicologo', $psicologo->matricula)
-            ->pluck('dni_paciente');
+        $pacientes = DB::table('psicologo_paciente')
+            ->join('paciente', 'psicologo_paciente.dni_paciente', '=', 'paciente.dni')
+            ->where('psicologo_paciente.matricula_psicologo', $psicologo->matricula)
+            ->select('paciente.dni', 'paciente.nombre', 'paciente.apellido')
+            ->get();
 
-        return response()->json($dniPacientes);
+        return response()->json($pacientes);
     }
 
     public function getPsychologistRatings($matricula)

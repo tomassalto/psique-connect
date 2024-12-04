@@ -86,7 +86,7 @@ const FormEditPsychologist = ({ user, setEditMode, onBack }) => {
           }
         );
         if (response.status === 201) {
-          toast.success("¡Paciente registrado con éxito!", {
+          toast.success("¡Datos modificados con éxito!", {
             position: "bottom-center",
             autoClose: 3000,
             hideProgressBar: false,
@@ -101,7 +101,7 @@ const FormEditPsychologist = ({ user, setEditMode, onBack }) => {
             window.location = "/perfil";
           }, 3000);
         } else {
-          toast.error("Error al registrar el paciente. Intenta de nuevo.", {
+          toast.error("Error al modificar los datos. Intenta de nuevo.", {
             position: "bottom-center",
             autoClose: 5000,
             hideProgressBar: false,

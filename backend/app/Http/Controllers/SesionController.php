@@ -8,6 +8,7 @@ use App\Models\Sesion;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\DB;
 
 class SesionController extends Controller
 {
@@ -22,39 +23,61 @@ class SesionController extends Controller
             'matricula_psicologo' => 'required|integer',
             'fecha' => 'required|date',
             'hora' => 'required',
+            'comentario' => 'nullable|string|max:255',
         ]);
-
 
         if (!$paciente) {
             return response()->json(['message' => 'DNI del paciente incorrecto'], 404);
         }
 
+        $sesionExistente = Sesion::where('matricula_psicologo', $psicologo->matricula)
+            ->where('fecha', $request->fecha)
+            ->where('hora', $request->hora)
+            ->where('cancelado', false)
+            ->first();
 
-        $sesion = Sesion::create([
-            'dni_paciente' => $request->dni_paciente,
-            'matricula_psicologo' => $psicologo->matricula,
-            'fecha' => $request->fecha,
-            'hora' => $request->hora,
-            'presencial' => false,
-            'cancelado' => false,
-        ]);
+        if ($sesionExistente) {
+            return response()->json(['message' => 'Ya existe una sesión en este horario.'], 409);
+        } else {
+            $sesion = Sesion::create([
+                'dni_paciente' => $request->dni_paciente,
+                'matricula_psicologo' => $psicologo->matricula,
+                'fecha' => $request->fecha,
+                'hora' => $request->hora,
+                'comentario' => $request->comentario,
+                'presencial' => false,
+                'cancelado' => false,
+            ]);
 
-        Mail::to($paciente->email)
-            ->send(new SesionCreada($sesion, $paciente, $psicologo, false));
+            Mail::to($paciente->email)
+                ->send(new SesionCreada($sesion, $paciente, $psicologo, false));
 
-        Mail::to($psicologo->email)
-            ->send(new SesionCreada($sesion, $paciente, $psicologo, true));
+            Mail::to($psicologo->email)
+                ->send(new SesionCreada($sesion, $paciente, $psicologo, true));
+        }
 
         return response()->json($sesion, 201);
     }
 
 
+
     public function index()
     {
-        $psicologo = auth()->user();
+        $psicologo = Auth::user();
 
-
-        $sesiones = Sesion::where('matricula_psicologo', $psicologo->matricula)
+        $sesiones = DB::table('sesion')
+            ->join('paciente', 'sesion.dni_paciente', '=', 'paciente.dni')
+            ->where('sesion.matricula_psicologo', $psicologo->matricula)
+            ->select(
+                'sesion.id_sesion',
+                'sesion.fecha',
+                'sesion.hora',
+                'sesion.cancelado',
+                'sesion.comentario',
+                'paciente.dni as dni_paciente',
+                'paciente.nombre',
+                'paciente.apellido'
+            )
             ->get();
 
         return response()->json($sesiones);
