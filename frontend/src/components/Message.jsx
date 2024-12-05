@@ -7,6 +7,7 @@ const Messages = () => {
   const [selectedMessage, setSelectedMessage] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [takenPatients, setTakenPatients] = useState([]); // Para almacenar los pacientes ya tomados
 
   useEffect(() => {
     const fetchMessages = async () => {
@@ -23,7 +24,13 @@ const Messages = () => {
         );
         const data = await response.json();
         console.log(data);
-        setMessages(data);
+
+        // Ordenamos los mensajes por la fecha de creación (más recientes primero)
+        const sortedMessages = data.sort((a, b) => {
+          return new Date(b.created_at) - new Date(a.created_at);
+        });
+
+        setMessages(sortedMessages);
       } catch (error) {
         console.error("Error al obtener los mensajes:", error);
       } finally {
@@ -31,7 +38,27 @@ const Messages = () => {
       }
     };
 
+    const fetchTakenPatients = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const response = await fetch(
+          "http://127.0.0.1:8000/api/mis-pacientes", // Suponiendo que esta ruta te da los pacientes ya tomados
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        const data = await response.json();
+        setTakenPatients(data); // Almacenamos los pacientes ya tomados
+      } catch (error) {
+        console.error("Error al obtener los pacientes tomados:", error);
+      }
+    };
+
     fetchMessages();
+    fetchTakenPatients();
 
     const interval = setInterval(fetchMessages, 10000);
 
@@ -77,6 +104,9 @@ const Messages = () => {
       const data = await response.json();
       if (response.ok) {
         toastService.success("Paciente tomado exitosamente");
+        setTimeout(() => {
+          window.location.reload(); // Esto recarga la página después de 3 segundos
+        }, 3000);
       } else {
         toastService.error(data.message || "Error al tomar paciente");
       }
@@ -85,12 +115,16 @@ const Messages = () => {
     }
   };
 
+  const isPatientTaken = (dni_paciente) => {
+    return takenPatients.some(patient => patient.dni === dni_paciente); // Verifica si el paciente ya está en la lista
+  };
+
   if (loading) {
     return <Loader />;
   }
 
   return (
-    <section className="flex flex-col gap-[30px] justify-center items-center pt-[120px] pb-[70px]">
+    <section className="flex flex-col gap-[30px] justify-center items-center pt-[60px] pb-[70px]">
       <h1 className="text-3xl font-bold font-Muli text-greenPsique">
         Mensajes de Pacientes
       </h1>
@@ -117,7 +151,7 @@ const Messages = () => {
                 <strong>Mensaje:</strong>{" "}
                 {message.contenido
                   ? message.contenido.substring(0, 50)
-                  : "Sin mensaje"}
+                  : "Sin mensaje"}{" "}
                 ...
               </p>
               <button
@@ -129,8 +163,9 @@ const Messages = () => {
             </div>
           ))
         ) : (
-          <p className="text-3xl text-red-600 font-Muli text-center">
-            No tenes ningún mensaje.
+          <p className="text-3xl text-red-600 font-Muli text-center flex flex-col justify-center items-center w-full">
+            Aún no tenes ningún mensaje.
+            <img src="../../../images/without_data/pic.png"></img>
           </p>
         )}
       </div>
@@ -162,12 +197,15 @@ const Messages = () => {
               {selectedMessage.contenido || "Sin mensaje"}
             </p>
             <div className="flex justify-between">
-              <button
-                onClick={() => handleTakePatient(selectedMessage.paciente.dni)}
-                className="mt-4 bg-[#75B781] text-white px-4 py-2 rounded"
-              >
-                Tomar Paciente
-              </button>
+              {/* Verifica si el paciente ya ha sido tomado */}
+              {!isPatientTaken(selectedMessage.paciente.dni) && (
+                <button
+                  onClick={() => handleTakePatient(selectedMessage.paciente.dni)}
+                  className="mt-4 bg-[#75B781] text-white px-4 py-2 rounded"
+                >
+                  Tomar Paciente
+                </button>
+              )}
 
               <button
                 onClick={handleCloseModal}

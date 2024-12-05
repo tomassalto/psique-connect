@@ -83,15 +83,16 @@ const MisPacientes = () => {
   if (loading) return <Loader />;
 
   return (
-    <div className="flex flex-col gap-[30px] justify-center items-center pt-[120px] pb-[70px]">
+    <div className="flex flex-col gap-[30px] justify-center items-center pt-[60px] pb-[70px]">
       <h2 className="text-3xl font-Muli text-center font-bold mb-6 text-greenPsique">
         Mis Pacientes
       </h2>
       {!loading && pacientes.length === 0 ? (
-        <div className="flex justify-center items-center w-full">
+        <div className="flex flex-col justify-center items-center w-full">
           <p className="text-3xl text-red-600 font-Muli text-center">
-            No tienes pacientes asignados.
+            Aún no tienes pacientes asignados.
           </p>
+          <img src="../../../images/without_data/pic.png"></img>
         </div>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
