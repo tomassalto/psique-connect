@@ -67,13 +67,18 @@ const FormEditPsychologist = ({ user, setEditMode, onBack }) => {
         const token = localStorage.getItem("token");
         const formData = new FormData();
         Object.keys(values).forEach((key) => {
-          if (key === "foto" && values.foto instanceof File) {
-            formData.append(key, values.foto);
+          if (key === "foto") {
+            if (values.foto instanceof File) {
+              // Solo agrega la foto si es un archivo nuevo
+              formData.append(key, values.foto);
+            }
           } else if (key === "patologias") {
+            // Agregar las patologías como un array
             values.patologias.forEach((id) =>
               formData.append("patologias[]", id)
             );
           } else {
+            // Agregar otros campos normalmente
             formData.append(key, values[key] === null ? "" : values[key]);
           }
         });
@@ -304,17 +309,31 @@ const FormEditPsychologist = ({ user, setEditMode, onBack }) => {
                       </div>
                     ) : (
                       <>
-                        {formik.values.foto && (
+                        {formik.values.foto &&
+                        typeof formik.values.foto === "string" ? (
                           <div className="mt-2">
                             <p className="font-bold">
-                              Vista previa de imagen a subir:
+                              Vista previa foto actual:
                             </p>
                             <img
-                              src={URL.createObjectURL(formik.values.foto)}
+                              src={`http://127.0.0.1:8000/storage/${formik.values.foto}`}
                               alt="Vista previa"
                               className="max-w-[200px] max-h-[200px] object-cover rounded"
                             />
                           </div>
+                        ) : (
+                          formik.values.foto && (
+                            <div className="mt-2">
+                              <p className="font-bold">
+                                Vista previa de imagen a subir:
+                              </p>
+                              <img
+                                src={URL.createObjectURL(formik.values.foto)}
+                                alt="Vista previa"
+                                className="max-w-[200px] max-h-[200px] object-cover rounded"
+                              />
+                            </div>
+                          )
                         )}
                       </>
                     )}

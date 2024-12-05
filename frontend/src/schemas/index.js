@@ -117,14 +117,14 @@ export const editPsychologist = Yup.object({
     .required("Teléfono es requerido"),
   foto: Yup.mixed()
     .nullable()
-    .test("fileSize", "El archivo es demasiado grande", (value) => {
-      if (!value) return true;
-      return value.size <= 2 * 1024 * 1024;
-    })
     .test("fileType", "Formato de imagen no válido", (value) => {
-      if (!value) return true;
+      if (!value || typeof value === "string") return true; // Permitir fotos existentes o vacías
       const supportedFormats = ["image/jpg", "image/jpeg", "image/png"];
       return supportedFormats.includes(value.type);
+    })
+    .test("fileSize", "El archivo es demasiado grande", (value) => {
+      if (!value || typeof value === "string") return true; // Permitir fotos existentes o vacías
+      return value.size <= 2 * 1024 * 1024; // Máximo 2MB
     }),
   genero: Yup.string()
     .oneOf(["Masculino", "Femenino"], "Género es requerido")

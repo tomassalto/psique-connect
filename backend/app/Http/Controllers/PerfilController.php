@@ -125,25 +125,46 @@ class PerfilController extends Controller
                 return response()->json(['error' => 'Psicólogo no encontrado'], 404);
             }
 
+            $psicologo->matricula = $request->matricula;
             $psicologo->nombre = $request->nombre;
             $psicologo->apellido = $request->apellido;
+            $psicologo->email = $request->email;
             $psicologo->telefono = $request->telefono;
-            $psicologo->promedio = $request->promedio;
-            $psicologo->codigo_postal = $request->codigo_postal;
+            $psicologo->promedio = null;
             $psicologo->genero = $request->genero;
             $psicologo->fecha_nacimiento = $request->fecha_nacimiento;
+            $psicologo->codigo_postal = $request->codigo_postal;
             $psicologo->precio = $request->precio;
             $psicologo->id_tematica = $request->id_tematica;
             $psicologo->id_corriente = $request->id_corriente;
-            $psicologo->email = $request->email;
 
             if ($request->hasFile('foto')) {
-                if ($psicologo->foto && Storage::exists($psicologo->foto)) {
-                    Storage::delete($psicologo->foto);
+                $uploadedFile = $request->file('foto');
+                $uploadedFileName = $uploadedFile->getClientOriginalName();
+
+                // Comprobar si la foto existente es la misma que la nueva
+                if ($psicologo->foto && Storage::disk('public')->exists($psicologo->foto)) {
+                    $existingFileName = basename($psicologo->foto);
+                    if ($existingFileName === $uploadedFileName) {
+                        // Si la foto es la misma, no se actualiza
+                        // Se puede omitir esta parte o agregar un mensaje si se desea
+                    } else {
+                        // La foto existente es diferente, eliminarla y subir la nueva
+                        Storage::disk('public')->delete($psicologo->foto);
+                        $path = $uploadedFile->store('fotos_psicologos', 'public');
+                        $psicologo->foto = $path;
+                    }
+                } else {
+                    // No hay foto existente, simplemente guarda la nueva
+                    $path = $uploadedFile->store('fotos_psicologos', 'public');
+                    $psicologo->foto = $path;
                 }
-                $path = $request->file('foto')->store('fotos_psicologos', 'public');
-                $psicologo->foto = $path;
+            } else {
+                // Si no se subió una nueva foto, mantener la foto existente
+                // Esto asegura que la foto no se borre si no se sube una nueva
+                $psicologo->foto = $psicologo->foto; // Mantener la foto actual
             }
+
 
             $psicologo->save();
 

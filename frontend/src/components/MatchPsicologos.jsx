@@ -97,7 +97,7 @@ const MatchPsicologos = () => {
                                     )}`
                                   : `http://127.0.0.1:8000/storage/${psicologo.foto}`
                               }
-                              alt={`Foto de ${psicologo.nombre}`}
+                              alt={`Foto de ${psicologo.nombre}`} // Comillas invertidas para interpolación
                               className="h-[350px] w-full object-cover rounded-lg"
                             />
                           </div>
@@ -144,8 +144,9 @@ const MatchPsicologos = () => {
                       </div>
                       <div className="flex flex-col gap-5">
                         <Button
-                          onClick={() =>
-                            (window.location.href = `/calificaciones/${psicologo.matricula}`)
+                          onClick={
+                            () =>
+                              (window.location.href = `/calificaciones/${psicologo.matricula}`) // Comillas invertidas para interpolación
                           }
                           color="secondary"
                           text="Ver Calificaciones"

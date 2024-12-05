@@ -44,10 +44,17 @@ class SesionSeeder extends Seeder
                 );
 
                 $hora = fake()->time('H:i:s', '20:00:00');
-
                 $comentario = $comentarios[array_rand($comentarios)];
-
                 $isPagada = fake()->boolean(90); // 90% de las sesiones estarán pagadas
+
+                // Obtener el precio del psicólogo
+                $precioPsicologo = DB::table('psicologo')
+                    ->where('matricula', $relacion->matricula_psicologo)
+                    ->value('precio');
+
+                if (!$precioPsicologo) {
+                    $precioPsicologo = 2000.00; // Valor por defecto si no se encuentra
+                }
 
                 $sesionId = DB::table('sesion')->insertGetId([
                     'dni_paciente' => $relacion->dni_paciente,
@@ -63,15 +70,14 @@ class SesionSeeder extends Seeder
                 ]);
 
                 if ($isPagada) {
-                    $this->generarComprobante($sesionId, $fecha);
+                    $this->generarComprobante($sesionId, $fecha, $precioPsicologo);
                 }
             }
         }
     }
 
-    private function generarComprobante($sesionId, $fechaPago)
+    private function generarComprobante($sesionId, $fechaPago, $monto)
     {
-        // Obtener datos de la sesión con relaciones necesarias
         $sesion = DB::table('sesion')
             ->join('paciente', 'sesion.dni_paciente', '=', 'paciente.dni')
             ->join('psicologo', 'sesion.matricula_psicologo', '=', 'psicologo.matricula')
@@ -92,9 +98,13 @@ class SesionSeeder extends Seeder
         }
 
         $pdf = Pdf::loadView('comprobantes.sesion', [
+            'paciente_nombre' => $sesion->paciente_nombre,
+            'paciente_apellido' => $sesion->paciente_apellido,
+            'psicologo_nombre' => $sesion->psicologo_nombre,
+            'psicologo_apellido' => $sesion->psicologo_apellido,
             'sesion' => $sesion,
             'fecha_pago' => $fechaPago->format('Y-m-d H:i:s'),
-            'monto' => 2000.00,
+            'monto' => $monto,
             'payment_id' => 'MP-' . strtoupper(uniqid()),
         ]);
 

@@ -63,7 +63,6 @@ class PacienteController extends Controller
             return response()->json(['error' => 'Temática o corriente inválida'], 400);
         }
 
-        // Procesar patologías seleccionadas
         $patologiasNombres = $request->input('situacionesActuales', []);
         $patologiasConsideradas = collect($patologiasNombres)
             ->flatMap(fn($patologia) => $mapeoPatologias[$patologia] ?? [])
@@ -176,11 +175,20 @@ class PacienteController extends Controller
             return $edadPsicologoCalculada >= $min && $edadPsicologoCalculada <= $max;
         });
 
+        if ($psicologos->count() < 5) {
+            $psicologos = Psicologo::with(['patologias', 'corriente', 'tematica'])
+                ->get()
+                ->filter(function ($psicologo) use ($tematica, $corrientesIds, $patologiasIds) {
+                    return $psicologo->id_tematica == $tematica ||
+                        in_array($psicologo->id_corriente, $corrientesIds) ||
+                        $psicologo->patologias->whereIn('id_patologia', $patologiasIds)->isNotEmpty();
+                });
+        }
         // Calcular coincidencias con pesos
         $psicologosConCoincidencias = $psicologos->map(function ($psicologo) use ($tematica, $corrientesIds, $patologiasIds) {
             $coincidencias = 0;
 
-            // Temática (3 puntos)
+            // Coincidencia de temática
             if ($psicologo->id_tematica == $tematica) {
                 $coincidencias += 3;
             }
@@ -214,9 +222,10 @@ class PacienteController extends Controller
             ]);
         }
 
+
+
         return response()->json($mejoresPsicologos->pluck('psicologo'));
     }
-
 
 
     public function obtenerMatches()
