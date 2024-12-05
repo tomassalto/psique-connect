@@ -10,6 +10,8 @@ const PsychologistCard = () => {
   const [psicologos, setPsicologos] = useState([]);
   const [selectedPsicologo, setSelectedPsicologo] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [filteredPsicologos, setFilteredPsicologos] = useState([]);
+  const [clearFiltersTrigger, setClearFiltersTrigger] = useState(false); // Trigger para limpiar filtros
   const [selectedFilters, setSelectedFilters] = useState({
     corriente: "",
     tematica: "",
@@ -19,6 +21,20 @@ const PsychologistCard = () => {
     minAge: "",
     maxAge: "",
   });
+
+  const clearFilters = () => {
+    setSelectedFilters({
+      corriente: "",
+      tematica: "",
+      patologia: "",
+      searchTerm: "",
+      genero: "",
+      minAge: "",
+      maxAge: "",
+    });
+    setClearFiltersTrigger((prev) => !prev); // Activa la limpieza
+    fetchPsychologists({}); // Reinicia la búsqueda
+  };
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -50,7 +66,7 @@ const PsychologistCard = () => {
         console.error("Error fetching user data:", error);
       });
 
-    fetchPsychologists({});
+    fetchPsychologists({}); // Carga inicial
   }, []);
 
   const fetchPsychologists = async (filters = {}) => {
@@ -81,17 +97,14 @@ const PsychologistCard = () => {
     }
   };
 
-  const clearFilters = () => {
-    setSelectedFilters({
-      corriente: "",
-      tematica: "",
-      patologia: "",
-      searchTerm: "",
-      genero: "",
-      minAge: "",
-      maxAge: "",
+  const prepareFilters = (filters) => {
+    const sanitizedFilters = {};
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== "") {
+        sanitizedFilters[key] = value;
+      }
     });
-    fetchPsychologists({});
+    return sanitizedFilters;
   };
 
   const calculateAge = (dateOfBirth) => {
@@ -109,30 +122,27 @@ const PsychologistCard = () => {
 
     return age;
   };
-  const prepareFilters = (filters) => {
-    const sanitizedFilters = {};
-
-    Object.entries(filters).forEach(([key, value]) => {
-      if (value !== undefined && value !== null && value !== "") {
-        sanitizedFilters[key] = value;
-      }
-    });
-
-    return sanitizedFilters;
-  };
 
   const handleContactar = (psicologo) => {
     setSelectedPsicologo(psicologo);
     setShowModal(true);
   };
 
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat("es-AR", {
+      style: "currency",
+      currency: "ARS",
+      minimumFractionDigits: 0,
+    }).format(price);
+  };
+
   return (
-    <section className="flex flex-col lg:flex-row pt-[120px] pb-[70px] lg:px-4">
+    <section className="flex flex-col sm:flex-row pt-[40px] pb-[70px] lg:px-4">
       {loading ? (
         <Loader />
       ) : (
         <>
-          <div className="w-[250px] mac:w-[300px] flex flex-col gap-4 sticky top-24 h-[900px] overflow-y-auto bg-white shadow-lg">
+          <div className="w-[350px] h-[400px] mac:w-[400px] flex flex-col gap-4 sm:sticky top-32  sm:h-[900px] overflow-y-auto bg-white shadow-lg">
             <Filter
               onFilter={(filters) => {
                 const sanitizedFilters = prepareFilters(filters);
@@ -141,6 +151,7 @@ const PsychologistCard = () => {
               }}
               selectedFilters={selectedFilters}
               setSelectedFilters={setSelectedFilters}
+              clearAllFilters={clearFiltersTrigger}
             />
             <div className="flex justify-center">
               <button
@@ -151,28 +162,24 @@ const PsychologistCard = () => {
               </button>
             </div>
           </div>
-          <div className="flex flex-col items-center w-full">
+          <div className="flex flex-col items-center ">
             {psicologos.length === 0 ? (
               <p className="text-3xl text-red-600 font-Muli text-center">
                 No hay psicólogos registrados en el sistema.
               </p>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mac:gap-x-[50px]">
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 mac:gap-x-[20px]">
                 {psicologos.map((psicologo) => (
                   <div
                     key={psicologo.matricula}
-                    className="flex flex-col p-4 border border-greenPsique rounded-lg shadow-md hover:shadow-lg transition-shadow gap-4 justify-center sm:w-[400px] lg:w-[350px] mac:w-[500px]"
+                    className="flex flex-col p-4 border border-greenPsique rounded-lg shadow-md hover:shadow-lg transition-shadow gap-4 justify-between w-[300px] h-full sm:w-[400px] lg:w-[350px] mac:w-[500px]"
                   >
                     <div className="flex flex-col gap-2">
                       <img
-                        src={
-                          psicologo.foto.startsWith("../../storage")
-                            ? `http://127.0.0.1:8000/storage/${psicologo.foto.replace(
-                                "../../storage/app/public/",
-                                ""
-                              )}`
-                            : `http://127.0.0.1:8000/storage/${psicologo.foto}`
-                        }
+                        src={`http://127.0.0.1:8000/storage/${psicologo.foto.replace(
+                          "../../storage/app/public/",
+                          ""
+                        )}`}
                         alt={`Foto de ${psicologo.nombre}`}
                         className="h-[500px] w-full object-cover rounded-lg"
                       />
@@ -183,7 +190,6 @@ const PsychologistCard = () => {
                         <p>
                           <strong>Apellido:</strong> {psicologo.apellido}
                         </p>
-
                         <p>
                           <strong>Edad:</strong>{" "}
                           {calculateAge(psicologo.fecha_nacimiento)} años
@@ -196,6 +202,10 @@ const PsychologistCard = () => {
                         </p>
                         <p>
                           <strong>Matrícula:</strong> {psicologo.matricula}
+                        </p>
+                        <p>
+                          <strong>Precio por hora:</strong>{" "}
+                          {formatPrice(psicologo.precio)}
                         </p>
                         <p>
                           <strong>Patologías:</strong>{" "}

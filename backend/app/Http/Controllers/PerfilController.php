@@ -52,6 +52,7 @@ class PerfilController extends Controller
                             'genero' => $psicologo->genero,
                             'fecha_nacimiento' => $psicologo->fecha_nacimiento,
                             'foto' => $psicologo->foto,
+                            'precio' => $psicologo->precio,
                             'id_tematica' => $psicologo->id_tematica,
                             'patologias' => $psicologo->patologias,
                             'id_corriente' => $psicologo->id_corriente,
@@ -105,11 +106,12 @@ class PerfilController extends Controller
                 'nombre' => 'required|string|max:255',
                 'apellido' => 'required|string|max:255',
                 'telefono' => 'required|string|max:20',
-                'promedio' => 'required|numeric|between:0,10',
+                'promedio' => 'nullable|numeric|between:0,10',
                 'codigo_postal' => 'required|integer',
-                'genero' => 'required|string|in:masculino,femenino',
+                'genero' => 'required|string|in:Masculino,Femenino',
                 'fecha_nacimiento' => 'required|date',
                 'foto' => 'nullable|image|mimes:jpg,png|max:2048',
+                'precio' => 'required|numeric|between:2000,100000',
                 'id_tematica' => 'required|integer',
                 'patologias' => 'required|array|min:1',
                 'patologias.*' => 'exists:patologia,id_patologia',
@@ -130,6 +132,7 @@ class PerfilController extends Controller
             $psicologo->codigo_postal = $request->codigo_postal;
             $psicologo->genero = $request->genero;
             $psicologo->fecha_nacimiento = $request->fecha_nacimiento;
+            $psicologo->precio = $request->precio;
             $psicologo->id_tematica = $request->id_tematica;
             $psicologo->id_corriente = $request->id_corriente;
             $psicologo->email = $request->email;

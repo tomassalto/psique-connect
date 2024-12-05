@@ -59,6 +59,14 @@ const MatchPsicologos = () => {
     return age;
   };
 
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat("es-AR", {
+      style: "currency",
+      currency: "ARS",
+      minimumFractionDigits: 0,
+    }).format(price);
+  };
+
   return (
     <section className="flex flex-col gap-[30px] justify-center items-center pt-[120px] pb-[70px]">
       {loading ? (
@@ -112,6 +120,10 @@ const MatchPsicologos = () => {
                             </p>
                             <p>
                               <strong>Matrícula:</strong> {psicologo.matricula}
+                            </p>
+                            <p>
+                              <strong>Precio por hora:</strong>{" "}
+                              {formatPrice(psicologo.precio)}
                             </p>
                             <p>
                               <strong>Patologías:</strong>{" "}

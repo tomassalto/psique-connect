@@ -31,17 +31,13 @@
     </div>
 
     <div class="details">
-
-        <p><strong>Fecha de Pago:</strong> {{ $fecha_pago }}</p>
-        <p><strong>Paciente:</strong> {{ $sesion->paciente->nombre }} {{ $sesion->paciente->apellido }}</p>
-        <p><strong>DNI:</strong> {{ $sesion->paciente->dni }}</p>
-        <p><strong>Psicólogo:</strong> {{ $sesion->psicologo->nombre }} {{ $sesion->psicologo->apellido }}</p>
-        <p><strong>Matricula:</strong> {{ $sesion->psicologo->matricula }}</p>
-        <p><strong>Fecha de Sesión:</strong> {{ $sesion->fecha }}</p>
+        <p><strong>Paciente:</strong> {{ $paciente_nombre }} {{ $paciente_apellido }}</p>
+        <p><strong>Psicólogo:</strong> {{ $psicologo_nombre }} {{ $psicologo_apellido }}</p>
+        <p><strong>Fecha de la sesión:</strong> {{ \Carbon\Carbon::parse($sesion->fecha)->format('d/m/Y') }}</p>
         <p><strong>Hora:</strong> {{ $sesion->hora }}</p>
-        <p><strong>Monto:</strong> ${{ number_format($monto, 2) }}</p>
-        <p><strong>Fecha de Pago:</strong> {{ $sesion->fecha_pago->format('d/m/Y H:i:s') }}</p>
-
+        <p><strong>Monto:</strong> ${{ number_format($monto, 2, ',', '.') }}</p>
+        <p><strong>Número de operacíon:</strong> {{ $payment_id }}</p>
+        <p><strong>Fecha de Pago:</strong> {{ \Carbon\Carbon::parse($fecha_pago)->format('d/m/Y H:i:s') }}</p>
     </div>
 </body>
 

@@ -54,6 +54,7 @@ Route::middleware(['auth:sanctum', 'role:psicologo'])->group(function () {
     Route::get('/mis-pacientes', [PsychologistController::class, 'getMisPacientes']);
     Route::get('/sesiones-paciente/{dni_paciente}', [PsychologistController::class, 'getSesionesByPaciente']);
     Route::get('/metricas-psicologo', [MetricasController::class, 'getMetricasPsicologo']);
+    Route::get('/metricas-patologias', [PsychologistController::class, 'getPatologiasFrecuencia']);
 });
 Route::middleware('auth:sanctum')->group(function () {});
 

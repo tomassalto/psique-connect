@@ -17,6 +17,7 @@ class TematicaTableSeeder extends Seeder
         DB::table('tematica')->insert([
             ['nombre' => 'Online'],
             ['nombre' => 'Presencial'],
+            ['nombre' => 'Ambas'],
         ]);
     }
 }

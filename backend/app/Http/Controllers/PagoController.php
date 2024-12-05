@@ -27,6 +27,7 @@ class PagoController extends Controller
                 ->findOrFail($request->id_sesion);
 
             $client = new PreferenceClient();
+            $precioPorHora = $sesion->psicologo->precio;
 
             $preference_data = [
                 'items' => [
@@ -35,7 +36,7 @@ class PagoController extends Controller
                         'description' => "Sesión con " . $sesion->psicologo->nombre,
                         'quantity' => 1,
                         'currency_id' => 'ARS',
-                        'unit_price' => 2000.00
+                        'unit_price' => (float)$precioPorHora
                     ]
                 ],
                 'payer' => [
@@ -95,10 +96,16 @@ class PagoController extends Controller
             $sesion->payment_id = $request->payment_id;
             $sesion->fecha_pago = now()->setTimezone('America/Argentina/Buenos_Aires');
 
+            $monto = $sesion->psicologo->precio;
+
             $pdf = PDF::loadView('comprobantes.sesion', [
                 'sesion' => $sesion,
+                'paciente_nombre' => $sesion->paciente->nombre,
+                'paciente_apellido' => $sesion->paciente->apellido,
+                'psicologo_nombre' => $sesion->psicologo->nombre,
+                'psicologo_apellido' => $sesion->psicologo->apellido,
                 'fecha_pago' => $sesion->fecha_pago,
-                'monto' => 2000.00,
+                'monto' => $monto,
                 'payment_id' => $request->payment_id
             ]);
 

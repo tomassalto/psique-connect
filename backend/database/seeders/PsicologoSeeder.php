@@ -64,6 +64,8 @@ class PsicologoSeeder extends Seeder
         for ($i = 0; $i < 15; $i++) {
             $nombre = $faker->firstName('male');
             $apellido = $faker->lastName;
+            $nombreNormalizado = $this->normalizarTexto($nombre);
+            $apellidoNormalizado = $this->normalizarTexto($apellido);
             $fechaNacimiento = Carbon::now()->subYears(rand(18, 50))->format('Y-m-d');
 
             $psicologo = Psicologo::create([
@@ -71,11 +73,12 @@ class PsicologoSeeder extends Seeder
                 'nombre' => $nombre,
                 'apellido' => $apellido,
                 'telefono' => $faker->phoneNumber,
-                'promedio' => $faker->randomFloat(2, 0, 10),
+                'promedio' => null,
                 'codigo_postal' => $codigosPostales[array_rand($codigosPostales)],
+                'precio' => $faker->randomFloat(2, 2000, 50000),
                 'id_tematica' => $tematicas[array_rand($tematicas)],
                 'id_corriente' => $corrientes[array_rand($corrientes)],
-                'email' => strtolower("{$nombre}_{$apellido}@mail.com"),
+                'email' => strtolower("{$nombreNormalizado}_{$apellidoNormalizado}@mail.com"),
                 'password' => bcrypt('tomastomas'),
                 'foto' => $fotosMasculinas[$i % count($fotosMasculinas)],
                 'fecha_nacimiento' => $fechaNacimiento,
@@ -88,6 +91,8 @@ class PsicologoSeeder extends Seeder
         for ($i = 0; $i < 15; $i++) {
             $nombre = $faker->firstName('female');
             $apellido = $faker->lastName;
+            $nombreNormalizado = $this->normalizarTexto($nombre);
+            $apellidoNormalizado = $this->normalizarTexto($apellido);
             $fechaNacimiento = Carbon::now()->subYears(rand(18, 50))->format('Y-m-d');
 
             $psicologo = Psicologo::create([
@@ -95,11 +100,12 @@ class PsicologoSeeder extends Seeder
                 'nombre' => $nombre,
                 'apellido' => $apellido,
                 'telefono' => $faker->phoneNumber,
-                'promedio' => $faker->randomFloat(2, 0, 10),
+                'promedio' => null,
                 'codigo_postal' => $codigosPostales[array_rand($codigosPostales)],
+                'precio' => $faker->randomFloat(2, 2000, 50000),
                 'id_tematica' => $tematicas[array_rand($tematicas)],
                 'id_corriente' => $corrientes[array_rand($corrientes)],
-                'email' => strtolower("{$nombre}_{$apellido}@mail.com"),
+                'email' => strtolower("{$nombreNormalizado}_{$apellidoNormalizado}@mail.com"),
                 'password' => bcrypt('tomastomas'),
                 'foto' => $fotosFemeninas[$i % count($fotosFemeninas)],
                 'fecha_nacimiento' => $fechaNacimiento,
@@ -132,5 +138,18 @@ class PsicologoSeeder extends Seeder
                 'updated_at' => now(),
             ]);
         }
+    }
+
+    private function normalizarTexto($texto)
+    {
+        $texto = strtolower($texto);
+        $texto = preg_replace('/\s+/', '_', $texto);
+        $texto = str_replace(
+            ['á', 'é', 'í', 'ó', 'ú', 'ñ', 'Á', 'É', 'Í', 'Ó', 'Ú', 'Ñ'],
+            ['a', 'e', 'i', 'o', 'u', 'n', 'a', 'e', 'i', 'o', 'u', 'n'],
+            $texto
+        );
+        $texto = preg_replace('/[^a-z0-9_]/', '', $texto);
+        return $texto;
     }
 }

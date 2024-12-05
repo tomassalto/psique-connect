@@ -26,10 +26,49 @@ ChartJS.register(
 const MetricasPsicologo = () => {
   const [loading, setLoading] = useState(true);
   const [metricas, setMetricas] = useState(null);
+  const [patologiasFrecuencia, setPatologiasFrecuencia] = useState([]);
+  const [psicologo, setPsicologo] = useState({ nombre: "", apellido: "" });
 
   useEffect(() => {
     fetchMetricas();
+    fetchPatologiasFrecuencia();
   }, []);
+
+  const fetchPatologiasFrecuencia = async () => {
+    try {
+      const response = await fetch(
+        "http://127.0.0.1:8000/api/metricas-patologias",
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      const data = await response.json();
+      setPatologiasFrecuencia(data.frecuenciaPatologias || []);
+      setPsicologo({
+        nombre: data.psicologo.nombre,
+        apellido: data.psicologo.apellido,
+      });
+    } catch (error) {
+      toastService.error("Error al cargar las patologías");
+    }
+  };
+
+  const patologiasData = {
+    labels: Array.isArray(patologiasFrecuencia)
+      ? patologiasFrecuencia.map((item) => item.nombre)
+      : [],
+    datasets: [
+      {
+        label: "Frecuencia de Patologías",
+        data: Array.isArray(patologiasFrecuencia)
+          ? patologiasFrecuencia.map((item) => item.cantidad)
+          : [],
+        backgroundColor: "rgba(255, 206, 86, 0.6)",
+      },
+    ],
+  };
 
   const fetchMetricas = async () => {
     try {
@@ -53,7 +92,6 @@ const MetricasPsicologo = () => {
   if (loading) return <Loader />;
   if (!metricas) return null;
 
-  // Datos para el gráfico de sesiones por mes
   const sesionesXMesData = {
     labels: metricas.sesionesXMes.map((item) => {
       const [year, month] = item.mes.split("-");
@@ -71,7 +109,6 @@ const MetricasPsicologo = () => {
     ],
   };
 
-  // Datos para el gráfico de sesiones por año
   const sesionesXAnoData = {
     labels: metricas.sesionesXAno.map((item) => item.ano),
     datasets: [
@@ -83,7 +120,6 @@ const MetricasPsicologo = () => {
     ],
   };
 
-  // Datos para el gráfico de modalidad de sesiones
   const modalidadSesionesData = {
     labels: ["Presenciales", "Virtuales"],
     datasets: [
@@ -99,12 +135,13 @@ const MetricasPsicologo = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h2 className="text-3xl font-Muli text-center font-bold mb-6 text-greenPsique">
-        Métricas y Estadísticas
+      <h2 className="text-3xl font-Muli text-center font-bold mb-6 ">
+        Métricas y Estadísticas de{" "}
+        <span className="text-greenPsique">
+          {psicologo.nombre} {psicologo.apellido}
+        </span>
       </h2>
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {/* Gráfico de Sesiones por Mes */}
         <div className="bg-white p-6 rounded-lg shadow">
           <h3 className="text-xl font-semibold mb-4">Sesiones por Mes</h3>
           <Bar
@@ -118,8 +155,6 @@ const MetricasPsicologo = () => {
             }}
           />
         </div>
-
-        {/* Gráfico de Sesiones por Año */}
         <div className="bg-white p-6 rounded-lg shadow">
           <h3 className="text-xl font-semibold mb-4">Sesiones por Año</h3>
           <Bar
@@ -132,8 +167,6 @@ const MetricasPsicologo = () => {
             }}
           />
         </div>
-
-        {/* Gráfico de Modalidad de Sesiones */}
         <div className="bg-white p-6 rounded-lg shadow">
           <h3 className="text-xl font-semibold mb-4">Modalidad de Sesiones</h3>
           <div className="h-[300px] flex items-center justify-center">
@@ -148,8 +181,6 @@ const MetricasPsicologo = () => {
             />
           </div>
         </div>
-
-        {/* Resumen numérico */}
         <div className="bg-white p-6 rounded-lg shadow">
           <h3 className="text-xl font-semibold mb-4">Resumen de Sesiones</h3>
           <div className="space-y-4">
@@ -173,6 +204,21 @@ const MetricasPsicologo = () => {
               </span>
             </div>
           </div>
+        </div>
+        <div className="bg-white p-6 rounded-lg shadow">
+          <h3 className="text-xl font-semibold mb-4">
+            Frecuencia de Patologías
+          </h3>
+          <Bar
+            data={patologiasData}
+            options={{
+              responsive: true,
+              plugins: {
+                legend: { position: "top" },
+                title: { display: true, text: "Patologías en Pacientes" },
+              },
+            }}
+          />
         </div>
       </div>
     </div>

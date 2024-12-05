@@ -49,9 +49,12 @@ const FormEditPsychologist = ({ user, setEditMode, onBack }) => {
       telefono: user.telefono || "",
       foto: user.foto || "",
       genero: user.genero || "",
-      fecha_nacimiento: user.fecha_nacimiento || "",
-      promedio: user.promedio || "",
+      fecha_nacimiento: user.fecha_nacimiento
+        ? new Date(user.fecha_nacimiento).toISOString().split("T")[0]
+        : "",
+      promedio: null,
       codigo_postal: user.codigo_postal || "",
+      precio: user.precio || "",
       id_tematica: user.id_tematica || "",
       patologias: user.patologias
         ? user.patologias.map((p) => p.id_patologia)
@@ -65,13 +68,13 @@ const FormEditPsychologist = ({ user, setEditMode, onBack }) => {
         const formData = new FormData();
         Object.keys(values).forEach((key) => {
           if (key === "foto" && values.foto instanceof File) {
-            formData.append(key, values.foto); // Adjunta la nueva foto
+            formData.append(key, values.foto);
           } else if (key === "patologias") {
             values.patologias.forEach((id) =>
               formData.append("patologias[]", id)
             );
           } else {
-            formData.append(key, values[key]);
+            formData.append(key, values[key] === null ? "" : values[key]);
           }
         });
         console.log(formData);
@@ -335,8 +338,8 @@ const FormEditPsychologist = ({ user, setEditMode, onBack }) => {
                   }`}
                 >
                   <option value="" label="Selecciona un género" />
-                  <option value="masculino">Masculino</option>
-                  <option value="femenino">Femenino</option>
+                  <option value="Masculino">Masculino</option>
+                  <option value="Femenino">Femenino</option>
                 </select>
                 {formik.touched.genero && formik.errors.genero ? (
                   <div className="flex gap-1 text-[#E50505] text-[13px] font-poppins ">
@@ -381,35 +384,6 @@ const FormEditPsychologist = ({ user, setEditMode, onBack }) => {
                   </div>
                 ) : null}
               </div>
-              <div className="flex flex-col gap-[2px]">
-                <p className=" text-[16px] font-bold">Promedio:</p>
-                <input
-                  type="number"
-                  placeholder="Promedio:"
-                  name="promedio"
-                  id="promedio"
-                  value={formik.values.promedio}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  className={`h-[50px] border-b-[1px] border-[#75b781] placeholder:font-Muli lg:w-[417px] ${
-                    formik.touched.promedio && formik.errors.promedio
-                      ? "border-[#E50505]"
-                      : ""
-                  }`}
-                />
-                {formik.touched.promedio && formik.errors.promedio ? (
-                  <div className="flex gap-1 text-[#E50505] text-[13px] font-poppins ">
-                    <img
-                      src="/icons/form/error.svg"
-                      width={18}
-                      height={18}
-                      alt="error"
-                    />
-                    {formik.errors.promedio}
-                  </div>
-                ) : null}
-              </div>
-
               <div className="flex flex-col gap-[2px] lg:w-[417px]">
                 <p className="text-greenPsique text-[16px] font-bold">
                   Localidad:
@@ -443,6 +417,36 @@ const FormEditPsychologist = ({ user, setEditMode, onBack }) => {
                       alt="error"
                     />
                     {formik.errors.codigo_postal}
+                  </div>
+                ) : null}
+              </div>
+              <div className="flex flex-col gap-[2px]">
+                <p className="text-greenPsique text-[16px] font-bold">
+                  Precio por hora:
+                </p>
+                <input
+                  type="number"
+                  id="precio"
+                  name="precio"
+                  placeholder="Ejemplo: 500.00"
+                  value={formik.values.precio}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  className={`h-[50px] border-b-[1px] border-[#75b781] placeholder:font-Muli lg:w-[417px] ${
+                    formik.touched.precio && formik.errors.precio
+                      ? "border-[#E50505]"
+                      : ""
+                  }`}
+                />
+                {formik.touched.precio && formik.errors.precio ? (
+                  <div className="flex gap-1 text-[#E50505] text-[13px] font-poppins">
+                    <img
+                      src="/icons/form/error.svg"
+                      width={18}
+                      height={18}
+                      alt="error"
+                    />
+                    {formik.errors.precio}
                   </div>
                 ) : null}
               </div>

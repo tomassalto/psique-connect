@@ -5,6 +5,8 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Storage;
 
 class SesionSeeder extends Seeder
 {
@@ -31,7 +33,8 @@ class SesionSeeder extends Seeder
         ];
 
         foreach ($relaciones as $relacion) {
-            $cantidadSesiones = rand(15, 45);
+            // Generar entre 10 y 30 sesiones por relación
+            $cantidadSesiones = rand(10, 30);
 
             for ($i = 0; $i < $cantidadSesiones; $i++) {
                 $fecha = fake()->dateTimeBetween(
@@ -40,14 +43,13 @@ class SesionSeeder extends Seeder
                     'America/Argentina/Buenos_Aires'
                 );
 
-                $hora = fake()->dateTimeBetween(
-                    '08:00:00',
-                    '20:00:00'
-                )->format('H:i:s');
+                $hora = fake()->time('H:i:s', '20:00:00');
 
                 $comentario = $comentarios[array_rand($comentarios)];
 
-                DB::table('sesion')->insert([
+                $isPagada = fake()->boolean(90); // 90% de las sesiones estarán pagadas
+
+                $sesionId = DB::table('sesion')->insertGetId([
                     'dni_paciente' => $relacion->dni_paciente,
                     'matricula_psicologo' => $relacion->matricula_psicologo,
                     'fecha' => $fecha->format('Y-m-d'),
@@ -55,10 +57,54 @@ class SesionSeeder extends Seeder
                     'comentario' => $comentario,
                     'presencial' => fake()->boolean(70),
                     'cancelado' => fake()->boolean(10),
+                    'pago' => $isPagada,
                     'created_at' => $fecha,
                     'updated_at' => $fecha,
                 ]);
+
+                if ($isPagada) {
+                    $this->generarComprobante($sesionId, $fecha);
+                }
             }
         }
+    }
+
+    private function generarComprobante($sesionId, $fechaPago)
+    {
+        // Obtener datos de la sesión con relaciones necesarias
+        $sesion = DB::table('sesion')
+            ->join('paciente', 'sesion.dni_paciente', '=', 'paciente.dni')
+            ->join('psicologo', 'sesion.matricula_psicologo', '=', 'psicologo.matricula')
+            ->where('sesion.id_sesion', $sesionId)
+            ->select(
+                'sesion.id_sesion',
+                'sesion.fecha',
+                'sesion.hora',
+                'paciente.nombre as paciente_nombre',
+                'paciente.apellido as paciente_apellido',
+                'psicologo.nombre as psicologo_nombre',
+                'psicologo.apellido as psicologo_apellido'
+            )
+            ->first();
+
+        if (!$sesion) {
+            return;
+        }
+
+        $pdf = Pdf::loadView('comprobantes.sesion', [
+            'sesion' => $sesion,
+            'fecha_pago' => $fechaPago->format('Y-m-d H:i:s'),
+            'monto' => 2000.00,
+            'payment_id' => 'MP-' . strtoupper(uniqid()),
+        ]);
+
+        $filename = 'comprobante_' . $sesionId . '.pdf';
+        $path = 'comprobantes/' . $filename;
+
+        Storage::disk('public')->put($path, $pdf->output());
+
+        DB::table('sesion')->where('id_sesion', $sesionId)->update([
+            'comprobante_path' => $path,
+        ]);
     }
 }

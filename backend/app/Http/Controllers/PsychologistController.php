@@ -41,6 +41,8 @@ class PsychologistController extends Controller
         $genero = $request->query('genero');
         $minAge = $request->query('minAge');
         $maxAge = $request->query('maxAge');
+        $minPrice = $request->query('minPrice');
+        $maxPrice = $request->query('maxPrice');
 
         $query = Psicologo::with(['patologias', 'corriente', 'tematica']);
 
@@ -69,7 +71,7 @@ class PsychologistController extends Controller
 
         if ($patologias) {
             $query->whereHas('patologias', function ($q) use ($patologias) {
-                $q->whereIn('id_patologia', $patologias);
+                $q->whereIn('patologia.id_patologia', $patologias);
             });
         }
 
@@ -83,6 +85,17 @@ class PsychologistController extends Controller
                 if ($maxAge) {
                     $maxDate = $today->copy()->subYears($maxAge)->startOfDay();
                     $q->where('fecha_nacimiento', '>=', $maxDate);
+                }
+            });
+        }
+
+        if ($minPrice || $maxPrice) {
+            $query->where(function ($q) use ($minPrice, $maxPrice) {
+                if ($minPrice) {
+                    $q->where('precio', '>=', $minPrice);
+                }
+                if ($maxPrice) {
+                    $q->where('precio', '<=', $maxPrice);
                 }
             });
         }
@@ -228,5 +241,27 @@ class PsychologistController extends Controller
             ->get();
 
         return response()->json($pacientes);
+    }
+
+    public function getPatologiasFrecuencia()
+    {
+        $psicologo = Auth::user();
+
+        $frecuenciaPatologias = DB::table('paciente_patologia')
+            ->join('psicologo_paciente', 'paciente_patologia.dni_paciente', '=', 'psicologo_paciente.dni_paciente')
+            ->join('patologia', 'paciente_patologia.id_patologia', '=', 'patologia.id_patologia')
+            ->where('psicologo_paciente.matricula_psicologo', $psicologo->matricula)
+            ->groupBy('patologia.id_patologia', 'patologia.nombre')
+            ->select('patologia.nombre', DB::raw('COUNT(*) as cantidad'))
+            ->orderByDesc('cantidad')
+            ->get();
+
+        return response()->json([
+            'frecuenciaPatologias' => $frecuenciaPatologias,
+            'psicologo' => [
+                'nombre' => $psicologo->nombre,
+                'apellido' => $psicologo->apellido,
+            ],
+        ]);
     }
 }

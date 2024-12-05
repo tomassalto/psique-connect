@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from "react";
 import Button from "./Button";
 
-const Filter = ({ onFilter, selectedFilters, setSelectedFilters }) => {
+const Filter = ({
+  onFilter,
+  selectedFilters,
+  setSelectedFilters,
+  clearAllFilters,
+}) => {
   const [searchTerm, setSearchTerm] = useState(
     selectedFilters.searchTerm || ""
   );
@@ -14,7 +19,24 @@ const Filter = ({ onFilter, selectedFilters, setSelectedFilters }) => {
   const [showPatologiasModal, setShowPatologiasModal] = useState(false);
 
   useEffect(() => {
-    // Fetch options for corrientes, tematicas, and patologias
+    if (clearAllFilters) {
+      setSearchTerm("");
+      setSelectedPatologias([]);
+      setSelectedFilters({
+        corriente: "",
+        tematica: "",
+        patologia: "",
+        searchTerm: "",
+        genero: "",
+        minAge: "",
+        maxAge: "",
+        minPrice: "",
+        maxPrice: "",
+      });
+    }
+  }, [clearAllFilters]);
+
+  useEffect(() => {
     const fetchOptions = async () => {
       try {
         const corrienteResponse = await fetch(
@@ -38,24 +60,24 @@ const Filter = ({ onFilter, selectedFilters, setSelectedFilters }) => {
     fetchOptions();
   }, []);
 
-  // Handle search
   const handleSearch = (e) => {
     e.preventDefault();
 
     const filters = {
-      searchTerm,
+      search: searchTerm,
       corriente: selectedFilters.corriente,
       tematica: selectedFilters.tematica,
-      patologias: selectedPatologias,
+      patologias: selectedPatologias.join(","),
       genero: selectedFilters.genero,
       minAge: selectedFilters.minAge,
       maxAge: selectedFilters.maxAge,
+      minPrice: selectedFilters.minPrice,
+      maxPrice: selectedFilters.maxPrice,
     };
 
-    onFilter(filters); // Send filters to the parent component
+    onFilter(filters);
   };
 
-  // Handle cambios en filtros
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setSelectedFilters((prevFilters) => ({
@@ -72,26 +94,11 @@ const Filter = ({ onFilter, selectedFilters, setSelectedFilters }) => {
     );
   };
 
-  const handleClearFilters = () => {
-    setSearchTerm("");
-    setSelectedFilters({
-      corriente: "",
-      tematica: "",
-      patologia: "",
-      searchTerm: "",
-      genero: "",
-      minAge: "",
-      maxAge: "",
-    });
-    setSelectedPatologias([]);
-    onFilter({}); // Send an empty filter object to reset results
-  };
-
   return (
-    <div className="filter-section">
+    <div className="filter-section flex items-center justify-center">
       <form
         onSubmit={handleSearch}
-        className="flex justify-center items-center gap-10 flex-wrap"
+        className="flex justify-center w-min items-center gap-4 flex-wrap lg:gap-6 sm:flex-col"
       >
         <input
           type="text"
@@ -99,14 +106,14 @@ const Filter = ({ onFilter, selectedFilters, setSelectedFilters }) => {
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           placeholder="Buscar psicólogo por nombre o matrícula"
-          className="truncate border-[1px] border-greenPsique p-2 h-[48px]"
+          className="truncate border-[1px] border-greenPsique p-2 h-[48px] w-full"
         />
 
         <select
           name="corriente"
           value={selectedFilters.corriente || ""}
           onChange={handleInputChange}
-          className="truncate border-[1px] border-greenPsique p-2 h-[48px]"
+          className="truncate border-[1px] border-greenPsique p-2 h-[48px] w-full"
         >
           <option value="">Seleccione corriente</option>
           {corrientes.map((corriente) => (
@@ -120,7 +127,7 @@ const Filter = ({ onFilter, selectedFilters, setSelectedFilters }) => {
           name="tematica"
           value={selectedFilters.tematica || ""}
           onChange={handleInputChange}
-          className="truncate border-[1px] border-greenPsique p-2 h-[48px]"
+          className="truncate border-[1px] border-greenPsique p-2 h-[48px] w-full"
         >
           <option value="">Seleccione temática</option>
           {tematicas.map((tematica) => (
@@ -129,30 +136,47 @@ const Filter = ({ onFilter, selectedFilters, setSelectedFilters }) => {
             </option>
           ))}
         </select>
-
-        <input
-          type="number"
-          name="minAge"
-          placeholder="Edad mínima"
-          value={selectedFilters.minAge || ""}
-          onChange={handleInputChange}
-          className="truncate border-[1px] border-greenPsique p-2 h-[48px] w-[100px]"
-        />
-
-        <input
-          type="number"
-          name="maxAge"
-          placeholder="Edad máxima"
-          value={selectedFilters.maxAge || ""}
-          onChange={handleInputChange}
-          className="truncate border-[1px] border-greenPsique p-2 h-[48px] w-[100px]"
-        />
-
+        <div className="flex flex-col lg:flex-row gap-2">
+          <input
+            type="number"
+            name="minAge"
+            placeholder="Edad mínima"
+            value={selectedFilters.minAge || ""}
+            onChange={handleInputChange}
+            className="truncate border-[1px] border-greenPsique p-2 h-[48px] w-full"
+          />
+          <input
+            type="number"
+            name="maxAge"
+            placeholder="Edad máxima"
+            value={selectedFilters.maxAge || ""}
+            onChange={handleInputChange}
+            className="truncate border-[1px] border-greenPsique p-2 h-[48px] w-full"
+          />
+        </div>
+        <div className="flex flex-col lg:flex-row gap-2">
+          <input
+            type="number"
+            name="minPrice"
+            placeholder="Precio mínimo"
+            value={selectedFilters.minPrice || ""}
+            onChange={handleInputChange}
+            className="truncate border-[1px] border-greenPsique p-2 h-[48px] w-full"
+          />
+          <input
+            type="number"
+            name="maxPrice"
+            placeholder="Precio máximo"
+            value={selectedFilters.maxPrice || ""}
+            onChange={handleInputChange}
+            className="truncate border-[1px] border-greenPsique p-2 h-[48px] w-full"
+          />
+        </div>
         <select
           name="genero"
           value={selectedFilters.genero || ""}
           onChange={handleInputChange}
-          className="truncate border-[1px] border-greenPsique p-2 h-[48px]"
+          className="truncate border-[1px] border-greenPsique p-2 h-[48px] w-full"
         >
           <option value="">Seleccione género</option>
           <option value="Masculino">Masculino</option>
