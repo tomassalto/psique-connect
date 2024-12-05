@@ -54,7 +54,13 @@ const Calificaciones = ({ matricula }) => {
           }
         );
         const data = await response.json();
-        setRatings(data.ratings);
+        
+        // Ordena las calificaciones por la fecha más reciente
+        const sortedRatings = data.ratings.sort((a, b) => {
+          return new Date(b.created_at) - new Date(a.created_at);
+        });
+
+        setRatings(sortedRatings);
         setAverage(data.average);
         setPsychologist(data.psychologist);
       } catch (error) {
@@ -106,6 +112,18 @@ const Calificaciones = ({ matricula }) => {
                 <strong>Comentario:</strong> {rating.comentario}
               </p>
             )}
+            <p>
+              <strong>Publicado el:</strong>{" "}
+              {new Date(rating.created_at).toLocaleDateString(
+                "es-AR",
+                { year: "numeric", month: "long", day: "numeric" }
+              )}
+              <strong> a las: </strong>
+              {new Date(rating.created_at).toLocaleTimeString(
+                "es-AR",
+                { hour: "2-digit", minute: "2-digit" }
+              )}
+            </p>
           </li>
         ))}
       </ul>
