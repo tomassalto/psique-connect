@@ -24,7 +24,7 @@ const FormEditPatient = ({ user, setEditMode, onBack }) => {
         const response = await fetch(
           "http://127.0.0.1:8000/api/update-patient",
           {
-            method: "PUT",
+            method: "POST",
             headers: {
               Authorization: `Bearer ${token}`,
               "Content-Type": "application/json",
@@ -33,7 +33,7 @@ const FormEditPatient = ({ user, setEditMode, onBack }) => {
           }
         );
         if (response.status === 201) {
-          toast.success("¡Paciente registrado con éxito!", {
+          toast.success("¡Datos modificado con éxito!", {
             position: "bottom-center",
             autoClose: 3000,
             hideProgressBar: false,
@@ -48,7 +48,7 @@ const FormEditPatient = ({ user, setEditMode, onBack }) => {
             window.location = "/perfil";
           }, 3000);
         } else {
-          toast.error("Error al registrar el paciente. Intenta de nuevo.", {
+          toast.error("Error al modificar los datos. Intenta de nuevo.", {
             position: "bottom-center",
             autoClose: 5000,
             hideProgressBar: false,

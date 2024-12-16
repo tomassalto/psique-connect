@@ -16,11 +16,12 @@ return new class extends Migration
             $table->string('nombre', 50);
             $table->string('apellido', 50);
             $table->string('telefono', 20);
-            $table->decimal('promedio', 3, 2);
+            $table->decimal('promedio', 3, 2)->nullable();
             $table->bigInteger('codigo_postal');
             $table->string('genero');
             $table->date('fecha_nacimiento');
             $table->string('foto')->nullable();
+            $table->decimal('precio', 8, 2)->nullable();
             $table->unsignedBigInteger('id_tematica');
             $table->unsignedBigInteger('id_corriente');
             $table->string('email')->unique();

@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Hash;
 use App\Models\Paciente;
 use App\Models\Patologia;
 use Spatie\Permission\Models\Role;
+use Faker\Factory as Faker;
 
 class PacienteSeeder extends Seeder
 {
@@ -16,16 +17,21 @@ class PacienteSeeder extends Seeder
      */
     public function run()
     {
+        $faker = Faker::create('es_AR');
         $role = Role::firstOrCreate(['name' => 'paciente', 'guard_name' => 'web']);
-
         $patologias = Patologia::all();
 
         for ($i = 1; $i <= 30; $i++) {
+            $nombre = $faker->firstName;
+            $apellido = $faker->lastName;
+            $nombreNormalizado = $this->normalizarTexto($nombre);
+            $apellidoNormalizado = $this->normalizarTexto($apellido);
+
             $paciente = Paciente::create([
                 'dni' => fake()->unique()->numberBetween(10000000, 99999999),
-                'nombre' => fake()->firstName,
-                'apellido' => fake()->lastName,
-                'email' => fake()->unique()->safeEmail,
+                'nombre' =>  $nombre,
+                'apellido' => $apellido,
+                'email' => "{$nombreNormalizado}_{$apellidoNormalizado}@mail.com",
                 'password' => Hash::make('tomastomas'),
                 'onboarding' => fake()->boolean,
             ]);
@@ -53,5 +59,17 @@ class PacienteSeeder extends Seeder
                 ]);
             }
         }
+    }
+    private function normalizarTexto($texto)
+    {
+        $texto = strtolower($texto);
+        $texto = preg_replace('/\s+/', '_', $texto);
+        $texto = str_replace(
+            ['á', 'é', 'í', 'ó', 'ú', 'ñ', 'Á', 'É', 'Í', 'Ó', 'Ú', 'Ñ'],
+            ['a', 'e', 'i', 'o', 'u', 'n', 'a', 'e', 'i', 'o', 'u', 'n'],
+            $texto
+        );
+        $texto = preg_replace('/[^a-z0-9_]/', '', $texto);
+        return $texto;
     }
 }

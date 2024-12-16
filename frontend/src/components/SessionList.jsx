@@ -74,10 +74,12 @@ const SessionList = ({ variant = "list" }) => {
           ))}
         </ul>
       ) : (
-        <p className="text-3xl text-red-600 font-Muli text-center">
-          No hay sesiones programadas para hoy.
+        <>
+          <p className="text-3xl text-red-600 font-Muli text-center">
+            No hay sesiones programadas para hoy.
+          </p>
           <img src="../../../images/without_data/pic.png"></img>
-        </p>
+        </>
       )}
       {variant === "list" && (
         <div className="flex flex-col gap-10 items-center">

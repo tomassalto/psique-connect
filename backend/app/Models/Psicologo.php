@@ -27,10 +27,15 @@ class Psicologo extends Authenticatable
         'genero',
         'fecha_nacimiento',
         'foto',
+        'precio',
         'id_tematica',
         'id_corriente',
         'email',
         'password',
+    ];
+
+    protected $attributes = [
+        'promedio' => null,
     ];
     public function setNombreAttribute($value)
     {

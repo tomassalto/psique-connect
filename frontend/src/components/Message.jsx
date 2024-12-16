@@ -7,7 +7,7 @@ const Messages = () => {
   const [selectedMessage, setSelectedMessage] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [takenPatients, setTakenPatients] = useState([]); // Para almacenar los pacientes ya tomados
+  const [takenPatients, setTakenPatients] = useState([]);
 
   useEffect(() => {
     const fetchMessages = async () => {
@@ -42,7 +42,7 @@ const Messages = () => {
       try {
         const token = localStorage.getItem("token");
         const response = await fetch(
-          "http://127.0.0.1:8000/api/mis-pacientes", // Suponiendo que esta ruta te da los pacientes ya tomados
+          "http://127.0.0.1:8000/api/mis-pacientes",
           {
             headers: {
               "Content-Type": "application/json",
@@ -51,7 +51,7 @@ const Messages = () => {
           }
         );
         const data = await response.json();
-        setTakenPatients(data); // Almacenamos los pacientes ya tomados
+        setTakenPatients(data);
       } catch (error) {
         console.error("Error al obtener los pacientes tomados:", error);
       }
@@ -116,7 +116,7 @@ const Messages = () => {
   };
 
   const isPatientTaken = (dni_paciente) => {
-    return takenPatients.some(patient => patient.dni === dni_paciente); // Verifica si el paciente ya está en la lista
+    return takenPatients.some((patient) => patient.dni === dni_paciente); // Verifica si el paciente ya está en la lista
   };
 
   if (loading) {
@@ -135,6 +135,20 @@ const Messages = () => {
               key={message.id_mensaje || index}
               className="p-4 border mb-4 rounded-lg shadow-md relative"
             >
+              <p className="text-base">
+                <strong>Fecha:</strong>{" "}
+                {new Date(message.created_at).toLocaleDateString("es-AR", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })}
+                {" | "}
+                <strong>Hora:</strong>{" "}
+                {new Date(message.created_at).toLocaleTimeString("es-AR", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              </p>
               <div className="flex items-center gap-2">
                 <p className="flex-1">
                   <strong>Paciente:</strong> {message.paciente.nombre}{" "}
@@ -200,7 +214,9 @@ const Messages = () => {
               {/* Verifica si el paciente ya ha sido tomado */}
               {!isPatientTaken(selectedMessage.paciente.dni) && (
                 <button
-                  onClick={() => handleTakePatient(selectedMessage.paciente.dni)}
+                  onClick={() =>
+                    handleTakePatient(selectedMessage.paciente.dni)
+                  }
                   className="mt-4 bg-[#75B781] text-white px-4 py-2 rounded"
                 >
                   Tomar Paciente

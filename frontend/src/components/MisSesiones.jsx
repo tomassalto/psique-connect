@@ -49,7 +49,6 @@ const MisSesiones = () => {
     } finally {
       setLoading(false);
     }
-   
   };
 
   const fetchHistorialSesiones = async (matriculaPsicologo) => {
@@ -208,27 +207,26 @@ const MisSesiones = () => {
                           {new Date(sesion.fecha_pago).toLocaleString()}
                         </p>
                       )}
-                       <div className="flex gap-2">
-                {!sesion.pago && !sesion.cancelado ? (
-                  <Button
-                    text="Pagar Sesion"
-                    color="primary"
-                    onClick={() => handlePago(sesion.id_sesion)}
-                    className="bg-greenPsique text-white px-4 py-2 rounded"
-                    disabled={processingPayment}
-                  />
-                ) : null}
-                {sesion.pago && sesion.comprobante_path ? (
-                  <Button
-                    text="Comprobante"
-                    onClick={() => verComprobante(sesion.id_sesion)}
-                    className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
-                  />
-                ) : null}
-              </div>
+                      <div className="flex gap-2">
+                        {!sesion.pago && !sesion.cancelado ? (
+                          <Button
+                            text="Pagar Sesion"
+                            color="primary"
+                            onClick={() => handlePago(sesion.id_sesion)}
+                            className="bg-greenPsique text-white px-4 py-2 rounded"
+                            disabled={processingPayment}
+                          />
+                        ) : null}
+                        {sesion.pago && sesion.comprobante_path ? (
+                          <Button
+                            text="Comprobante"
+                            onClick={() => verComprobante(sesion.id_sesion)}
+                            className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+                          />
+                        ) : null}
+                      </div>
                     </div>
                   ))}
-                  
                 </div>
               )}
             </div>

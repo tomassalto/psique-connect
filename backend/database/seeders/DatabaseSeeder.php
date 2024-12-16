@@ -23,6 +23,9 @@ class DatabaseSeeder extends Seeder
             PacienteSeeder::class,
             PsicologoSeeder::class,
             PsicologoPacienteSeeder::class,
+            PreferenciasSeeder::class,
+            MatchSeeder::class,
+            MensajeSeeder::class,
             SesionSeeder::class,
             CalificacionSeeder::class,
         ]);

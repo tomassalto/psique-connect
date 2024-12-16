@@ -59,6 +59,14 @@ const MatchPsicologos = () => {
     return age;
   };
 
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat("es-AR", {
+      style: "currency",
+      currency: "ARS",
+      minimumFractionDigits: 0,
+    }).format(price);
+  };
+
   return (
     <section className="flex flex-col gap-[30px] justify-center items-center pt-[120px] pb-[70px]">
       {loading ? (
@@ -89,7 +97,7 @@ const MatchPsicologos = () => {
                                     )}`
                                   : `http://127.0.0.1:8000/storage/${psicologo.foto}`
                               }
-                              alt={`Foto de ${psicologo.nombre}`}
+                              alt={`Foto de ${psicologo.nombre}`} // Comillas invertidas para interpolación
                               className="h-[350px] w-full object-cover rounded-lg"
                             />
                           </div>
@@ -114,6 +122,10 @@ const MatchPsicologos = () => {
                               <strong>Matrícula:</strong> {psicologo.matricula}
                             </p>
                             <p>
+                              <strong>Precio por hora:</strong>{" "}
+                              {formatPrice(psicologo.precio)}
+                            </p>
+                            <p>
                               <strong>Patologías:</strong>{" "}
                               {psicologo.patologias
                                 .map((p) => p.nombre)
@@ -132,8 +144,9 @@ const MatchPsicologos = () => {
                       </div>
                       <div className="flex flex-col gap-5">
                         <Button
-                          onClick={() =>
-                            (window.location.href = `/calificaciones/${psicologo.matricula}`)
+                          onClick={
+                            () =>
+                              (window.location.href = `/calificaciones/${psicologo.matricula}`) // Comillas invertidas para interpolación
                           }
                           color="secondary"
                           text="Ver Calificaciones"

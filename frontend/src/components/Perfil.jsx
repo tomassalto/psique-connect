@@ -37,8 +37,19 @@ const Perfil = () => {
   }, []);
 
   const formatDate = (dateString) => {
-    const [year, month, day] = dateString.split("-");
-    return `${day}/${month}/${year}`; // Cambiar el formato a dd/mm/yyyy
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
+
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat("es-AR", {
+      style: "currency",
+      currency: "ARS",
+      minimumFractionDigits: 0,
+    }).format(price);
   };
 
   return (
@@ -111,8 +122,14 @@ const Perfil = () => {
                         <p className="text-[20px]">
                           <strong>Teléfono:</strong> {user.telefono}
                         </p>
+                        {user.promedio ? (
+                          <p className="text-[20px]">
+                            <strong>Promedio:</strong> {user.promedio}
+                          </p>
+                        ) : null}
                         <p className="text-[20px]">
-                          <strong>Promedio:</strong> {user.promedio}
+                          <strong>Precio por hora:</strong>{" "}
+                          {formatPrice(user.precio)}
                         </p>
                         <div className="text-[20px]">
                           <strong>Patologías que trata:</strong>

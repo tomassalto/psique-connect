@@ -52,16 +52,25 @@ export const registerPsychologistSchema = Yup.object({
       return supportedFormats.includes(value.type);
     }),
   genero: Yup.string()
-    .oneOf(["masculino", "femenino"], "Género es requerido")
+    .oneOf(["Masculino", "Femenino"], "Género es requerido")
     .required("Género es requerido"),
   fecha_nacimiento: Yup.date()
     .required("Fecha de nacimiento es requerida")
-    .nullable(),
-  promedio: Yup.number()
-    .min(0, "El promedio debe ser mayor o igual a 0")
-    .max(10, "El promedio debe ser menor o igual a 10")
-    .required("Promedio es requerido"),
+    .nullable()
+    .test("es-mayor-de-edad", "Debes tener al menos 18 años", (value) => {
+      if (!value) return false;
+      const hoy = new Date();
+      const fechaNacimiento = new Date(value);
+      const edad = hoy.getFullYear() - fechaNacimiento.getFullYear();
+      const mes = hoy.getMonth() - fechaNacimiento.getMonth();
+      const dia = hoy.getDate() - fechaNacimiento.getDate();
+      return edad > 18 || (edad === 18 && (mes > 0 || (mes === 0 && dia >= 0)));
+    }),
   codigo_postal: Yup.string().required("Código postal es requerido"),
+  precio: Yup.number()
+    .required("El precio es requerido")
+    .min(0, "El precio no puede ser negativo")
+    .max(100000, "El precio no puede ser mayor a 10000"),
   id_tematica: Yup.string().required("Temática es requerida"),
   patologias: Yup.array()
     .min(1, "Debe seleccionar al menos una patología")
@@ -108,25 +117,21 @@ export const editPsychologist = Yup.object({
     .required("Teléfono es requerido"),
   foto: Yup.mixed()
     .nullable()
-    .test("fileSize", "El archivo es demasiado grande", (value) => {
-      if (!value) return true;
-      return value.size <= 2 * 1024 * 1024;
-    })
     .test("fileType", "Formato de imagen no válido", (value) => {
-      if (!value) return true;
+      if (!value || typeof value === "string") return true; // Permitir fotos existentes o vacías
       const supportedFormats = ["image/jpg", "image/jpeg", "image/png"];
       return supportedFormats.includes(value.type);
+    })
+    .test("fileSize", "El archivo es demasiado grande", (value) => {
+      if (!value || typeof value === "string") return true; // Permitir fotos existentes o vacías
+      return value.size <= 2 * 1024 * 1024; // Máximo 2MB
     }),
   genero: Yup.string()
-    .oneOf(["masculino", "femenino"], "Género es requerido")
+    .oneOf(["Masculino", "Femenino"], "Género es requerido")
     .required("Género es requerido"),
   fecha_nacimiento: Yup.date()
     .required("Fecha de nacimiento es requerida")
     .nullable(),
-  promedio: Yup.number()
-    .min(0, "El promedio debe ser mayor o igual a 0")
-    .max(10, "El promedio debe ser menor o igual a 10")
-    .required("Promedio es requerido"),
   codigo_postal: Yup.string().required("Código postal es requerido"),
   id_tematica: Yup.string().required("Temática es requerida"),
   patologias: Yup.array()
