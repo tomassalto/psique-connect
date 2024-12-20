@@ -45,10 +45,6 @@ const Header = ({ currentPath }) => {
     };
 
     fetchUnreadMessages();
-
-    const interval = setInterval(fetchUnreadMessages, 10000);
-
-    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {

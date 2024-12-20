@@ -1,4 +1,3 @@
-import React from "react";
 import ourBlogData from "../data/our_blog.json";
 import featuredCardData from "../data/featured_card.json";
 import Slider from "./Slider";

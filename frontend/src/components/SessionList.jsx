@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Loader from "./Loader";
 import Button from "./Button";
 const SessionList = ({ variant = "list" }) => {

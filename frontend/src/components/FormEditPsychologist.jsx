@@ -1,4 +1,3 @@
-import React from "react";
 import { useState, useEffect } from "react";
 import { useFormik } from "formik";
 import { editPsychologist } from "../schemas/index";
@@ -6,7 +5,7 @@ import Button from "./Button";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-const FormEditPsychologist = ({ user, setEditMode, onBack }) => {
+const FormEditPsychologist = ({ user, onBack }) => {
   const [codigoPostales, setCodigoPostales] = useState([]);
   const [tematicas, setTematicas] = useState([]);
   const [patologias, setPatologias] = useState([]);

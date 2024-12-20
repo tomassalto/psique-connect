@@ -1,11 +1,10 @@
-import React from "react";
 import { useFormik } from "formik";
 import { editPatient } from "../schemas/index";
 import Button from "./Button";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-const FormEditPatient = ({ user, setEditMode, onBack }) => {
+const FormEditPatient = ({ user, onBack }) => {
   const handleBack = () => {
     onBack();
   };

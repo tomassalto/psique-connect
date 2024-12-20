@@ -7,7 +7,6 @@ import Button from "./Button";
 const Perfil = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [editMode, setEditMode] = useState(false);
 
   const fetchProfile = async () => {
@@ -26,7 +25,6 @@ const Perfil = () => {
       const data = await response.json();
       setUser(data);
     } catch (err) {
-      setError(err.message);
     } finally {
       setLoading(false);
     }
