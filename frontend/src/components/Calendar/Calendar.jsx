@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Calendar, dateFnsLocalizer } from "react-big-calendar";
 import Loader from "../Loader";
 import moment from "moment";
@@ -64,7 +64,6 @@ const MyCalendar = () => {
   const [detailsModalVisible, setDetailsModalVisible] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [newEventComment, setNewEventComment] = useState("");
-  const [newEventTitle, setNewEventTitle] = useState("");
   const [newEventDNI, setNewEventDNI] = useState("");
   const [newEventDate, setNewEventDate] = useState(
     moment().format("YYYY-MM-DD")
@@ -142,7 +141,6 @@ const MyCalendar = () => {
   const handleSelect = ({ start }) => {
     setCreateModalVisible(true);
     setNewEventDNI("");
-    setNewEventTitle("");
     setNewEventDate(moment(start).format("YYYY-MM-DD"));
     setNewEventTime(moment(start).format("HH:mm"));
   };

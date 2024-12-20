@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { toastService } from "../services/toastService";
 import Loader from "./Loader";
 import Button from "./Button";
@@ -35,7 +35,7 @@ const MisSesiones = () => {
     }
   };
 
-  const fetchPsicologosData = async (sesiones) => {
+  const fetchPsicologosData = async () => {
     try {
       const response = await fetch("http://127.0.0.1:8000/api/mis-psicologos", {
         headers: {

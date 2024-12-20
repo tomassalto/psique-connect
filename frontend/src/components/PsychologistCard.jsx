@@ -11,7 +11,7 @@ const PsychologistCard = () => {
   const [selectedPsicologo, setSelectedPsicologo] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [filteredPsicologos, setFilteredPsicologos] = useState([]);
-  const [clearFiltersTrigger, setClearFiltersTrigger] = useState(false); // Trigger para limpiar filtros
+  const [clearFiltersTrigger, setClearFiltersTrigger] = useState(false);
   const [selectedFilters, setSelectedFilters] = useState({
     corriente: "",
     tematica: "",
@@ -32,8 +32,8 @@ const PsychologistCard = () => {
       minAge: "",
       maxAge: "",
     });
-    setClearFiltersTrigger((prev) => !prev); // Activa la limpieza
-    fetchPsychologists({}); // Reinicia la búsqueda
+    setClearFiltersTrigger((prev) => !prev);
+    fetchPsychologists({});
   };
 
   useEffect(() => {
@@ -66,7 +66,7 @@ const PsychologistCard = () => {
         console.error("Error fetching user data:", error);
       });
 
-    fetchPsychologists({}); // Carga inicial
+    fetchPsychologists({});
   }, []);
 
   const fetchPsychologists = async (filters = {}) => {
@@ -143,6 +143,7 @@ const PsychologistCard = () => {
       ) : (
         <>
           <div className="w-[350px] h-[400px] mac:w-[400px] flex flex-col gap-4 sm:sticky top-32  sm:h-[900px] overflow-y-auto bg-white shadow-lg">
+            {user && <h1 className="hidden">Bienvenido, {user.nombre}</h1>}
             <Filter
               onFilter={(filters) => {
                 const sanitizedFilters = prepareFilters(filters);
@@ -163,7 +164,7 @@ const PsychologistCard = () => {
             </div>
           </div>
           <div className="flex flex-col items-center ">
-            {psicologos.length === 0 ? (
+            {filteredPsicologos.length === 0 ? (
               <p className="text-3xl text-red-600 font-Muli text-center">
                 No hay psicólogos registrados en el sistema.
               </p>

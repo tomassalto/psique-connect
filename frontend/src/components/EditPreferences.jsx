@@ -1,116 +1,7 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import OnBoarding from "./OnBoarding";
 import Loader from "./Loader";
 import Button from "./Button";
-
-const questions = [
-  {
-    title: "¿Qué tipo de modalidad prefieres?",
-    options: [
-      { label: "Online", value: "Online" },
-      { label: "Presencial", value: "Presencial" },
-      { label: "Ambas", value: "Ambas" },
-    ],
-    key: "tematica",
-    type: "single",
-  },
-  {
-    title: "¿Qué esperas de tu terapia?",
-    options: [
-      {
-        label: "Que intervengan y me guíen activamente",
-        value: "Intervencion activa",
-      },
-      {
-        label: "Que me escuchen y apoyen sin juzgarme",
-        value: "Escucha y apoyo",
-      },
-      { label: "No estoy seguro/a", value: "Indiferente" },
-    ],
-    key: "corriente",
-    type: "single",
-  },
-  {
-    title:
-      "¿Con qué de estas situaciones o sentimientos te identificas más en este momento?",
-    options: [
-      {
-        label: "Me siento triste o desmotivado la mayor parte del tiempo",
-        value: "Depresión",
-      },
-      {
-        label: "Siento nerviosismo constante o me cuesta relajarme",
-        value: "Ansiedad",
-      },
-      {
-        label: "Tengo miedos intensos o ataques de pánico",
-        value: "Trastorno de pánico",
-      },
-      {
-        label: "Mis emociones cambian drásticamente de un momento a otro",
-        value: "Trastorno bipolar",
-      },
-      {
-        label: "A veces escucho o percibo cosas que otros no ven",
-        value: "Esquizofrenia",
-      },
-      {
-        label:
-          "Tengo pensamientos repetitivos y me cuesta dejar de hacer ciertas cosas",
-        value: "TOC (Trastorno Obsesivo Compulsivo)",
-      },
-      {
-        label: "Me cuesta concentrarme o mantener mi atención en tareas",
-        value: "TDAH (Déficit de Atención e Hiperactividad)",
-      },
-    ],
-    key: "situacionesActuales",
-    type: "multiple",
-  },
-  {
-    title: "¿Con qué situaciones sientes que necesitas más ayuda?",
-    options: [
-      {
-        label: "Dificultad para enfrentar cambios o pérdidas en mi vida",
-        value: "Duelo patológico",
-      },
-      {
-        label: "Siento miedo extremo en lugares abiertos o llenos de gente",
-        value: "Agorafobia",
-      },
-      {
-        label: "Me cuesta conectar con otras personas o confiar en ellas",
-        value: "Trastornos de apego",
-      },
-      {
-        label: "A veces siento que no soy yo mismo o que mi entorno es irreal",
-        value: "Trastorno de despersonalización",
-      },
-    ],
-    key: "necesidadesAyuda",
-    type: "multiple",
-  },
-  {
-    title: "¿Qué te gustaría mejorar o resolver en tu vida ahora mismo?",
-    options: [
-      {
-        label: "Sentirme más tranquilo/a y en control de mis emociones",
-        value: "Ansiedad",
-      },
-      {
-        label: "Dejar de sentirme atrapado/a en pensamientos negativos",
-        value: "Depresión",
-      },
-      {
-        label: "Mejorar mi relación conmigo mismo/a o con los demás",
-        value: "Trastornos de apego",
-      },
-      { label: "Superar un miedo o una experiencia difícil", value: "Fobias" },
-    ],
-    key: "objetivosMejorar",
-    type: "multiple",
-  },
-];
 
 const EditPreferences = () => {
   const [preferences, setPreferences] = useState(null);
@@ -173,23 +64,6 @@ const EditPreferences = () => {
     fetchPreferences(dni);
   };
 
-  const getLabelForValue = (key, value) => {
-    const question = questions.find((q) => q.key === key);
-    if (!question) return null;
-
-    // Si es una lista separada por comas, procesa cada valor
-    if (Array.isArray(value)) {
-      return value
-        .map((v) => {
-          const option = question.options.find((o) => o.value === v);
-          return option ? option.label : v;
-        })
-        .join(", ");
-    }
-
-    const option = question.options.find((o) => o.value === value);
-    return option ? option.label : value;
-  };
   if (loading) {
     return <Loader />;
   }

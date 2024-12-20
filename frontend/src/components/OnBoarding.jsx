@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { toastService } from "../services/toastService";
 
 const OnBoarding = ({ onComplete }) => {

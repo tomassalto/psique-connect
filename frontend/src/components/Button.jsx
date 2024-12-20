@@ -1,4 +1,10 @@
-const Button = ({ text, color, disabled, type = "button", onClick }) => {
+const Button = ({
+  text,
+  color,
+  disabled = false,
+  type = "button",
+  onClick,
+}) => {
   return (
     <button
       type={type}

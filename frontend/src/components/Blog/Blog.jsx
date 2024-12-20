@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import Slider from "../Slider";
 import ourBlogData from "../../data/our_blog.json";
 import featuredCardData from "../../data/featured_card.json";

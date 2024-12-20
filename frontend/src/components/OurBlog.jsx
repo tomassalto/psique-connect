@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import Button from "./Button.jsx";
 import CardOurBlog from "./CardOurBlog.jsx";
 import our_blog_data from "../data/our_blog.json";

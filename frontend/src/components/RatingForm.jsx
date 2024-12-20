@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useFormik } from "formik";
 import { ratingSchema } from "../schemas";
 import { toastService } from "../services/toastService";
